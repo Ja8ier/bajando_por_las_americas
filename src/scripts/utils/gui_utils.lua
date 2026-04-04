@@ -1,6 +1,7 @@
 -- en este archivo van los metodos que modifican la funcionalidad de un objeto (boton, texto, personaje...)  
 
 local Utils = {}
+local utf8 = require("utf8")
 
 Utils.center_title_x = 0
 Utils.font_title = nil
@@ -10,6 +11,8 @@ Utils.button_width = 0
 Utils.button_height = 0
 Utils.border_radius = 0
 Utils.text_title = "Bajando por las Americas"
+Utils.text_input = ""
+Utils.writing = true
 
 function Utils.Resize_scale(opcion, factor)
     if opcion == 1 then
@@ -24,24 +27,24 @@ function Utils.Resize_scale(opcion, factor)
 
 end
 
-function Utils.Resize_dimentions_btn()
-    Utils.button_width = (love.graphics.getWidth()*200)/1280
-    Utils.button_height = (love.graphics.getHeight()*50)/720
+function Utils.Resize_dimentions_btn(w, h, br)
+    Utils.button_width = (love.graphics.getWidth()*w)/1280
+    Utils.button_height = (love.graphics.getHeight()*h)/720
     Utils.center_btn_x = (love.graphics.getWidth() - Utils.button_width)/2
-    Utils.border_radius = (15*love.graphics.getWidth())/1280
+    Utils.border_radius = (br*love.graphics.getWidth())/1280
+end
+
+function Utils.Resize_dimentions_title(text)
+    Utils.center_title_x = (love.graphics.getWidth() - Utils.font_title:getWidth(text))/2
 
 end
 
-function Utils.Resize_dimentions_title()
-    Utils.center_title_x = (love.graphics.getWidth() - Utils.font_title:getWidth(Utils.text_title))/2
+function Utils.Font_update(font_size_btn, font_size_title)
 
-end
-
-function Utils.Font_update()
-
-    local scale = love.graphics.getWidth() / 1280
-    local new_size_btn = math.floor(24 * scale)
-    local new_size_title = math.floor(50 * scale)
+    local fs_btn = font_size_btn or 24
+    local fs_title = font_size_title or 50
+    local new_size_btn = Utils.Resize_scale(1, fs_btn)
+    local new_size_title = Utils.Resize_scale(1, fs_title)
 
     if new_size_btn < 1 then new_size_btn = 1 end
     if new_size_title < 1 then new_size_title = 1 end
@@ -52,14 +55,25 @@ function Utils.Font_update()
     Utils.font_title:setFilter("nearest", "nearest")
 end
 
-function Utils.Search_opacity(up_y, down_y)
+function Utils.Search_opacity(left_x, right_x, up_y, down_y, active)
 
-    if Cursor_position_x > Utils.center_btn_x and Cursor_position_x < Utils.center_btn_x + Utils.button_width and 
-        Cursor_position_y > up_y and Cursor_position_y < down_y then
-        return 1
+    if active then
+
+        if Cursor_position_x > left_x and Cursor_position_x < right_x and
+            Cursor_position_y > up_y and Cursor_position_y < down_y then
+            return 1
+        end
+        return 0.5
     end
 
     return 0.5
+end
+
+function Utils.Tint(r, g, b, percent)
+    local nr = r + (1 - r) * percent
+    local ng = g + (1 - g) * percent
+    local nb = b + (1 - b) * percent
+    return nr, ng, nb
 end
 
 function Utils.IsHovering(x, y)
@@ -85,6 +99,31 @@ function Utils.IsHovering(x, y)
     end
 
     return 0
+end
+
+function Utils.cursor()
+    
+end
+
+function Utils.textinput(t)
+    local font = love.graphics.getFont()
+
+    if font:getWidth(Utils.text_input) < Space_max_for_write - font:getWidth(t) and Tbx_active[1] then
+        Utils.text_input = Utils.text_input .. t
+
+    end
+end
+
+function Utils.keypressed(key)
+    if key == "backspace" then
+
+        Utils.writing = not Utils.writing
+
+        local byteoffset = utf8.offset(Utils.text_input, -1)
+        if byteoffset then
+            Utils.text_input = string.sub(Utils.text_input, 1, byteoffset - 1)
+        end
+    end
 end
 
 return Utils

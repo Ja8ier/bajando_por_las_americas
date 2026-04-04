@@ -6,23 +6,24 @@ Cursor_position_x = 0; Cursor_position_y = 0
 -- esto son como importaciones: es como llamar una intancias de otro archivo, pero tienes acceso a las variables
 -- originales, no copias
 local settings = require("src.scripts.states.settings")
-local utils = require("src.scripts.utils.gui_utils")
+local exit = require("src.scripts.states.exit")
 local gui = require("src.scripts.gui.gui")
 
 --variables locales
 local sprite_Background_menu
+local active = true
 
 menu.Show_settings = false
+menu.Show_exit = false
 
 function menu.load()
 
     love.graphics.setDefaultFilter("nearest", "nearest")
 
-    utils.font_title = love.graphics.newFont("assets/fonts/m04.TTF", 50)
+    gui.utils.font_title = love.graphics.newFont("assets/fonts/m04.TTF", 50)
 
-    utils.Font_update()
-    utils.Resize_dimentions_title()
-    utils.Resize_dimentions_btn()
+    gui.utils.Font_update()
+    gui.utils.Resize_dimentions_btn(200, 50, 15)
 
     sprite_Background_menu = love.graphics.newImage("assets/sprites/Menu_Background.png")
 
@@ -30,19 +31,19 @@ end
 
 function menu.resize(w, h)
 
-    utils.Font_update()
-    utils.Resize_dimentions_btn()
-    utils.Resize_dimentions_title()
+    gui.utils.Font_update()
+    gui.utils.Resize_dimentions_btn(200, 50, 15)
+    settings.resize(w, h)
+    exit.resize(w, h)
 
 end
 
 function menu.update(dt)
 
     if menu.Show_settings then
-        settings.update(dt)
+        -- solo entra aqui si las configuraciones estan abiertas
     else
         -- solo entra aqui si las configuraciones estan cerradas
-        Cursor_position_x, Cursor_position_y = love.mouse.getPosition()
     end
 end
 
@@ -53,50 +54,70 @@ function menu.draw()
     love.graphics.setColor(1, 1, 1)
     love.graphics.draw(sprite_Background_menu, 0, 0, 0, love.graphics.getWidth()/256, love.graphics.getHeight()/144)
 
-    love.graphics.setFont(utils.font_title)
-    gui.Draw_title()
+    love.graphics.setFont(gui.utils.font_title)
+    gui.Draw_title(gui.utils.text_title, 30, {0.95, 0.95, 0.9})
 
-    love.graphics.setFont(utils.font_btn)
-
-    gui.Draw_button(
-        "Nueva Partida", utils.center_btn_x, utils.Resize_scale(2, 400), utils.button_width, utils.button_height, utils.border_radius, 
-        utils.Search_opacity(utils.Resize_scale(2, 400), utils.Resize_scale(2, 400) + utils.button_height))
+    love.graphics.setFont(gui.utils.font_btn)
 
     gui.Draw_button(
-        "Continuar", utils.center_btn_x, utils.Resize_scale(2, 470), utils.button_width, utils.button_height, utils.border_radius, 
-        utils.Search_opacity(utils.Resize_scale(2, 470), utils.Resize_scale(2, 470) + utils.button_height))
+        "Nueva Partida", gui.utils.center_btn_x, gui.utils.Resize_scale(2, 400), gui.utils.button_width, gui.utils.button_height, gui.utils.border_radius, 
+        gui.utils.Search_opacity(gui.utils.center_btn_x, gui.utils.center_btn_x + gui.utils.button_width,
+                                gui.utils.Resize_scale(2, 400), gui.utils.Resize_scale(2, 400) + gui.utils.button_height, active))
 
     gui.Draw_button(
-        "Ajustes", utils.center_btn_x, utils.Resize_scale(2, 540), utils.button_width, utils.button_height, utils.border_radius, 
-        utils.Search_opacity(utils.Resize_scale(2, 540), utils.Resize_scale(2, 540) + utils.button_height))
+        "Continuar", gui.utils.center_btn_x, gui.utils.Resize_scale(2, 470), gui.utils.button_width, gui.utils.button_height, gui.utils.border_radius, 
+        gui.utils.Search_opacity(gui.utils.center_btn_x, gui.utils.center_btn_x + gui.utils.button_width, 
+                                gui.utils.Resize_scale(2, 470), gui.utils.Resize_scale(2, 470) + gui.utils.button_height, active))
 
     gui.Draw_button(
-        "Salir", utils.center_btn_x, utils.Resize_scale(2, 610), utils.button_width, utils.button_height, utils.border_radius, 
-        utils.Search_opacity(utils.Resize_scale(2, 610), utils.Resize_scale(2, 610) + utils.button_height))
+        "Ajustes", gui.utils.center_btn_x, gui.utils.Resize_scale(2, 540), gui.utils.button_width, gui.utils.button_height, gui.utils.border_radius, 
+        gui.utils.Search_opacity(gui.utils.center_btn_x, gui.utils.center_btn_x + gui.utils.button_width,
+                                gui.utils.Resize_scale(2, 540), gui.utils.Resize_scale(2, 540) + gui.utils.button_height, active))
 
-
+    gui.Draw_button(
+        "Salir", gui.utils.center_btn_x, gui.utils.Resize_scale(2, 610), gui.utils.button_width, gui.utils.button_height, gui.utils.border_radius, 
+        gui.utils.Search_opacity(gui.utils.center_btn_x, gui.utils.center_btn_x + gui.utils.button_width,
+                                gui.utils.Resize_scale(2, 610), gui.utils.Resize_scale(2, 610) + gui.utils.button_height, active))
+                                
     if menu.Show_settings then
         
-        love.graphics.setColor(0, 0, 0, 0.7)
-        love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+        active = false
 
-        love.graphics.setColor(1,1,1)
-        love.graphics.rectangle("fill", (love.graphics.getWidth() - utils.Resize_scale(1, 400))/2, 
-        (love.graphics.getHeight() - utils.Resize_scale(2, 500))/2, utils.Resize_scale(1, 400), utils.Resize_scale(2, 500))
-    
-        love.graphics.setColor(1, 1, 1, 1)
-
+        settings.load()
         settings.draw()
+
+    elseif menu.Show_exit then
+        
+        active = false
+
+        exit.load()
+        exit.draw()
     end
 end
 
 function menu.mousereleased(x, y, button)
 
     if menu.Show_settings then
-        settings.mousereleased(x, y, button)
+        local stop_settings = settings.mousereleased(x, y, button)
+
+        if stop_settings then
+            menu.Show_settings = false
+            active = true
+        end
+
+    elseif menu.Show_exit then
+        local close_game = exit.mousereleased(x, y, button)
+
+        if close_game == 1 then
+            love.event.quit()
+        
+        elseif close_game == 2 then
+            menu.Show_exit = false
+            active = true
+        end
 
     else
-        local type_btn = utils.IsHovering(x, y)
+        local type_btn = gui.utils.IsHovering(x, y)
 
         if type_btn ~= 0 then
             
@@ -107,12 +128,10 @@ function menu.mousereleased(x, y, button)
                 Change_state(require("src.scripts.states.continue_the_game"))
 
             elseif type_btn == 3 then
-                --abrir ventana de configuraciones pero no puede quitar la ventana de menu
                 menu.Show_settings = true
 
             elseif type_btn == 4 then
-                -- falta mostrar un mensaje de confirmacion para cerrar
-                love.event.quit()
+                menu.Show_exit = true
             end
         end
     end
