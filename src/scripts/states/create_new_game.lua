@@ -106,4 +106,10 @@ function new_game.keypressed(key)
     gui.utils.keypressed(key)
 end
 
+function love.keypressed(key)
+    if key == "return" then
+        Change_state(require("src.scripts.states.stage1"))
+    end
+end
+
 return new_game
