@@ -22,12 +22,12 @@ function collisionBox.create(entity, type)
 
     --Ancho y alto
 
-    collisionBox.width = entity.width
+    collisionBox.width = entity.width * entity.scale
 
     if type == collisionBox.TYPES.BOTTOM or type == collisionBox.TYPES.TOP then
-        _height = entity.height / 3
+        _height = (entity.height * entity.scale) / 3
     elseif type == collisionBox.TYPES.FULL then
-        _height = entity.height
+        _height = entity.height * entity.scale
     end
 
     --Posicion x e y
@@ -40,6 +40,7 @@ function collisionBox.create(entity, type)
         _y = entity.y + entity.height - (entity.height / 3)
     end
 
+    --Definir tipo de collision box
     if type == collisionBox.TYPES.BOTTOM then
         _type = collisionBox.TYPES.BOTTOM
     elseif type == collisionBox.TYPES.TOP then
@@ -48,6 +49,7 @@ function collisionBox.create(entity, type)
     _type = collisionBox.TYPES.FULL
     end
 
+    --Crearla
     entity.collisionBox = {
         width = entity.width,
         height = _height,
@@ -55,6 +57,10 @@ function collisionBox.create(entity, type)
         y = _y,
         type = _type
     }
+
+    entity.updateCollisionBox = function()
+        collisionBox.updatePosition(entity)
+    end
 
     return entity
 

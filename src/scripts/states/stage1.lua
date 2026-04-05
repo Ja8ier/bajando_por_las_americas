@@ -18,6 +18,11 @@ function stage1.draw()
     love.graphics.draw(background, 0, 0, 0, love.graphics.getWidth()/256, love.graphics.getHeight()/144)
 
     player.draw()
+
+   -- love.graphics.setColor(0, 0.6, 0)
+    love.graphics.rectangle("fill", player.collisionBox.x, player.collisionBox.y, player.collisionBox.width, player.collisionBox.height)
+    
+
 end
 
 return stage1

@@ -1,15 +1,5 @@
-player = {
-    x = 0,
-    y = 0,
-    speed = 150,
-    scale = 1,
-    frameWidth = 19,
-    frameheight = 28,
-    facingLeft = false,
-    isMoving = false,
-}
-
 local sounds = require("src.scripts.sounds.sounds")
+local playerCollisionBox = require("src.scripts.systems.collision_box")
 
 local currentFrame = 1
 local frameDuration = 0.25
@@ -21,6 +11,25 @@ local sprideSheet = ""
 local sheetWidth = 0
 local sheetHeight = 0
 
+local quads = {}
+
+local player = {
+    x = 0,
+    y = 0,
+    speed = 150,
+    scale = 1,
+    height = 28,
+    width = 19,
+
+    --sprideSheet
+    frameWidth = 19,
+    frameheight = 28,
+    facingLeft = false,
+    isMoving = false,
+}
+
+--#region Load, update y draw
+
 function player.load()
 
     player.scale = love.graphics.getWidth() / 256
@@ -31,14 +40,17 @@ function player.load()
     
     sheetWidth, sheetheight = sprideSheet:getDimensions()
     columns = sheetWidth / player.frameWidth
-    quads = {}
+
     for i = 0, columns - 1 do
         quads[#quads+1] = love.graphics.newQuad(i * player.frameWidth, 0, player.frameWidth, player.frameheight, sheetWidth, sheetheight)
     end
 
+    playerCollisionBox.create(player, "bottom")
+
 end
 
 function player.update(dt)
+
     player.isMoving = false
     timer = timer + dt
 
@@ -52,12 +64,14 @@ function player.update(dt)
 
     if timer >= frameDuration then
         timer = timer - frameDuration
-       if player.isMoving then
-        currentFrame = (currentFrame % #quads) + 1
-       else
-        currentFrame = 1
-       end
+
+        if player.isMoving then
+            currentFrame = (currentFrame % #quads) + 1
+        else
+            currentFrame = 1
+        end
     end
+
 end
 
 function player.draw()
@@ -67,6 +81,8 @@ function player.draw()
         love.graphics.draw(sprideSheet, quads[currentFrame], player.x, player.y, 0, player.scale, player.scale)
     end
 end
+
+--#endregion
 
 function player.move(dt)
 
@@ -78,25 +94,39 @@ function player.move(dt)
         frameDuration = 0.25
     end
 
-    if love.keyboard.isDown("a") then
-        player.isMoving = true
-        player.facingLeft = true
-        player.x= player.x - dt * player.speed
-    elseif love.keyboard.isDown("d") then
-        player.isMoving = true
-        player.facingLeft = false
-        player.x = player.x + dt * player.speed
+    player.walk(dt, "x")
+    player.walk(dt, "y")
+
+end
+
+function player.walk(dt, XorY)
+    
+    if XorY == "x" then
+
+        if love.keyboard.isDown("a") then
+            player.isMoving = true
+            player.facingLeft = true
+            player.x= player.x - dt * player.speed
+        elseif love.keyboard.isDown("d") then
+            player.isMoving = true
+            player.facingLeft = false
+            player.x = player.x + dt * player.speed
+        end
+
+    elseif XorY == "y" then
+
+        if love.keyboard.isDown("w") then
+            player.isMoving = true
+            player.y = player.y - dt * player.speed
+        elseif love.keyboard.isDown("s") then
+            player.isMoving = true
+            player.y = player.y + dt * player.speed
+        end
+
     end
 
-    if love.keyboard.isDown("w") then
-        player.isMoving = true
-        player.y = player.y - dt * player.speed
-    elseif love.keyboard.isDown("s") then
-        player.isMoving = true
-        player.y = player.y + dt * player.speed
-    end
+    player.updateCollisionBox()
 
---test
 end
 
 return player
