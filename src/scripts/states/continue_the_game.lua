@@ -132,7 +132,7 @@ function continue_game.mousereleased(x, y, button)
                 gui.utils.text_input = ""
                 
                 --cambiar src.scripts.states.menu por src.scripts.states.stage1 para ejecutar el juego
-                Change_state(require("src.scripts.states.menu"))
+                Change_state(require("src.scripts.states.stage1"))
                     
             elseif x > bx2 and x < bx2 + bw2 then
                 local by2 = gui.utils.Resize_scale(2, by1) + bh2 + gui.utils.Resize_scale(2, 5)

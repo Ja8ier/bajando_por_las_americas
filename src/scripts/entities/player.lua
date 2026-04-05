@@ -9,7 +9,7 @@ player = {
     isMoving = false,
 }
 
-sounds1 = require("src.scripts.sounds.sounds")
+local sounds = require("src.scripts.sounds.sounds")
 
 local currentFrame = 1
 local frameDuration = 0.25
@@ -45,9 +45,9 @@ function player.update(dt)
     player.move(dt)
 
     if player.isMoving then
-        sounds1.sound_effects.pasos2:play()
+        sounds.sound_effects.pasos2:play()
     else
-        sounds1.sound_effects.pasos2:stop()
+        sounds.sound_effects.pasos2:stop()
     end
 
     if timer >= frameDuration then
