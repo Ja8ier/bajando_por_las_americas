@@ -18,8 +18,8 @@ local player = {
     y = 0,
     speed = 150,
     scale = 1,
-    height = 28,
     width = 19,
+    height = 28,
 
     --sprideSheet
     frameWidth = 19,

@@ -12,7 +12,7 @@ collisionBox.TYPES = {
     -- CUSTOM = "custom" --solo para casos especiales donde se necesite una colision particular
 }
 
-local sc = love.graphics.getWidth() / 256
+local scale = love.graphics.getWidth() / 256
 
 function collisionBox.create(entity, type)
     
@@ -24,12 +24,12 @@ function collisionBox.create(entity, type)
 
     --Ancho y alto
 
-    _width = (entity.width) * sc
+    _width = (entity.width) * scale
 
     if type == collisionBox.TYPES.BOTTOM or type == collisionBox.TYPES.TOP then
-        _height = (entity.height * sc) / 3
+        _height = (entity.height * scale) / 3
     elseif type == collisionBox.TYPES.FULL then
-        _height = entity.height * sc
+        _height = entity.height * scale
     end
 
     --Posicion x
@@ -41,7 +41,7 @@ function collisionBox.create(entity, type)
     if type == collisionBox.TYPES.FULL or type == collisionBox.TYPES.TOP then
         _y = entity.y
     elseif type == collisionBox.TYPES.BOTTOM then
-        _y = entity.y + ((2 * entity.height * sc) / 3)
+        _y = entity.y + ((2 * entity.height * scale) / 3)
     end
 
     --Definir tipo de collision box
@@ -89,14 +89,14 @@ function collisionBox.updatePosition(entity)
     if entity.collisionBox.type == collisionBox.TYPES.FULL or entity.collisionBox.type  == collisionBox.TYPES.TOP then
         entity.collisionBox.y = entity.y
     elseif entity.collisionBox.type == collisionBox.TYPES.BOTTOM then
-        entity.collisionBox.y = entity.y + ((2 * entity.height * sc) / 3)
+        entity.collisionBox.y = entity.y + ((2 * entity.height * scale) / 3)
     end
     
 end
 
 function collisionBox.resolveX(entity, object)
 
-    if entity.collisionBox.check(entity, object) then
+    if collisionBox.check(entity, object) then
         if entity.collisionBox.x < object.collisionBox.x then
            entity.x = object.collisionBox.x - entity.width
         else
@@ -104,12 +104,12 @@ function collisionBox.resolveX(entity, object)
         end
     end
 
-    entity.collisionBox.updatePosition(entity)
+    entity.updateCollisionBox()
 end
-
+ 
 function collisionBox.resolveY(entity, object)
     
-    if entity.collisionBox.check(entity, object) then
+    if collisionBox.check(entity, object) then
 
         if entity.collisionBox.y < object.collisionBox.y then
             entity.y = object.collisionBox.y - entity.height
@@ -120,6 +120,21 @@ function collisionBox.resolveY(entity, object)
                 entity.y = object.y + object.collisionBox.height
             end
         end
+    end
+
+    entity.updateCollisionBox()
+end
+
+function collisionBox.whereItComes(entity, entityOldX, entityOldY)
+    
+    if entity.x > entityOldX then
+        return "right"
+    elseif entity.x < entityOldX then
+        return "left"
+    elseif entity.y > entityOldY then
+        return "up"
+    else 
+        return "down"
     end
 end
 
