@@ -80,7 +80,7 @@ function new_game.mousereleased(x, y, button)
 
                 textbox_active = false
                 
-                Change_state(require("src.scripts.states.stage1")) --descomentar esta linea para ejecutar el juego al crear la partida
+           --     Change_state(require("src.scripts.states.stage1")) --descomentar esta linea para ejecutar el juego al crear la partida
 
             else
                 textbox_active = false

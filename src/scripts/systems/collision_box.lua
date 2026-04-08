@@ -12,6 +12,8 @@ collisionBox.TYPES = {
     -- CUSTOM = "custom" --solo para casos especiales donde se necesite una colision particular
 }
 
+local sc = love.graphics:getWidth() / 1280
+
 function collisionBox.create(entity, type)
     
     local _x
@@ -22,12 +24,12 @@ function collisionBox.create(entity, type)
 
     --Ancho y alto
 
-    collisionBox.width = entity.width * entity.scale
+    collisionBox.width = entity.width * sc
 
     if type == collisionBox.TYPES.BOTTOM or type == collisionBox.TYPES.TOP then
-        _height = (entity.height * entity.scale) / 3
+        _height = (entity.height *  sc) / 3
     elseif type == collisionBox.TYPES.FULL then
-        _height = entity.height * entity.scale
+        _height = entity.height * sc
     end
 
     --Posicion x e y
@@ -81,11 +83,11 @@ function collisionBox.updatePosition(entity)
 
     entity.collisionBox.x = entity.x
 
-    if entity.type == collisionBox.TYPES.FULL or entity.type  == collisionBox.TYPES.TOP then
-        entity.collisionBox.y = entity.y
-    elseif entity.type == collisionBox.TYPES.BOTTOM then
-        entity.collisionBox.y = entity.y + entity.height - (entity.height / 3)
-    end
+    entity.collisionBox.y = entity.y + entity.height - (entity.height / 3)
+    -- if entity.type == collisionBox.TYPES.FULL or entity.type  == collisionBox.TYPES.TOP then
+    --     entity.collisionBox.y = entity.y
+    -- elseif entity.type == collisionBox.TYPES.BOTTOM then
+    -- end
     
 end
 

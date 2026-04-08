@@ -45,7 +45,7 @@ function player.load()
         quads[#quads+1] = love.graphics.newQuad(i * player.frameWidth, 0, player.frameWidth, player.frameheight, sheetWidth, sheetheight)
     end
 
-    playerCollisionBox.create(player, "bottom")
+    playerCollisionBox.create(player, "full")
 
 end
 

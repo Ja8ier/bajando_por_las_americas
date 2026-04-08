@@ -21,7 +21,7 @@ function stage1.draw()
 
    -- love.graphics.setColor(0, 0.6, 0)
     love.graphics.rectangle("fill", player.collisionBox.x, player.collisionBox.y, player.collisionBox.width, player.collisionBox.height)
-    
+    love.graphics.print(player.collisionBox.type, 10, 10)
 
 end
 
