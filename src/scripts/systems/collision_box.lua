@@ -12,7 +12,7 @@ collisionBox.TYPES = {
     -- CUSTOM = "custom" --solo para casos especiales donde se necesite una colision particular
 }
 
-local sc = love.graphics:getWidth() / 1280
+local sc = love.graphics.getWidth() / 256
 
 function collisionBox.create(entity, type)
     
@@ -24,22 +24,24 @@ function collisionBox.create(entity, type)
 
     --Ancho y alto
 
-    collisionBox.width = entity.width * sc
+    _width = (entity.width) * sc
 
     if type == collisionBox.TYPES.BOTTOM or type == collisionBox.TYPES.TOP then
-        _height = (entity.height *  sc) / 3
+        _height = (entity.height * sc) / 3
     elseif type == collisionBox.TYPES.FULL then
         _height = entity.height * sc
     end
 
-    --Posicion x e y
-
-    collisionBox.x = entity.x
+    --Posicion x
+    
+    _x = entity.x
+    
+    --Posicion y
 
     if type == collisionBox.TYPES.FULL or type == collisionBox.TYPES.TOP then
         _y = entity.y
     elseif type == collisionBox.TYPES.BOTTOM then
-        _y = entity.y + entity.height - (entity.height / 3)
+        _y = entity.y + ((2 * entity.height * sc) / 3)
     end
 
     --Definir tipo de collision box
@@ -51,11 +53,11 @@ function collisionBox.create(entity, type)
     _type = collisionBox.TYPES.FULL
     end
 
-    --Crearla
+    --Crear  la collisionBox
     entity.collisionBox = {
-        width = entity.width,
+        width = _width,
         height = _height,
-        x = entity.x,
+        x = _x,
         y = _y,
         type = _type
     }
@@ -79,15 +81,16 @@ end
 
 function collisionBox.updatePosition(entity)
     
-    --Posicion x e y
-
+    --Posicion x
+    
     entity.collisionBox.x = entity.x
-
-    entity.collisionBox.y = entity.y + entity.height - (entity.height / 3)
-    -- if entity.type == collisionBox.TYPES.FULL or entity.type  == collisionBox.TYPES.TOP then
-    --     entity.collisionBox.y = entity.y
-    -- elseif entity.type == collisionBox.TYPES.BOTTOM then
-    -- end
+    
+    --Posicion y
+    if entity.collisionBox.type == collisionBox.TYPES.FULL or entity.collisionBox.type  == collisionBox.TYPES.TOP then
+        entity.collisionBox.y = entity.y
+    elseif entity.collisionBox.type == collisionBox.TYPES.BOTTOM then
+        entity.collisionBox.y = entity.y + ((2 * entity.height * sc) / 3)
+    end
     
 end
 

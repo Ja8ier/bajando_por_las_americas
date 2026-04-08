@@ -45,7 +45,7 @@ function player.load()
         quads[#quads+1] = love.graphics.newQuad(i * player.frameWidth, 0, player.frameWidth, player.frameheight, sheetWidth, sheetheight)
     end
 
-    playerCollisionBox.create(player, "full")
+    playerCollisionBox.create(player, "bottom")
 
 end
 
@@ -112,6 +112,8 @@ function player.walk(dt, XorY)
             player.facingLeft = false
             player.x = player.x + dt * player.speed
         end
+        player.updateCollisionBox()
+        return
 
     elseif XorY == "y" then
 
