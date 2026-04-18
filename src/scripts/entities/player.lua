@@ -1,4 +1,4 @@
-player = {
+local player = {
     x = 0,
     y = 0,
     speed = 150,
@@ -9,12 +9,14 @@ player = {
     isMoving = false,
 }
 
-sounds1 = require("src.scripts.sounds.sounds")
+Sounds1 = require("src.scripts.sounds.sounds")
 
 local currentFrame = 1
 local frameDuration = 0.25
 local timer = 0
 local columns = 0
+local quads = {}
+
 
 local sprideSheet = ""
 
@@ -29,11 +31,11 @@ function player.load()
     sprideSheet = love.graphics.newImage("assets/sprites/player_walking.png")
     sprideSheet:setFilter("nearest" , "nearest")
     
-    sheetWidth, sheetheight = sprideSheet:getDimensions()
+    sheetWidth, sheetHeight = sprideSheet:getDimensions()
     columns = sheetWidth / player.frameWidth
-    quads = {}
+
     for i = 0, columns - 1 do
-        quads[#quads+1] = love.graphics.newQuad(i * player.frameWidth, 0, player.frameWidth, player.frameheight, sheetWidth, sheetheight)
+        quads[#quads+1] = love.graphics.newQuad(i * player.frameWidth, 0, player.frameWidth, player.frameheight, sheetWidth, sheetHeight)
     end
 
 end
@@ -45,9 +47,9 @@ function player.update(dt)
     player.move(dt)
 
     if player.isMoving then
-        sounds1.sound_effects.pasos2:play()
+        Sounds1.sound_effects.pasos2:play()
     else
-        sounds1.sound_effects.pasos2:stop()
+        Sounds1.sound_effects.pasos2:stop()
     end
 
     if timer >= frameDuration then

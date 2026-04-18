@@ -1,6 +1,7 @@
-player1 = require("src.scripts.entities.player")
+local player1 = require("src.scripts.entities.player")
 
-stage1 = {}
+local stage1 = {}
+local bg_stage1
 
 function stage1.load()
     bg_stage1 = love.graphics.newImage("assets/sprites/stage1.png")

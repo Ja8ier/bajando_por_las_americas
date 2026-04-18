@@ -1,4 +1,4 @@
-sounds = {
+local sounds = {
     background_music = {},
 
     sound_effects = {

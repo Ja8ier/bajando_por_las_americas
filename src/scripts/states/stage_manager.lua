@@ -1,3 +1,2 @@
-function change_stage(stage)
-    
+function Change_stage(stage)
 end

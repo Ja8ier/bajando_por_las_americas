@@ -42,6 +42,8 @@ function settings.draw()
     local bx, by = get_button_pos(150, 430)
     local bw, bh = gui.utils.button_width, gui.utils.button_height
 
+    
+
     love.graphics.setFont(love.graphics.newFont(gui.utils.Resize_scale(1, 20)))
     gui.Draw_button("Listo", bx, by, bw, bh, gui.utils.border_radius, gui.utils.Search_opacity(bx, bx + bw, by, by + bh, true))
 
