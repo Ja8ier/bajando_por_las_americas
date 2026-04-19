@@ -1,3 +1,10 @@
+if love.system.getOS() == "Windows" then
+    package.cpath = package.cpath .. ";src/cpp/bin/?.dll"
+else
+    package.cpath = package.cpath .. ";src/cpp/bin/?.so"
+end
+
+Engine = require("engine")
 local menu = require("src.scripts.states.menu")
 
 local current_state = nil

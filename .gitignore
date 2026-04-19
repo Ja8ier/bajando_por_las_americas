@@ -1,0 +1,28 @@
+# --- Binarios y Compilación ---
+# Ignora la carpeta donde se generan tus .dll o .so
+src/cpp/bin/
+src/cpp/lib/*.dll
+src/cpp/lib/*.so
+
+# Extensiones sueltas por si acaso
+*.exe
+*.dll
+*.so
+*.o
+*.out
+
+# --- LÖVE / Lua ---
+# Ignora archivos de configuración local o logs de error
+*.log
+love-*.zip
+
+# --- Sistema y Editores ---
+# Ignora archivos temporales de Windows o de VS Code
+.vscode/
+.DS_Store
+Thumbs.db
+
+# --- Carpetas de Respaldo ---
+# Si usas carpetas temporales para pruebas
+temp/
+backup/
