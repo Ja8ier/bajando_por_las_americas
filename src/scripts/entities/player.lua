@@ -14,7 +14,7 @@ local sheetHeight = 0
 local quads = {}
 
 local player = {
-    x = 0,
+    x = 0,--ddn
     y = 0,
     speed = 150,
     scale = 1,
@@ -32,7 +32,7 @@ local player = {
 
 function player.load()
 
-    player.scale = (love.graphics.getWidth() / 256) * 0.8
+    player.scale = (love.graphics.getWidth() / 256)
     player.y = love.graphics.getHeight() - player.frameheight * player.scale - 100
 
     sprideSheet = love.graphics.newImage("assets/sprites/player_walking.png")
@@ -49,18 +49,18 @@ function player.load()
 
 end
 
-function player.updateAnimation(dt)
-    -- Ya no reseteamos player.isMoving aquí porque stage1 lo manejará
+function player.update(dt)
+
     timer = timer + dt
 
-    -- Lógica de Sonidos
+    --logica de sonidos
     if player.isMoving then
         sounds.sound_effects.pasos2:play()
     else
         sounds.sound_effects.pasos2:stop()
     end
 
-    -- Lógica de Animación (Frames)
+    --logica de animación
     if timer >= frameDuration then
         timer = timer - frameDuration
         if player.isMoving then
@@ -70,30 +70,6 @@ function player.updateAnimation(dt)
         end
     end
 end
--- function player.update(dt)
-
---     player.isMoving = false
---     timer = timer + dt
-
---     -- player.move(dt)
-
---     if player.isMoving then
---         sounds.sound_effects.pasos2:play()
---     else
---         sounds.sound_effects.pasos2:stop()
---     end
-
---     if timer >= frameDuration then
---         timer = timer - frameDuration
-
---         if player.isMoving then
---             currentFrame = (currentFrame % #quads) + 1
---         else
---             currentFrame = 1
---         end
---     end
-
--- end
 
 function player.draw()
     if player.facingLeft then
@@ -140,39 +116,6 @@ function player.walk(dt, XorY)
             player.y = player.y + dt * player.speed
         end
     end
-    -- Importante: Quitamos el updateCollisionBox de aquí
 end
-
--- function player.walk(dt, XorY)
-    
---     if XorY == "x" then
-
---         if love.keyboard.isDown("a") then
---             player.isMoving = true
---             player.facingLeft = true
---             player.x= player.x - dt * player.speed
---         elseif love.keyboard.isDown("d") then
---             player.isMoving = true
---             player.facingLeft = false
---             player.x = player.x + dt * player.speed
---         end
---         player.updateCollisionBox()
---         return
-
---     elseif XorY == "y" then
-
---         if love.keyboard.isDown("w") then
---             player.isMoving = true
---             player.y = player.y - dt * player.speed
---         elseif love.keyboard.isDown("s") then
---             player.isMoving = true
---             player.y = player.y + dt * player.speed
---         end
-
---     end
-
---     player.updateCollisionBox()
-
--- end
 
 return player

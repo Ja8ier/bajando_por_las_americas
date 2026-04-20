@@ -1,6 +1,8 @@
 local player = require("src.scripts.entities.player")
 local obstacle = require("src.scripts.entities.obstacle")
 
+local obstacles = {}
+
 local stage1 = {}
 local background
 
@@ -10,11 +12,17 @@ function stage1.load()
     background = love.graphics.newImage("assets/sprites/stage1.png")
     background:setFilter("nearest", "nearest")
 
-    obstacle.load(false, 500, 400, 18, 10, "bottom")
+    local obs1 = obstacle.new(false, 200, 500, 18, 10, "bottom")
+    local obs2 = obstacle.new(false, 500, 500, 40, 40, "full")
+
+    table.insert(obstacles, obs1)
+    table.insert(obstacles, obs2)
+
     player.load()
 end
 
 function stage1.update(dt)
+
     local cb = require("src.scripts.systems.collision_box")
     -- --- MOVIMIENTO SHIFT ---
     if love.keyboard.isDown("lshift") then
@@ -22,62 +30,47 @@ function stage1.update(dt)
     else
         player.speed = 150 -- Velocidad normal
     end
-    -- ----------------------------------------
 
-
-    -- 1. Movimiento y resolución en EJE X
+    --Resolver x
     player.isMoving = false
     player.walk(dt, "x")
     player.updateCollisionBox() -- Actualizamos la caja tras mover en X
     
-    if cb.check(player, obstacle) then
-        cb.resolveX(player, obstacle)
+    --Resolver x
+    for _, obs in ipairs(obstacles) do
+        if cb.check(player, obs) then
+            cb.resolveX(player, obs)
+        end
     end
-
-    -- 2. Movimiento y resolución en EJE Y
+    
+    --Resolver y
     player.walk(dt, "y")
     player.updateCollisionBox() -- Actualizamos la caja tras mover en Y
     
-    if cb.check(player, obstacle) then
-        cb.resolveY(player, obstacle)
+    for _, obs in ipairs(obstacles) do
+        if cb.check(player, obs) then
+            cb.resolveY(player, obs)
+        end
     end
     
-    -- 3. Actualizar animaciones y sonidos (esto estaba dentro de player.update)
-    player.updateAnimation(dt) -- Si separas la lógica de animación en player.lua
+    --Actualizar animaciones y sonidos
+    player.update(dt)
 end
 
--- function stage1.update(dt)
---     local oldX = player.x
---     local oldY = player.y
-
---     player.update(dt)
-
---     local cb = require("src.scripts.systems.collision_box")
-
-
---     if cb.check(player, obstacle) then
---         if cb.whereItComes(player, oldX, oldY) == "right" or cb.whereItComes(player, oldX, oldY) == "left" then
---             cb.resolveX(player, obstacle)
---         elseif cb.whereItComes(player, oldX, oldY) == "up" or cb.whereItComes(player, oldX, oldY) == "down" then
---             cb.resolveY(player, obstacle)
---         end
---     end
-
--- end
-
-function stage1.draw()
+function stage1.draw()--jjjj
+    --dibujar background
     love.graphics.draw(background, 0, 0, 0, love.graphics.getWidth()/256, love.graphics.getHeight()/144)
 
+    --dibujar player
     player.draw()
-    love.graphics.print(player.collisionBox.type, 10, 10)
-
+--caja del player
     love.graphics.setColor(1, 1, 1, 0.25)
     love.graphics.rectangle("fill", player.collisionBox.x, player.collisionBox.y, player.collisionBox.width, player.collisionBox.height)
-    --love.graphics.setColor(1, 1, 1)
 
-    --obstacle.draw()
-    --love.graphics.setColor(1, 1, 1, 0.25)
-    love.graphics.rectangle("fill", obstacle.collisionBox.x, obstacle.collisionBox.y, obstacle.collisionBox.width, obstacle.collisionBox.height)
+--cajas
+    for _, obs in ipairs(obstacles) do
+        love.graphics.rectangle("fill", obs.collisionBox.x, obs.collisionBox.y, obs.collisionBox.width, obs.collisionBox.height)
+    end
     love.graphics.setColor(1, 1, 1)
 end
 

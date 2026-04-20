@@ -2,35 +2,22 @@ local obstacleCollisionBox = require("src.scripts.systems.collision_box")
 local texture = ""
 local scale = love.graphics.getWidth() / 256
 
-local obstacle = {
-    x = 0,
-    y = 0,
-    width = 0,
-    height = 0,
-    scale = 1,
-    isVisible = false
-}
+local obstacle = {}
  
-function obstacle.load(_isVisible, _x, _y, _width, _height, collisionType)
-
-    obstacle.isVisible = _isVisible
-    obstacle.scale = scale
+function obstacle.new(_isVisible, _x, _y, _width, _height, collisionType)
     
-    obstacle.x = _x
-    obstacle.y = _y
-    obstacle.width = _width
-    obstacle.height = _height
-
-    obstacleCollisionBox.create(obstacle, collisionType)
-
-end
-
-function obstacle.update(dt)
+    local newObstacle = {
+        x = _x,
+        y = _y,
+        width = _width,
+        height = _height,
+        scale = scale,
+        isVisible = _isVisible
+    }
     
-end
+    obstacleCollisionBox.create(newObstacle, collisionType)
 
-function obstacle.draw()
-    
+    return newObstacle
 end
 
 return obstacle
