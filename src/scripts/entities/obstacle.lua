@@ -7,8 +7,8 @@ local obstacle = {}
 function obstacle.new(_isVisible, _x, _y, _width, _height, collisionType)
     
     local newObstacle = {
-        x = _x,
-        y = _y,
+        x = _x * scale,
+        y = _y * scale,
         width = _width,
         height = _height,
         scale = scale,

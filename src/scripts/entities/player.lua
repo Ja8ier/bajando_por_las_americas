@@ -14,7 +14,7 @@ local sheetHeight = 0
 local quads = {}
 
 local player = {
-    x = 0,--ddn
+    x = 0,
     y = 0,
     speed = 150,
     scale = 1,
@@ -69,6 +69,7 @@ function player.update(dt)
             currentFrame = 1
         end
     end
+    
 end
 
 function player.draw()

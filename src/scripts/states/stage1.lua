@@ -12,11 +12,11 @@ function stage1.load()
     background = love.graphics.newImage("assets/sprites/stage1.png")
     background:setFilter("nearest", "nearest")
 
-    local obs1 = obstacle.new(false, 200, 500, 18, 10, "bottom")
-    local obs2 = obstacle.new(false, 500, 500, 40, 40, "full")
+    local obs_cerca = obstacle.new(false, 0, 88, 256, 16, "top")
+    --local obs2 = obstacle.new(false, 500, 500, 40, 40, "full")
 
-    table.insert(obstacles, obs1)
-    table.insert(obstacles, obs2)
+    table.insert(obstacles, obs_cerca)
+    --table.insert(obstacles, obs2)
 
     player.load()
 end
@@ -57,21 +57,21 @@ function stage1.update(dt)
     player.update(dt)
 end
 
-function stage1.draw()--jjjj
+function stage1.draw()
     --dibujar background
     love.graphics.draw(background, 0, 0, 0, love.graphics.getWidth()/256, love.graphics.getHeight()/144)
 
     --dibujar player
     player.draw()
 --caja del player
-    love.graphics.setColor(1, 1, 1, 0.25)
-    love.graphics.rectangle("fill", player.collisionBox.x, player.collisionBox.y, player.collisionBox.width, player.collisionBox.height)
+--     love.graphics.setColor(1, 1, 1, 0.25)
+--     love.graphics.rectangle("fill", player.collisionBox.x, player.collisionBox.y, player.collisionBox.width, player.collisionBox.height)
 
---cajas
-    for _, obs in ipairs(obstacles) do
-        love.graphics.rectangle("fill", obs.collisionBox.x, obs.collisionBox.y, obs.collisionBox.width, obs.collisionBox.height)
-    end
-    love.graphics.setColor(1, 1, 1)
+-- --cajas
+--     for _, obs in ipairs(obstacles) do
+--         love.graphics.rectangle("fill", obs.collisionBox.x, obs.collisionBox.y, obs.collisionBox.width, obs.collisionBox.height)
+--     end
+--     love.graphics.setColor(1, 1, 1)
 end
 
 return stage1
