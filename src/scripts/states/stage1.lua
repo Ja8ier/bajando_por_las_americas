@@ -15,23 +15,55 @@ function stage1.load()
 end
 
 function stage1.update(dt)
-    local oldX = player.x
-    local oldY = player.y
-
-    player.update(dt)
-
     local cb = require("src.scripts.systems.collision_box")
+    -- --- MOVIMIENTO SHIFT ---
+    if love.keyboard.isDown("lshift") then
+        player.speed = 300 -- Velocidad de carrera
+    else
+        player.speed = 150 -- Velocidad normal
+    end
+    -- ----------------------------------------
 
 
+    -- 1. Movimiento y resolución en EJE X
+    player.isMoving = false
+    player.walk(dt, "x")
+    player.updateCollisionBox() -- Actualizamos la caja tras mover en X
+    
     if cb.check(player, obstacle) then
-        if cb.whereItComes(player, oldX, oldY) == "right" or cb.whereItComes(player, oldX, oldY) == "left" then
-            cb.resolveX(player, obstacle)
-        elseif cb.whereItComes(player, oldX, oldY) == "up" or cb.whereItComes(player, oldX, oldY) == "down" then
-            cb.resolveY(player, obstacle)
-        end
+        cb.resolveX(player, obstacle)
     end
 
+    -- 2. Movimiento y resolución en EJE Y
+    player.walk(dt, "y")
+    player.updateCollisionBox() -- Actualizamos la caja tras mover en Y
+    
+    if cb.check(player, obstacle) then
+        cb.resolveY(player, obstacle)
+    end
+    
+    -- 3. Actualizar animaciones y sonidos (esto estaba dentro de player.update)
+    player.updateAnimation(dt) -- Si separas la lógica de animación en player.lua
 end
+
+-- function stage1.update(dt)
+--     local oldX = player.x
+--     local oldY = player.y
+
+--     player.update(dt)
+
+--     local cb = require("src.scripts.systems.collision_box")
+
+
+--     if cb.check(player, obstacle) then
+--         if cb.whereItComes(player, oldX, oldY) == "right" or cb.whereItComes(player, oldX, oldY) == "left" then
+--             cb.resolveX(player, obstacle)
+--         elseif cb.whereItComes(player, oldX, oldY) == "up" or cb.whereItComes(player, oldX, oldY) == "down" then
+--             cb.resolveY(player, obstacle)
+--         end
+--     end
+
+-- end
 
 function stage1.draw()
     love.graphics.draw(background, 0, 0, 0, love.graphics.getWidth()/256, love.graphics.getHeight()/144)

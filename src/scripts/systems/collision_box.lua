@@ -94,37 +94,72 @@ function collisionBox.updatePosition(entity)
     
 end
 
-function collisionBox.resolveX(entity, object)
+-- function collisionBox.resolveX(entity, object)
 
+--     if collisionBox.check(entity, object) then
+--         if entity.collisionBox.x < object.collisionBox.x then
+--            entity.x = object.collisionBox.x - entity.width
+--         else
+--             entity.x = object.collisionBox.x + object.collisionBox.width
+--         end
+--     end
+
+--     entity.updateCollisionBox()
+-- end
+ 
+-- function collisionBox.resolveY(entity, object)
+    
+--     if collisionBox.check(entity, object) then
+
+--         if entity.collisionBox.y < object.collisionBox.y then
+--             entity.y = object.collisionBox.y - entity.height
+--         else
+--             if entity.type == collisionBox.TYPES.BOTTOM then
+--                 entity.y = object.collisionBox.y + object.collisionBox.height - entity.height + entity.collisionBox.height                 
+--             else
+--                 entity.y = object.y + object.collisionBox.height
+--             end
+--         end
+--     end
+
+--     entity.updateCollisionBox()
+-- end
+
+function collisionBox.resolveX(entity, object)
     if collisionBox.check(entity, object) then
-        if entity.collisionBox.x < object.collisionBox.x then
-           entity.x = object.collisionBox.x - entity.width
+        -- Determinamos si el centro de la entidad está a la izquierda o derecha del objeto
+        local entityCenterX = entity.collisionBox.x + (entity.collisionBox.width / 2)
+        local objectCenterX = object.collisionBox.x + (object.collisionBox.width / 2)
+
+        if entityCenterX < objectCenterX then
+            -- Colisión por la izquierda
+            entity.x = object.collisionBox.x - entity.collisionBox.width
         else
+            -- Colisión por la derecha
             entity.x = object.collisionBox.x + object.collisionBox.width
         end
+        entity.updateCollisionBox() -- Actualizar la caja tras el reajuste
     end
-
-    entity.updateCollisionBox()
 end
- 
+
 function collisionBox.resolveY(entity, object)
-    
     if collisionBox.check(entity, object) then
+        local entityCenterY = entity.collisionBox.y + (entity.collisionBox.height / 2)
+        local objectCenterY = object.collisionBox.y + (object.collisionBox.height / 2)
 
-        if entity.collisionBox.y < object.collisionBox.y then
-            entity.y = object.collisionBox.y - entity.height
+        -- El offset es la distancia desde la 'y' del sprite hasta donde empiezan los pies
+        local offsetY = entity.collisionBox.y - entity.y 
+
+        if entityCenterY < objectCenterY then
+            -- Colisión por arriba (te paras sobre el objeto)
+            entity.y = object.collisionBox.y - entity.collisionBox.height - offsetY
         else
-            if entity.type == collisionBox.TYPES.BOTTOM then
-                entity.y = object.collisionBox.y + object.collisionBox.height - entity.height + entity.collisionBox.height                 
-            else
-                entity.y = object.y + object.collisionBox.height
-            end
+            -- Colisión por abajo (chocas la cabeza)
+            entity.y = object.collisionBox.y + object.collisionBox.height - offsetY
         end
+        entity.updateCollisionBox()
     end
-
-    entity.updateCollisionBox()
 end
-
 function collisionBox.whereItComes(entity, entityOldX, entityOldY)
     
     if entity.x > entityOldX then
