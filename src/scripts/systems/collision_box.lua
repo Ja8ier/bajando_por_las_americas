@@ -160,17 +160,5 @@ function collisionBox.resolveY(entity, object)
         entity.updateCollisionBox()
     end
 end
-function collisionBox.whereItComes(entity, entityOldX, entityOldY)
-    
-    if entity.x > entityOldX then
-        return "right"
-    elseif entity.x < entityOldX then
-        return "left"
-    elseif entity.y > entityOldY then
-        return "up"
-    else 
-        return "down"
-    end
-end
 
 return collisionBox

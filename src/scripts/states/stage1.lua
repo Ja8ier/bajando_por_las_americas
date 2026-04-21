@@ -1,22 +1,38 @@
+local stage1 = {}
+
 local player = require("src.scripts.entities.player")
 local obstacle = require("src.scripts.entities.obstacle")
+local camera = require("src.scripts.systems.camera")
+
+local background
+local worldWidth
+local layers = {}
 
 local obstacles = {}
-
-local stage1 = {}
-local background
 
 local scale = love.graphics.getWidth() /256
 
 function stage1.load()
-    background = love.graphics.newImage("assets/sprites/stage1.png")
-    background:setFilter("nearest", "nearest")
+    
+    --Background
+    layers = {
+        {img = love.graphics.newImage("assets/sprites/1.png"), factor = 0.1},
+       {img = love.graphics.newImage("assets/sprites/2.png"), factor = 0.4},
+       {img = love.graphics.newImage("assets/sprites/3.png"), factor = 1.0}
+    }
 
-    local obs_cerca = obstacle.new(false, 0, 88, 256, 16, "top")
-    --local obs2 = obstacle.new(false, 500, 500, 40, 40, "full")
+    --background = love.graphics.newImage("assets/sprites/stage1.png")
+    for _, layer in ipairs(layers) do
+        layer.img:setFilter("nearest", "nearest")
+    end    
 
+    worldWidth = layers[#layers].img:getWidth()
+    
+    
+    
+    --Colisiones
+    local obs_cerca = obstacle.new(false, 0, 88, 80, 16, "top")
     table.insert(obstacles, obs_cerca)
-    --table.insert(obstacles, obs2)
 
     player.load()
 end
@@ -54,24 +70,38 @@ function stage1.update(dt)
     end
     
     --Actualizar animaciones y sonidos
+    
     player.update(dt)
+    camera.update(player.x, worldWidth * scale)
 end
 
 function stage1.draw()
+
     --dibujar background
-    love.graphics.draw(background, 0, 0, 0, love.graphics.getWidth()/256, love.graphics.getHeight()/144)
+    for _, layer in ipairs(layers) do
+        -- Calculamos el desplazamiento individual de cada capa
+        local offsetX = -camera.x * layer.factor
+        
+        -- Dibujamos la capa con su escala correspondiente
+        love.graphics.draw(layer.img, offsetX, 0, 0, scale, love.graphics.getHeight() / 144)
+    end
+
+    camera.begin()
 
     --dibujar player
+    
+    camera.ended()
     player.draw()
---caja del player
---     love.graphics.setColor(1, 1, 1, 0.25)
---     love.graphics.rectangle("fill", player.collisionBox.x, player.collisionBox.y, player.collisionBox.width, player.collisionBox.height)
 
--- --cajas
---     for _, obs in ipairs(obstacles) do
---         love.graphics.rectangle("fill", obs.collisionBox.x, obs.collisionBox.y, obs.collisionBox.width, obs.collisionBox.height)
---     end
---     love.graphics.setColor(1, 1, 1)
+--caja del player
+    love.graphics.setColor(1, 1, 1, 0.25)
+    love.graphics.rectangle("fill", player.collisionBox.x, player.collisionBox.y, player.collisionBox.width, player.collisionBox.height)
+
+--cajas
+    for _, obs in ipairs(obstacles) do
+        love.graphics.rectangle("fill", obs.collisionBox.x, obs.collisionBox.y, obs.collisionBox.width, obs.collisionBox.height)
+    end
+    love.graphics.setColor(1, 1, 1)
 end
 
 return stage1
