@@ -27,17 +27,20 @@ function stage1.load()
     end    
 
     worldWidth = layers[#layers].img:getWidth()
-    
-    
-    
+
     --Colisiones
-    local obs_cerca = obstacle.new(false, 0, 88, 80, 16, "top")
+    local obs_cerca = obstacle.new(false, 0, 88, 80, 16, "top", "")
     table.insert(obstacles, obs_cerca)
+
+    local obs_cerca2 = obstacle.new(false, 200, 40, 50, 50, "full", "")
+    table.insert(obstacles, obs_cerca2)
+
 
     player.load()
 end
 
 function stage1.update(dt)
+    
 
     local cb = require("src.scripts.systems.collision_box")
     -- --- MOVIMIENTO SHIFT ---
@@ -49,7 +52,7 @@ function stage1.update(dt)
 
     --Resolver x
     player.isMoving = false
-    player.walk(dt, "x")
+    player.walk(dt, "x", worldWidth*scale)
     player.updateCollisionBox() -- Actualizamos la caja tras mover en X
     
     --Resolver x
@@ -81,27 +84,41 @@ function stage1.draw()
     for _, layer in ipairs(layers) do
         -- Calculamos el desplazamiento individual de cada capa
         local offsetX = -camera.x * layer.factor
-        
         -- Dibujamos la capa con su escala correspondiente
         love.graphics.draw(layer.img, offsetX, 0, 0, scale, love.graphics.getHeight() / 144)
     end
 
     camera.begin()
-
-    --dibujar player
+    
+        player.draw()
+        --caja del player
+        love.graphics.setColor(1, 1, 1, 0.25)
+        love.graphics.rectangle("fill", player.collisionBox.x, player.collisionBox.y, player.collisionBox.width, player.collisionBox.height)
+    
+        --cajas
+        for _, obs in ipairs(obstacles) do
+            love.graphics.rectangle("fill", obs.collisionBox.x, obs.collisionBox.y, obs.collisionBox.width, obs.collisionBox.height)
+        end
+        love.graphics.setColor(1, 1, 1)
     
     camera.ended()
-    player.draw()
 
---caja del player
-    love.graphics.setColor(1, 1, 1, 0.25)
-    love.graphics.rectangle("fill", player.collisionBox.x, player.collisionBox.y, player.collisionBox.width, player.collisionBox.height)
+   
+    --dibujar player y obstaculos
 
---cajas
-    for _, obs in ipairs(obstacles) do
-        love.graphics.rectangle("fill", obs.collisionBox.x, obs.collisionBox.y, obs.collisionBox.width, obs.collisionBox.height)
-    end
-    love.graphics.setColor(1, 1, 1)
+
+    -- if player.collisionBox.y > obs.collision_box.y then
+    --         --dibujo obstaculos
+    --     elseif player.collisionBox.y < obs.collision_box.y then
+    --         --dibujo obstaculos
+    --         player.draw()
+    --     end
+        
+    -- for _, obs in ipairs(obstacles) do
+        
+    -- end
+
+
 end
 
 return stage1
