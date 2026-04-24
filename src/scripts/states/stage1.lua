@@ -32,7 +32,7 @@ function stage1.load()
     local obs_cerca = obstacle.new(false, 0, 88, 80, 16, "top", "")
     table.insert(obstacles, obs_cerca)
 
-    local obs_cerca2 = obstacle.new(false, 200, 40, 50, 50, "full", "")
+    local obs_cerca2 = obstacle.new(false, 0, 0, 40, 40, "full", "")
     table.insert(obstacles, obs_cerca2)
 
 

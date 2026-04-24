@@ -94,37 +94,6 @@ function collisionBox.updatePosition(entity)
     
 end
 
--- function collisionBox.resolveX(entity, object)
-
---     if collisionBox.check(entity, object) then
---         if entity.collisionBox.x < object.collisionBox.x then
---            entity.x = object.collisionBox.x - entity.width
---         else
---             entity.x = object.collisionBox.x + object.collisionBox.width
---         end
---     end
-
---     entity.updateCollisionBox()
--- end
- 
--- function collisionBox.resolveY(entity, object)
-    
---     if collisionBox.check(entity, object) then
-
---         if entity.collisionBox.y < object.collisionBox.y then
---             entity.y = object.collisionBox.y - entity.height
---         else
---             if entity.type == collisionBox.TYPES.BOTTOM then
---                 entity.y = object.collisionBox.y + object.collisionBox.height - entity.height + entity.collisionBox.height                 
---             else
---                 entity.y = object.y + object.collisionBox.height
---             end
---         end
---     end
-
---     entity.updateCollisionBox()
--- end
-
 function collisionBox.resolveX(entity, object)
     if collisionBox.check(entity, object) then
         -- Determinamos si el centro de la entidad está a la izquierda o derecha del objeto
