@@ -69,7 +69,6 @@ function player.update(dt)
             currentFrame = 1
         end
     end
-    
 end
 
 function player.draw()
@@ -102,7 +101,7 @@ function player.walk(dt, XorY)
         if love.keyboard.isDown("a") then
             player.isMoving = true
             player.facingLeft = true
-            player.x = player.x - dt * player.speed
+            player.x = math.max(player.x - dt * player.speed, 0)
         elseif love.keyboard.isDown("d") then
             player.isMoving = true
             player.facingLeft = false
@@ -111,10 +110,10 @@ function player.walk(dt, XorY)
     elseif XorY == "y" then
         if love.keyboard.isDown("w") then
             player.isMoving = true
-            player.y = player.y - dt * player.speed
+            player.y = math.max(player.y - dt * player.speed, 0)
         elseif love.keyboard.isDown("s") then
             player.isMoving = true
-            player.y = player.y + dt * player.speed
+            player.y = math.min(player.y + dt * player.speed, love.graphics.getHeight() - player.scale * player.height)
         end
     end
 end

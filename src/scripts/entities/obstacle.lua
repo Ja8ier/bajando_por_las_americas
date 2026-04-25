@@ -21,4 +21,8 @@ function obstacle.new(_isVisible, _x, _y, _width, _height, collisionType, _textu
     return newObstacle
 end
 
+function obstacle.draw()
+    
+end
+
 return obstacle

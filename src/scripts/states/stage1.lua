@@ -32,15 +32,15 @@ function stage1.load()
 
     --Colisiones
     
+    local obstacle_worldRightBorder = obstacle.new(false, 2560, 0, 2, 144, "full", "") -- cerca o pared de atras en zona de la facultad
+    table.insert(obstacles, obstacle_worldRightBorder)
     local obstacle_wall1 = obstacle.new(false, 0, 78, 2489, 6, "full", "") -- cerca o pared de atras en zona de la facultad
-
     table.insert(obstacles, obstacle_wall1)
 
     player.load()
 end
 
 function stage1.update(dt)
-    
 
     local cb = require("src.scripts.systems.collision_box")
     --correr con shift
@@ -52,16 +52,16 @@ function stage1.update(dt)
 
     --Resolver x
     player.isMoving = false
-    player.walk(dt, "x", worldWidth * scale)
+    player.walk(dt, "x")
     player.updateCollisionBox()
-    
+
     --Resolver x
     for _, obs in ipairs(obstacles) do
         if cb.check(player, obs) then
             cb.resolveX(player, obs)
         end
     end
-    
+
     --Resolver y
     player.walk(dt, "y")
     player.updateCollisionBox()
@@ -71,9 +71,9 @@ function stage1.update(dt)
             cb.resolveY(player, obs)
         end
     end
-    
+
     --actualizar animaciones y sonidos:
-    
+
     player.update(dt)
     camera.update(player.x, worldWidth * scale)
 end
@@ -107,7 +107,6 @@ function stage1.draw()
     local frontgroundOffsetX = -camera.x * layers[#layers].factor
     love.graphics.draw(layers[#layers].img, frontgroundOffsetX, 0, 0, scale, love.graphics.getHeight() / 144)
 
-   
     --dibujar player y obstaculos
 
 

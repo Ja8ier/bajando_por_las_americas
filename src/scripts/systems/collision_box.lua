@@ -33,11 +33,9 @@ function collisionBox.create(entity, type)
     end
 
     --Posicion x
-    
     _x = entity.x
     
     --Posicion y
-
     if type == collisionBox.TYPES.FULL or type == collisionBox.TYPES.TOP then
         _y = entity.y
     elseif type == collisionBox.TYPES.BOTTOM then
