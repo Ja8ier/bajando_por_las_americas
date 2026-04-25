@@ -128,4 +128,29 @@ function collisionBox.resolveY(entity, object)
     end
 end
 
+function collisionBox.isAhead(entity, object)
+    local ABottom = entity.collisionBox.y + entity.collisionBox.height
+    local bBottom = object.collisionBox.y + object.collisionBox.height
+
+    return ABottom < bBottom
+end
+
+function collisionBox.showBoxes(player, obstacles, show)
+
+    if show then
+        --caja del player
+        love.graphics.setColor(1, 1, 1, 0.25)
+        love.graphics.rectangle("fill", player.collisionBox.x, player.collisionBox.y, player.collisionBox.width, player.collisionBox.height)
+
+        --cajas de colision
+        love.graphics.setColor(1, 0.1, 0.1, 0.25)
+        for _, obs in ipairs(obstacles) do
+        love.graphics.rectangle("fill", obs.collisionBox.x, obs.collisionBox.y, obs.collisionBox.width, obs.collisionBox.height)
+        end
+        love.graphics.setColor(1, 1, 1)
+    else
+        return
+    end
+    
+end
 return collisionBox

@@ -34,6 +34,7 @@ function player.load()
 
     player.scale = (love.graphics.getWidth() / 256)
     player.y = love.graphics.getHeight() - player.frameheight * player.scale - 100
+    player.x = 100
 
     sprideSheet = love.graphics.newImage("assets/sprites/player_walking.png")
     sprideSheet:setFilter("nearest" , "nearest")

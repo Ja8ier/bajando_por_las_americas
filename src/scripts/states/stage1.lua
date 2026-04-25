@@ -32,10 +32,15 @@ function stage1.load()
 
     --Colisiones
     
-    local obstacle_worldRightBorder = obstacle.new(false, 2560, 0, 2, 144, "full", "") -- cerca o pared de atras en zona de la facultad
-    table.insert(obstacles, obstacle_worldRightBorder)
-    local obstacle_wall1 = obstacle.new(false, 0, 78, 2489, 6, "full", "") -- cerca o pared de atras en zona de la facultad
-    table.insert(obstacles, obstacle_wall1)
+    local collision_worldRightBorder = obstacle.new(false, 2560, 0, 2, 144, "full", "", false) -- cerca o pared de atras en zona de la facultad
+    table.insert(obstacles, collision_worldRightBorder)
+    local collision_wall1 = obstacle.new(false, 0, 78, 2489, 6, "full", "", false) -- cerca o pared de atras en zona de la facultad
+    table.insert(obstacles, collision_wall1)
+
+    --Objetos
+
+    local object_caucho = obstacle.new(true, 120, 90, 16, 16, "bottom", love.graphics.newImage("assets/sprites/caucho.png"), false)
+    table.insert(obstacles, object_caucho)
 
     player.load()
 end
@@ -88,39 +93,36 @@ function stage1.draw()
     end
    
     camera.begin()
-    
-        player.draw()
-        --caja del player
-        love.graphics.setColor(1, 1, 1, 0.25)
-        love.graphics.rectangle("fill", player.collisionBox.x, player.collisionBox.y, player.collisionBox.width, player.collisionBox.height)
-    
-        --cajas de colision
-        love.graphics.setColor(1, 0.1, 0.1, 0.25)
-        for _, obs in ipairs(obstacles) do
-            love.graphics.rectangle("fill", obs.collisionBox.x, obs.collisionBox.y, obs.collisionBox.width, obs.collisionBox.height)
+
+    local drawables = {}
+
+    table.insert(drawables, player)
+
+    for _, obs in ipairs(obstacles) do
+        if obs.isVisible then
+            table.insert(drawables, obs)
         end
-        love.graphics.setColor(1, 1, 1)
-    
+    end
+
+    local cb = require("src.scripts.systems.collision_box")
+    table.sort(drawables, cb.isAhead)
+
+    for _, obj in ipairs(drawables) do
+
+        if obj == player then
+            player.draw()
+        else
+            obstacle.draw(obj)
+        end
+
+    end
+
+    cb.showBoxes(player, obstacles, false)
     camera.ended()
 
     --frontground
     local frontgroundOffsetX = -camera.x * layers[#layers].factor
     love.graphics.draw(layers[#layers].img, frontgroundOffsetX, 0, 0, scale, love.graphics.getHeight() / 144)
-
-    --dibujar player y obstaculos
-
-
-    -- if player.collisionBox.y > obs.collision_box.y then
-    --         --dibujo obstaculos
-    --     elseif player.collisionBox.y < obs.collision_box.y then
-    --         --dibujo obstaculos
-    --         player.draw()
-    --     end
-        
-    -- for _, obs in ipairs(obstacles) do
-        
-    -- end
-
 
 end
 
