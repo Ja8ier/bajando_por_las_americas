@@ -4,23 +4,11 @@ local playerCollisionBox = require("src.scripts.systems.collision_box")
 local animation = require("src.scripts.systems.animation")
 
 local animations = {
-    walk = animation.new("assets/player/player_walking.png", 19, 28, 0.25, false),
-    run = animation.new("assets/player/player_walking.png", 21, 28, 0.15, false)
+    walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false),
+    run = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.15, false)
 }
 
 local currentAnimation = animations.walk
-
-local currentFrame = 1
-local frameDuration = 0.25
-local timer = 0
-local columns = 0
-
-local sprideSheet = ""
-
-local sheetWidth = 0
-local sheetHeight = 0
-
-local quads = {}
 
 local player = {
     x = 0,
@@ -45,81 +33,66 @@ function player.load()
     player.y = love.graphics.getHeight() - player.frameheight * player.scale - 100
     player.x = 100
 
-    -- sprideSheet = love.graphics.newImage("assets/sprites/player/player_walking.png")
-    -- sprideSheet:setFilter("nearest" , "nearest")
-    
-    -- sheetWidth, sheetheight = sprideSheet:getDimensions()
-    -- columns = sheetWidth / player.frameWidth
-
-    -- for i = 0, columns - 1 do
-    --     quads[#quads+1] = love.graphics.newQuad(i * player.frameWidth, 0, player.frameWidth, player.frameheight, sheetWidth, sheetheight)
-    -- end
-
     playerCollisionBox.create(player, "bottom")
 
 end
 
 function player.update(dt)
 
-  --  timer = timer + dt
-
     animation.update(currentAnimation, player.isMoving, dt)
 
     --logica de sonidos
-    if player.isMoving then
-       -- sounds.sound_effects.pasos2:play()
-    else
-        --sounds.sound_effects.pasos2:stop()
-    end
-
-    --logica de animación
-    -- if timer >= frameDuration then
-    --     timer = timer - frameDuration
-    --     if player.isMoving then
-    --         currentFrame = (currentFrame % #quads) + 1
-    --     else
-    --         currentFrame = 1
-    --     end
+    -- if player.isMoving then
+    -- else
     -- end
+
 end
 
 function player.draw()
 
-    
-    if player.facingLeft then
-        love.graphics.draw(sprideSheet, quads[currentFrame], player.x + player.scale * player.frameWidth, player.y, 0, -player.scale, player.scale)
-    else
-        love.graphics.draw(sprideSheet, quads[currentFrame], player.x, player.y, 0, player.scale, player.scale)
+    local quad = animation.getQuad(currentAnimation)
+
+    if not quad then
+        return
     end
+    
+    local sheet = animation.getSheet(currentAnimation)
+
+    if player.facingLeft then
+        love.graphics.draw(sheet, quad, player.x + player.scale * player.frameWidth,
+        player.y, 0, -player.scale, player.scale)
+    else
+        love.graphics.draw(sheet, quad, player.x, player.y, 0,
+        player.scale, player.scale)
+    end
+
 end
 
 --#endregion
 
 local function setAnimation(animation)
     local newAnimation = animations[animation]
-    if newAnimation and currentAnim ~= newAnimation then
-        currentAnim = newAnimation
-   --     Animation.reset(currentAnim)   
+    if newAnimation and currentAnimation ~= newAnimation then
+        currentAnimation = newAnimation
     end
 end
 
-function player.move(dt)
-
-    if love.keyboard.isDown("lshift") then
-        player.speed = 300
-        frameDuration = 0.10
+function player.updateAnimationState()
+    local isShift = love.keyboard.isDown("lshift")
+    if player.isMoving then
+        player.speed = isShift and 300 or 150
+        local anim = isShift and "run" or "walk"
+        setAnimation(anim)
     else
         player.speed = 150
-        frameDuration = 0.25
+        setAnimation("walk")
     end
-
-    player.walk(dt, "x")
-    player.walk(dt, "y")
-
 end
 
 function player.walk(dt, XorY)
+
     if XorY == "x" then
+
         if love.keyboard.isDown("a") then
             player.isMoving = true
             player.facingLeft = true
@@ -129,7 +102,9 @@ function player.walk(dt, XorY)
             player.facingLeft = false
             player.x = player.x + dt * player.speed
         end
+
     elseif XorY == "y" then
+
         if love.keyboard.isDown("w") then
             player.isMoving = true
             player.y = math.max(player.y - dt * player.speed, 0)
@@ -137,7 +112,9 @@ function player.walk(dt, XorY)
             player.isMoving = true
             player.y = math.min(player.y + dt * player.speed, love.graphics.getHeight() - player.scale * player.height)
         end
+
     end
+
 end
 
 return player

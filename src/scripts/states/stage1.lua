@@ -11,7 +11,7 @@ local layers = {}
 local collisions = {}
 local objects = {}
 
-local scale = love.graphics.getWidth() /256
+local scale = love.graphics.getWidth() / 256
 
 function stage1.load()
     
@@ -49,12 +49,6 @@ end
 function stage1.update(dt)
 
     local cb = require("src.scripts.systems.collision_box")
-    --correr con shift
-    if love.keyboard.isDown("lshift") then
-        player.speed = 300 --velocidad corriendo
-    else
-        player.speed = 150 --velocidad normal
-    end
 
     --Resolver x
     player.isMoving = false
@@ -79,7 +73,7 @@ function stage1.update(dt)
     end
 
     --actualizar animaciones y sonidos:
-
+    player.updateAnimationState()
     player.update(dt)
     camera.update(player.x, worldWidth * scale)
 end
