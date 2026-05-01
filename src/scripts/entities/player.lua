@@ -21,7 +21,7 @@ local player = {
     width = 19,
     height = 28,
 
-    --sprideSheet
+    --sprideSheet base (de pie)
     frameWidth = 19,
     frameheight = 28,
     facingLeft = false,

@@ -8,7 +8,8 @@ local background
 local worldWidth
 local layers = {}
 
-local obstacles = {}
+local collisions = {}
+local objects = {}
 
 local scale = love.graphics.getWidth() /256
 
@@ -33,14 +34,14 @@ function stage1.load()
     --Colisiones
     
     local collision_worldRightBorder = obstacle.new(false, 2560, 0, 2, 144, "full", "", false) -- cerca o pared de atras en zona de la facultad
-    table.insert(obstacles, collision_worldRightBorder)
+    table.insert(collisions, collision_worldRightBorder)
     local collision_wall1 = obstacle.new(false, 0, 78, 2489, 6, "full", "", false) -- cerca o pared de atras en zona de la facultad
-    table.insert(obstacles, collision_wall1)
+    table.insert(collisions, collision_wall1)
 
     --Objetos
 
-    local object_caucho = obstacle.new(true, 120, 90, 16, 16, "bottom", love.graphics.newImage("assets/sprites/caucho.png"), false)
-    table.insert(obstacles, object_caucho)
+    -- local object_caucho = obstacle.new(true, 120, 90, 16, 16, "bottom", love.graphics.newImage("assets/sprites/caucho.png"), false)
+    -- table.insert(obstacles, object_caucho)
 
     player.load()
 end
@@ -61,7 +62,7 @@ function stage1.update(dt)
     player.updateCollisionBox()
 
     --Resolver x
-    for _, obs in ipairs(obstacles) do
+    for _, obs in ipairs(collisions) do
         if cb.check(player, obs) then
             cb.resolveX(player, obs)
         end
@@ -71,7 +72,7 @@ function stage1.update(dt)
     player.walk(dt, "y")
     player.updateCollisionBox()
 
-    for _, obs in ipairs(obstacles) do
+    for _, obs in ipairs(collisions) do
         if cb.check(player, obs) then
             cb.resolveY(player, obs)
         end
@@ -98,7 +99,7 @@ function stage1.draw()
 
     table.insert(drawables, player)
 
-    for _, obs in ipairs(obstacles) do
+    for _, obs in ipairs(collisions) do
         if obs.isVisible then
             table.insert(drawables, obs)
         end
@@ -107,6 +108,7 @@ function stage1.draw()
     local cb = require("src.scripts.systems.collision_box")
     table.sort(drawables, cb.isAhead)
 
+    --Dibujar player y luego obstaculos
     for _, obj in ipairs(drawables) do
 
         if obj == player then
@@ -117,7 +119,7 @@ function stage1.draw()
 
     end
 
-    cb.showBoxes(player, obstacles, false)
+    cb.showBoxes(player, collisions, false)
     camera.ended()
 
     --frontground
