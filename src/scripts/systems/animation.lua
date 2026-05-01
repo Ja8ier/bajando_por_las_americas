@@ -1,9 +1,8 @@
 local Animation = {}
 
--- Constructor de una nueva animación
-function Animation.new(spritesheetPath, frameWidth, frameHeight, frameDuration, loop)
-    local anim = {
-        sheet = love.graphics.newImage(spritesheetPath),
+function Animation.new(spritesheet, frameWidth, frameHeight, frameDuration, loop)
+    local animation = {
+        sheet = love.graphics.newImage(spritesheet),
         quads = {},
         frameWidth = frameWidth,
         frameHeight = frameHeight,
@@ -12,55 +11,60 @@ function Animation.new(spritesheetPath, frameWidth, frameHeight, frameDuration, 
         currentFrame = 1,
         timer = 0,
     }
-    anim.sheet:setFilter("nearest", "nearest")
 
-    local sheetW, sheetH = anim.sheet:getDimensions()
-    local cols = sheetW / frameWidth
-    for i = 0, cols - 1 do
-        anim.quads[i + 1] = love.graphics.newQuad(
-            i * frameWidth, 0,
-            frameWidth, frameHeight,
-            sheetW, sheetH
-        )
+    animation.sheet:setFilter("nearest", "nearest")
+
+    local sheetWidth, sheetHeight = animation.sheet:getDimensions()
+    local columns = sheetWidth / frameWidth
+
+    for i = 0, columns - 1 do
+        animation.quads[i + 1] = love.graphics.newQuad(i * frameWidth, 0,
+            frameWidth, frameHeight,sheetWidth, sheetHeight)
     end
-    return anim
+
+    return animation
 end
 
-function Animation.update(anim, isMoving, dt)
-    if not anim then return end
-    anim.timer = anim.timer + dt
-    if anim.timer >= anim.frameDuration then
-        anim.timer = anim.timer - anim.frameDuration
-        if isMoving or anim.loop then
-            anim.currentFrame = (anim.currentFrame % #anim.quads) + 1
+function Animation.update(animation, isMoving, dt)
+    
+    if not animation then
+        return
+    end
+    
+    animation.timer = animation.timer + dt
+    
+    if animation.timer >= animation.frameDuration then
+        animation.timer = animation.timer - animation.frameDuration
+        if isMoving or animation.loop then
+            animation.currentFrame = (animation.currentFrame % #animation.quads) + 1
         else
-            anim.currentFrame = 1  -- si no se mueve y no loopea, queda en frame 1
+            animation.reset(animation)  -- si no se mueve y no loopea, queda en frame 1
         end
     end
 end
 
-function Animation.getQuad(anim)
-    if not anim or not anim.quads[anim.currentFrame] then
+function Animation.reset(animation, defaultSpriteSheet)
+    if animation then
+        animation.currentFrame = 1
+        animation.timer = 0
+        animation.sheet = defaultSpriteSheet
+    end
+end
+
+function Animation.setFrameDuration(animation, newDuration)
+    if animation then
+        animation.frameDuration = newDuration
+    end
+end
+
+function Animation.getQuad(animation)
+    if not animation or not animation.quads[animation.currentFrame] then
         return nil
     end
-    return anim.quads[anim.currentFrame]
+    return animation.quads[animation.currentFrame]
 end
 
-function Animation.getSheet(anim)
-    return anim.sheet
+function Animation.getSheet(animation)
+    return animation.sheet
 end
-
-function Animation.reset(anim)
-    if anim then
-        anim.currentFrame = 1
-        anim.timer = 0
-    end
-end
-
-function Animation.setFrameDuration(anim, newDuration)
-    if anim then
-        anim.frameDuration = newDuration
-    end
-end
-
 return Animation

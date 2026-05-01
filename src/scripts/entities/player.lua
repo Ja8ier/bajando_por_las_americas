@@ -1,6 +1,15 @@
 local sounds = require("src.scripts.sounds.sounds")
 local playerCollisionBox = require("src.scripts.systems.collision_box")
 
+local animation = require("src.scripts.systems.animation")
+
+local animations = {
+    walk = animation.new("assets/player/player_walking.png", 19, 28, 0.25, false),
+    run = animation.new("assets/player/player_walking.png", 21, 28, 0.15, false)
+}
+
+local currentAnimation = animations.walk
+
 local currentFrame = 1
 local frameDuration = 0.25
 local timer = 0
@@ -36,15 +45,15 @@ function player.load()
     player.y = love.graphics.getHeight() - player.frameheight * player.scale - 100
     player.x = 100
 
-    sprideSheet = love.graphics.newImage("assets/sprites/player_walking.png")
-    sprideSheet:setFilter("nearest" , "nearest")
+    -- sprideSheet = love.graphics.newImage("assets/sprites/player/player_walking.png")
+    -- sprideSheet:setFilter("nearest" , "nearest")
     
-    sheetWidth, sheetheight = sprideSheet:getDimensions()
-    columns = sheetWidth / player.frameWidth
+    -- sheetWidth, sheetheight = sprideSheet:getDimensions()
+    -- columns = sheetWidth / player.frameWidth
 
-    for i = 0, columns - 1 do
-        quads[#quads+1] = love.graphics.newQuad(i * player.frameWidth, 0, player.frameWidth, player.frameheight, sheetWidth, sheetheight)
-    end
+    -- for i = 0, columns - 1 do
+    --     quads[#quads+1] = love.graphics.newQuad(i * player.frameWidth, 0, player.frameWidth, player.frameheight, sheetWidth, sheetheight)
+    -- end
 
     playerCollisionBox.create(player, "bottom")
 
@@ -52,27 +61,31 @@ end
 
 function player.update(dt)
 
-    timer = timer + dt
+  --  timer = timer + dt
+
+    animation.update(currentAnimation, player.isMoving, dt)
 
     --logica de sonidos
     if player.isMoving then
-        sounds.sound_effects.pasos2:play()
+       -- sounds.sound_effects.pasos2:play()
     else
-        sounds.sound_effects.pasos2:stop()
+        --sounds.sound_effects.pasos2:stop()
     end
 
     --logica de animación
-    if timer >= frameDuration then
-        timer = timer - frameDuration
-        if player.isMoving then
-            currentFrame = (currentFrame % #quads) + 1
-        else
-            currentFrame = 1
-        end
-    end
+    -- if timer >= frameDuration then
+    --     timer = timer - frameDuration
+    --     if player.isMoving then
+    --         currentFrame = (currentFrame % #quads) + 1
+    --     else
+    --         currentFrame = 1
+    --     end
+    -- end
 end
 
 function player.draw()
+
+    
     if player.facingLeft then
         love.graphics.draw(sprideSheet, quads[currentFrame], player.x + player.scale * player.frameWidth, player.y, 0, -player.scale, player.scale)
     else
@@ -81,6 +94,14 @@ function player.draw()
 end
 
 --#endregion
+
+local function setAnimation(animation)
+    local newAnimation = animations[animation]
+    if newAnimation and currentAnim ~= newAnimation then
+        currentAnim = newAnimation
+   --     Animation.reset(currentAnim)   
+    end
+end
 
 function player.move(dt)
 
