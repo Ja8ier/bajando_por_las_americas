@@ -39,15 +39,12 @@ function Animation.update(animation, isMoving, dt)
             animation.currentFrame = (animation.currentFrame % #animation.quads) + 1
         else
             animation.currentFrame = 1
-
-       --     animation.reset(animation)  -- si no se mueve y no loopea, queda en frame 1
         end
     end
 end
 
 function Animation.reset(animation)
     if animation then
-      --  animation.sheet = "assets/sprites/player/player_walking.png"
         animation.currentFrame = 1
         animation.timer = 0
     end

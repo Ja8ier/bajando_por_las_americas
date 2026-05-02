@@ -3,6 +3,8 @@ local continue_game = {}
 local gui = require("src.scripts.gui.gui")
 local settings = require("src.scripts.states.settings")
 local exit = require("src.scripts.states.exit")
+local inputs = require("src.scripts.utils.inputs")
+
 local sprite_Background
 local active_edit = {}
 local change_edit_name, change_delete_name = {}, {}
@@ -204,8 +206,18 @@ function continue_game.textinput(t)
     gui.utils.textinput(t)
 end
 
+-- function continue_game.keypressed(key)
+--     gui.utils.keypressed(key)
+-- end
+
 function continue_game.keypressed(key)
-    gui.utils.keypressed(key)
+
+    if Current_state == require("src.scripts.states.continue_the_game") then
+        if key == inputs.createNewGame.back then
+            Change_state(require("src.scripts.states.menu"))
+        end
+    end
+    
 end
 
 return continue_game

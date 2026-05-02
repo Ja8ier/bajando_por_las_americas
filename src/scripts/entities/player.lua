@@ -1,4 +1,5 @@
 local sounds = require("src.scripts.sounds.sounds")
+local inputs = require("src.scripts.utils.inputs")
 local playerCollisionBox = require("src.scripts.systems.collision_box")
 
 local animation = require("src.scripts.systems.animation")
@@ -79,7 +80,7 @@ local function setAnimation(animation)
 end
 
 function player.updateAnimationState()
-    local isShift = love.keyboard.isDown("lshift")
+    local isShift = love.keyboard.isDown(inputs.game.sprint)
     if player.isMoving then
         player.speed = isShift and 300 or 150
         local anim = isShift and "run" or "walk"
@@ -94,11 +95,11 @@ function player.move(dt, XorY)
 
     if XorY == "x" then
 
-        if love.keyboard.isDown("a") then
+        if love.keyboard.isDown(inputs.game.left) then
             player.isMoving = true
             player.facingLeft = true
             player.x = math.max(player.x - dt * player.speed, 0)
-        elseif love.keyboard.isDown("d") then
+        elseif love.keyboard.isDown(inputs.game.right) then
             player.isMoving = true
             player.facingLeft = false
             player.x = player.x + dt * player.speed
@@ -106,10 +107,10 @@ function player.move(dt, XorY)
 
     elseif XorY == "y" then
 
-        if love.keyboard.isDown("w") then
+        if love.keyboard.isDown(inputs.game.up) then
             player.isMoving = true
             player.y = math.max(player.y - dt * player.speed, 0)
-        elseif love.keyboard.isDown("s") then
+        elseif love.keyboard.isDown(inputs.game.down) then
             player.isMoving = true
             player.y = math.min(player.y + dt * player.speed, love.graphics.getHeight() - player.scale * player.height)
         end

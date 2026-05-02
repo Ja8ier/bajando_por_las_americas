@@ -4,28 +4,28 @@ local inputs = {
         newGame = "return", --enter
         continueGame = "space",
         settings = "s",
-        exit = "esc"
+        exit = "escape"
     },
 
     createNewGame = {
-        back = "esc"
+        back = "escape"
     },
 
     continueGame = {
-        back = "esc"
+        back = "escape"
     },
 
     settings = {
-        back = "esc"
+        back = "escape"
     },
 
     game = {
-        pause = {"esc", "p"},
+        pause = {"escape", "p"},
         up = "w",
         down = "s",
         left = "a",
         right = "d",
-        sprint = "shift",
+        sprint = "lshift",
         crouch = "c", --agacharse
         attack = "k",
         --kick = "l"

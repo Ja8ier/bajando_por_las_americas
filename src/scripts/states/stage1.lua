@@ -3,6 +3,7 @@ local stage1 = {}
 local player = require("src.scripts.entities.player")
 local obstacle = require("src.scripts.entities.obstacle")
 local camera = require("src.scripts.systems.camera")
+local inputs = require("src.scripts.utils.inputs")
 
 local background
 local worldWidth
@@ -27,7 +28,7 @@ function stage1.load()
 
     for _, layer in ipairs(layers) do
         layer.img:setFilter("nearest", "nearest")
-    end    
+    end
 
     worldWidth = layers[#layers].img:getWidth()
 

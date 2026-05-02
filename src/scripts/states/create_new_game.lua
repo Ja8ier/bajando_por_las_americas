@@ -3,6 +3,7 @@ local new_game = {}
 local gui = require("src.scripts.gui.gui")
 local settings = require("src.scripts.states.settings")
 local exit = require("src.scripts.states.exit")
+local inputs = require("src.scripts.utils.inputs")
 
 local sprite_Background
 local active_btn = false
@@ -102,14 +103,18 @@ function new_game.textinput(t)
     gui.utils.textinput(t)
 end
 
-function new_game.keypressed(key)
-    gui.utils.keypressed(key)
-end
+-- function new_game.keypressed(key)
+--     gui.utils.keypressed(key)
+-- end
 
-function love.keypressed(key)
-    if key == "return" then
-        Change_state(require("src.scripts.states.stage1"))
+function new_game.keypressed(key)
+
+    if Current_state == require("src.scripts.states.create_new_game") then
+        if key == inputs.continueGame.back then
+            Change_state(require("src.scripts.states.menu"))
+        end
     end
+
 end
 
 return new_game

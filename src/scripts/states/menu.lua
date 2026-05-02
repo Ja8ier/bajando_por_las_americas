@@ -1,5 +1,6 @@
 local menu = {}
 
+
 --variables globales
 Cursor_position_x = 0; Cursor_position_y = 0
 
@@ -8,6 +9,7 @@ Cursor_position_x = 0; Cursor_position_y = 0
 local settings = require("src.scripts.states.settings")
 local exit = require("src.scripts.states.exit")
 local gui = require("src.scripts.gui.gui")
+local inputs = require("src.scripts.utils.inputs")
 
 --variables locales
 local sprite_Background_menu
@@ -134,6 +136,23 @@ function menu.mousereleased(x, y, button)
                 menu.Show_exit = true
             end
         end
+    end
+end
+
+function menu.keypressed(key)
+
+    if Current_state == require("src.scripts.states.menu") then
+
+        if key == inputs.menu.newGame then
+            Change_state(require("src.scripts.states.create_new_game"))
+        elseif key == inputs.menu.continueGame then
+            Change_state(require("src.scripts.states.continue_the_game"))
+        elseif key == inputs.menu.settings then
+            --Change_state(require("src.scripts.states."))
+        elseif key == inputs.menu.exit then
+            --Change_state(require("src.scripts.states.create_new_game"))
+        end
+        
     end
 end
 
