@@ -1,3 +1,0 @@
-function changeStage(stage)
-    
-end

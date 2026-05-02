@@ -32,17 +32,17 @@ function collisionBox.create(entity, type)
         _height = entity.height * scale
     end
 
-    --Posicion x
+    --posicion X
     _x = entity.x
     
-    --Posicion y
+    --posicion Y
     if type == collisionBox.TYPES.FULL or type == collisionBox.TYPES.TOP then
         _y = entity.y
     elseif type == collisionBox.TYPES.BOTTOM then
         _y = entity.y + ((2 * entity.height * scale) / 3)
     end
 
-    --Definir tipo de collision box
+    --tipo de collision box
     if type == collisionBox.TYPES.BOTTOM then
         _type = collisionBox.TYPES.BOTTOM
     elseif type == collisionBox.TYPES.TOP then
@@ -51,7 +51,6 @@ function collisionBox.create(entity, type)
     _type = collisionBox.TYPES.FULL
     end
 
-    --Crear  la collisionBox
     entity.collisionBox = {
         width = _width,
         height = _height,
@@ -79,11 +78,11 @@ end
 
 function collisionBox.updatePosition(entity)
     
-    --Posicion x
+    --posicion X
     
     entity.collisionBox.x = entity.x
     
-    --Posicion y
+    --posicion Y
     if entity.collisionBox.type == collisionBox.TYPES.FULL or entity.collisionBox.type  == collisionBox.TYPES.TOP then
         entity.collisionBox.y = entity.y
     elseif entity.collisionBox.type == collisionBox.TYPES.BOTTOM then
@@ -94,18 +93,19 @@ end
 
 function collisionBox.resolveX(entity, object)
     if collisionBox.check(entity, object) then
-        -- Determinamos si el centro de la entidad está a la izquierda o derecha del objeto
+        --ver si el centro de la entity esta a la izquierda o derecha del objeto
         local entityCenterX = entity.collisionBox.x + (entity.collisionBox.width / 2)
         local objectCenterX = object.collisionBox.x + (object.collisionBox.width / 2)
 
         if entityCenterX < objectCenterX then
-            -- Colisión por la izquierda
+            --colision por la izquierda
             entity.x = object.collisionBox.x - entity.collisionBox.width
         else
-            -- Colisión por la derecha
+            --colision por la derecha
             entity.x = object.collisionBox.x + object.collisionBox.width
         end
-        entity.updateCollisionBox() -- Actualizar la caja tras el reajuste
+        --actualizar la collisionBox
+        entity.updateCollisionBox()
     end
 end
 
@@ -114,14 +114,14 @@ function collisionBox.resolveY(entity, object)
         local entityCenterY = entity.collisionBox.y + (entity.collisionBox.height / 2)
         local objectCenterY = object.collisionBox.y + (object.collisionBox.height / 2)
 
-        -- El offset es la distancia desde la 'y' del sprite hasta donde empiezan los pies
+        --el offset es la distancia desde la Y del sprite hasta donde empiezan los pies
         local offsetY = entity.collisionBox.y - entity.y 
 
         if entityCenterY < objectCenterY then
-            -- Colisión por arriba (te paras sobre el objeto)
+            --colision por arriba
             entity.y = object.collisionBox.y - entity.collisionBox.height - offsetY
         else
-            -- Colisión por abajo (chocas la cabeza)
+            --colision por abajo
             entity.y = object.collisionBox.y + object.collisionBox.height - offsetY
         end
         entity.updateCollisionBox()
