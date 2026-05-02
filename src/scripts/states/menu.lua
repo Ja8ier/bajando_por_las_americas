@@ -1,6 +1,5 @@
 local menu = {}
 
-
 --variables globales
 Cursor_position_x = 0; Cursor_position_y = 0
 
@@ -152,8 +151,9 @@ function menu.keypressed(key)
         elseif key == inputs.menu.exit then
             --Change_state(require("src.scripts.states.create_new_game"))
         end
-        
+
     end
+
 end
 
 return menu
