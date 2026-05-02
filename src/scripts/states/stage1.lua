@@ -3,12 +3,16 @@ local stage1 = {}
 local player = require("src.scripts.entities.player")
 local obstacle = require("src.scripts.entities.obstacle")
 local camera = require("src.scripts.systems.camera")
+local enemy = require("src.scripts.entities.enemy")
 
 local background
 local worldWidth
 local layers = {}
 
 local obstacles = {}
+
+--temporal
+local enemies = {}
 
 local scale = love.graphics.getWidth() /256
 
@@ -17,8 +21,8 @@ function stage1.load()
     --Background
     layers = {
         {img = love.graphics.newImage("assets/sprites/1.png"), factor = 0.1},
-       {img = love.graphics.newImage("assets/sprites/2.png"), factor = 0.4},
-       {img = love.graphics.newImage("assets/sprites/3.png"), factor = 1.0}
+        {img = love.graphics.newImage("assets/sprites/2.png"), factor = 0.4},
+        {img = love.graphics.newImage("assets/sprites/3.png"), factor = 1.0}
     }
 
     --background = love.graphics.newImage("assets/sprites/stage1.png")
@@ -29,18 +33,22 @@ function stage1.load()
     worldWidth = layers[#layers].img:getWidth()
 
     --Colisiones
-    local obs_cerca = obstacle.new(false, 0, 88, 80, 16, "top", "")
-    table.insert(obstacles, obs_cerca)
+    --local obs_cerca = obstacle.new(false, 0, 88, 1050, 16, "top", "")
+    --table.insert(obstacles, obs_cerca)
 
-    local obs_cerca2 = obstacle.new(false, 200, 40, 50, 50, "full", "")
+    local obs_cerca2 = obstacle.new(false, 200, 120, 30, 30, "full", "")
     table.insert(obstacles, obs_cerca2)
 
+    --temporal
+    local enemy1 = enemy.new(4, 800, 400, 90, 125, 19, 28)
+    table.insert(enemies, enemy1)
+    local enemy2 = enemy.new(1, 600, 400, 90, 125, 19, 28)
+    table.insert(enemies, enemy2)
 
     player.load()
 end
 
 function stage1.update(dt)
-    
 
     local cb = require("src.scripts.systems.collision_box")
     -- --- MOVIMIENTO SHIFT ---
@@ -52,7 +60,7 @@ function stage1.update(dt)
 
     --Resolver x
     player.isMoving = false
-    player.walk(dt, "x", worldWidth*scale)
+    player.walk(dt, "x"--[[ , worldWidth*scale ]] --[[ pusieron un paramtero extra ]])
     player.updateCollisionBox() -- Actualizamos la caja tras mover en X
     
     --Resolver x
@@ -72,9 +80,28 @@ function stage1.update(dt)
         end
     end
     
+    for i, e in ipairs(enemies) do
+        e:update(dt)
+        
+        e.updateCollisionBox()
+        for _, obs in ipairs(obstacles) do
+            if cb.check(e, obs) then
+                cb.resolveX(e, obs)
+            end
+        end
+
+        e:updateCollisionBox()
+        for _, obs in ipairs(obstacles) do
+            if cb.check(e, obs) then
+                cb.resolveY(e, obs)
+            end
+        end
+    end
+
     --Actualizar animaciones y sonidos
     
     player.update(dt)
+
     camera.update(player.x, worldWidth * scale)
 end
 
@@ -89,8 +116,20 @@ function stage1.draw()
     end
 
     camera.begin()
-    
-        player.draw()
+        
+        for i, e in ipairs(enemies) do
+            love.graphics.setColor(1, 1, 1, 0.25)
+            love.graphics.rectangle("fill", e.collisionBox.x, e.collisionBox.y, e.collisionBox.width, e.collisionBox.height)
+            love.graphics.setColor(1, 1, 1)
+            if player.y > e.y then
+                e:draw()
+                player.draw()
+            else
+                player.draw()
+                e:draw()
+            end
+        end
+
         --caja del player
         love.graphics.setColor(1, 1, 1, 0.25)
         love.graphics.rectangle("fill", player.collisionBox.x, player.collisionBox.y, player.collisionBox.width, player.collisionBox.height)

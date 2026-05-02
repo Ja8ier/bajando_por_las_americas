@@ -9,8 +9,8 @@ function obstacle.new(_isVisible, _x, _y, _width, _height, collisionType, _textu
     local newObstacle = {
         x = _x * scale,
         y = _y * scale,
-        width = _width,
-        height = _height,
+        boxWidth = _width,
+        boxHeight = _height,
         scale = scale,
         isVisible = _isVisible,
         texture = _texture

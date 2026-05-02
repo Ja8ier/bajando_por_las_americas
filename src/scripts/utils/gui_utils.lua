@@ -101,10 +101,6 @@ function Utils.IsHovering(x, y)
     return 0
 end
 
-function Utils.cursor()
-    
-end
-
 function Utils.textinput(t)
     local font = love.graphics.getFont()
 

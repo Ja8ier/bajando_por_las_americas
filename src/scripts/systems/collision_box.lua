@@ -23,25 +23,21 @@ function collisionBox.create(entity, type)
     local _type
 
     --Ancho y alto
-
-    _width = (entity.width) * scale
-
+    _width = (entity.boxWidth) * scale
     if type == collisionBox.TYPES.BOTTOM or type == collisionBox.TYPES.TOP then
-        _height = (entity.height * scale) / 3
+        _height = (entity.boxHeight * scale) / 3
     elseif type == collisionBox.TYPES.FULL then
-        _height = entity.height * scale
+        _height = entity.boxHeight * scale
     end
 
     --Posicion x
-    
     _x = entity.x
-    
-    --Posicion y
 
+    --Posicion y
     if type == collisionBox.TYPES.FULL or type == collisionBox.TYPES.TOP then
         _y = entity.y
     elseif type == collisionBox.TYPES.BOTTOM then
-        _y = entity.y + ((2 * entity.height * scale) / 3)
+        _y = entity.y + ((2 * entity.boxHeight * scale) / 3)
     end
 
     --Definir tipo de collision box
@@ -50,7 +46,7 @@ function collisionBox.create(entity, type)
     elseif type == collisionBox.TYPES.TOP then
         _type = collisionBox.TYPES.TOP
     elseif type == collisionBox.TYPES.FULL then
-    _type = collisionBox.TYPES.FULL
+        _type = collisionBox.TYPES.FULL
     end
 
     --Crear  la collisionBox
@@ -82,14 +78,13 @@ end
 function collisionBox.updatePosition(entity)
     
     --Posicion x
-    
     entity.collisionBox.x = entity.x
     
     --Posicion y
     if entity.collisionBox.type == collisionBox.TYPES.FULL or entity.collisionBox.type  == collisionBox.TYPES.TOP then
         entity.collisionBox.y = entity.y
     elseif entity.collisionBox.type == collisionBox.TYPES.BOTTOM then
-        entity.collisionBox.y = entity.y + ((2 * entity.height * scale) / 3)
+        entity.collisionBox.y = entity.y + ((2 * entity.boxHeight * scale) / 3)
     end
     
 end
