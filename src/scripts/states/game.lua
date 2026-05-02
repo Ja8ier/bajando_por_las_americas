@@ -16,9 +16,9 @@ function game.load()
     stages[3] = require("src.scripts.states.stage3")
     stages[4] = require("src.scripts.states.stage4")
     
-    --ccarga el primer stage
+    --carga el primer stage
     currentStage = stages[currentStageIndex]
-    Change_state(stages[1])
+   -- Change_state(stages[1])
     
     isPlaying = true
     isPaused = false
@@ -74,6 +74,42 @@ function game.draw()
     if currentStage and currentStage.draw then
         currentStage.draw()
     end
+
+    if isPaused then
+        love.graphics.setColor(0, 0, 0, 0.7)
+        love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.print("PAUSA", love.graphics.getWidth()/2, love.graphics.getHeight()/2, 0, 2, 2)
+        love.graphics.print("Presiona " .. inputs.game.pause[1] .. " para reanudar", love.graphics.getWidth()/2, love.graphics.getHeight()/2 + 50)
+    end
+
+    if gameOver then
+        love.graphics.setColor(0, 0, 0, 0.7)
+        love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.print("GAME OVER", love.graphics.getWidth()/2, love.graphics.getHeight()/2, 0, 2, 2)
+        love.graphics.print("Presiona R para reiniciar, ESC para salir", love.graphics.getWidth()/2, love.graphics.getHeight()/2 + 50)
+    end
+end
+
+function game.keypressed(key)
+
+    if key == "escape" or (type(inputs.game.pause) == "table" and (key == inputs.game.pause[1] or key == inputs.game.pause[2])) or (type(inputs.game.pause) == "string" and key == inputs.game.pause) then
+        if gameOver then
+            Change_state(require("src.scripts.states.menu"))
+        else
+            isPaused = not isPaused
+        end
+    end
+
+    if gameOver and key == "r" then
+        game.restartStage()
+    end
+
+    if not isPaused and not gameOver and currentStage and currentStage.keypressed then
+        currentStage.keypressed(key)
+    end
+    
 end
 
 return game
