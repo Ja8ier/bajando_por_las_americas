@@ -43,6 +43,7 @@ function player.update(dt)
 
     --logica de sonidos
     -- if player.isMoving then
+    --     sounds.sound_effects.walk:play()
     -- else
     -- end
 
@@ -89,7 +90,7 @@ function player.updateAnimationState()
     end
 end
 
-function player.walk(dt, XorY)
+function player.move(dt, XorY)
 
     if XorY == "x" then
 

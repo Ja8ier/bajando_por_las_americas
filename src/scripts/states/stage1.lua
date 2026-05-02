@@ -52,7 +52,7 @@ function stage1.update(dt)
 
     --Resolver x
     player.isMoving = false
-    player.walk(dt, "x")
+    player.move(dt, "x")
     player.updateCollisionBox()
 
     --Resolver x
@@ -63,7 +63,7 @@ function stage1.update(dt)
     end
 
     --Resolver y
-    player.walk(dt, "y")
+    player.move(dt, "y")
     player.updateCollisionBox()
 
     for _, obs in ipairs(collisions) do
