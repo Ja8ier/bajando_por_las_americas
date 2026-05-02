@@ -18,7 +18,10 @@ function game.load()
     
     --carga el primer stage
     currentStage = stages[currentStageIndex]
-   -- Change_state(stages[1])
+
+    if currentStage and currentStage.load then
+        currentStage.load()
+    end
     
     isPlaying = true
     isPaused = false
@@ -33,7 +36,7 @@ function game.nextStage()
         --carga el siguiente
         currentStage = stages[currentStageIndex]
         if currentStage.load then
-            Change_state(currentStage)
+            currentStage.load()
         end
     else
         --final del juego
@@ -45,7 +48,9 @@ end
 
 function game.restartStage()
 
-    Change_state(currentStage)
+    if currentStage and currentStage.load then
+        currentStage.load()
+    end
 
     isPlaying = true
     gameOver = false
@@ -59,7 +64,7 @@ function game.update(dt)
     end
 
     if isPaused then
-        
+
         return
     end
 
@@ -94,16 +99,23 @@ end
 
 function game.keypressed(key)
 
-    if key == "escape" or (type(inputs.game.pause) == "table" and (key == inputs.game.pause[1] or key == inputs.game.pause[2])) or (type(inputs.game.pause) == "string" and key == inputs.game.pause) then
-        if gameOver then
-            Change_state(require("src.scripts.states.menu"))
-        else
-            isPaused = not isPaused
-        end
+     if (type(inputs.game.pause) == "table" and (key == inputs.game.pause[1] or key == inputs.game.pause[2])) then
+        Change_state(require("src.scripts.states.menu"))
+        -- if gameOver then
+        -- else
+        --     isPaused = not isPaused
+        -- end
     end
 
-    if gameOver and key == "r" then
-        game.restartStage()
+    if key == "m" then
+        gameOver =true
+    end
+    if key == "n" then
+        isPaused =true
+    end
+
+    if gameOver or key == "r" then
+       -- game.restartStage()
     end
 
     if not isPaused and not gameOver and currentStage and currentStage.keypressed then

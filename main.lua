@@ -1,3 +1,8 @@
+--esto es solo para hacer debug (borrar después)
+if os.getenv("LOCAL_LUA_DEBUGGER_VSCODE") == "1" then
+  require("lldebugger").start()
+end
+
 local menu = require("src.scripts.states.menu")
 
 Current_state = nil
