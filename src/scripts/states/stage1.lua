@@ -6,7 +6,6 @@ local camera = require("src.scripts.systems.camera")
 local inputs = require("src.scripts.utils.inputs")
 local item = require("src.scripts.entities.item")
 
-local background
 local worldWidth
 local layers = {}
 
@@ -14,7 +13,11 @@ local collisions = {}
 local items = {}
 local objects = {}
 
+local auxx = false
+
 local scale = love.graphics.getWidth() / 256
+
+local touchingItem
 
 function stage1.load()
     
@@ -77,9 +80,13 @@ function stage1.update(dt)
         end
     end
 
+    --detección del contacto de un player con un item
+    touchingItem = false
     for _, _item in ipairs(items) do
         if cb.checkInteractionCollision(player, _item) then
-            --print("recoger", 10, 10)
+            touchingItem = true
+
+            break
         end
     end
 
@@ -142,6 +149,19 @@ function stage1.draw()
     local frontgroundOffsetX = -camera.x * layers[#layers].factor
     love.graphics.draw(layers[#layers].img, frontgroundOffsetX, 0, 0, scale, love.graphics.getHeight() / 144)
 
+    if auxx then
+        
+        love.graphics.print("pass", 10, 10)
+    end
+
+end
+
+function stage1.keypressed(key)
+    if touchingItem then
+        if key == inputs.game.pickUpItem then
+            auxx = true
+        end
+    end
 end
 
 return stage1
