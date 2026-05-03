@@ -114,38 +114,28 @@ function stage1.draw()
         end
     end
 
+    for _, _item in ipairs(items) do
+        table.insert(drawables, _item)
+    end
+
     local cb = require("src.scripts.systems.collision_box")
 
     table.sort(drawables, cb.isAhead)
-
-    -- local auxTableForItems = {}
-
-    -- for _, _item in ipairs(items) do
-    --     table.insert(auxTableForItems, _item)
-    -- end
-
-    -- table.sort(auxTableForItems, cb.isItemAhead)
-
-    -- for _, _item in ipairs(auxTableForItems) do
-    --     table.insert(drawables, _item)
-    -- end
 
     --Dibujar player y luego obstaculos
     for _, obj in ipairs(drawables) do
 
         if obj == player then
             player.draw()
-        else
+        elseif obj.collisionBox then
             obstacle.draw(obj)
+        else
+            item.draw(obj)
         end
 
     end
 
-    for _, itt in ipairs(items) do
-        item.draw(itt)
-    end
-
-    cb.showBoxes(player, collisions, true)
+    cb.showBoxes(player, collisions, false)
     camera.ended()
 
     --frontground

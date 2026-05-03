@@ -137,18 +137,18 @@ function collisionBox.resolveY(entity, object)
     end
 end
 
-function collisionBox.isAhead(entity, object)
-    local ABottom = entity.collisionBox.y + entity.collisionBox.height
-    local bBottom = object.collisionBox.y + object.collisionBox.height
-
-    return ABottom < bBottom
+function collisionBox.getBottom(obj)
+     if obj.collisionBox then
+        return obj.collisionBox.y + obj.collisionBox.height
+    elseif obj.y and obj.height then
+        return obj.y + obj.height
+    else
+        error("No es posible calcular la base de este objeto")
+    end
 end
 
-function collisionBox.isItemAhead(entity, object)
-    local ABottom = entity.collisionBox.y + entity.collisionBox.height
-    local bBottom = object.y + object.height
-
-    return ABottom < bBottom
+function collisionBox.isAhead(entity, object)
+    return collisionBox.getBottom(entity) < collisionBox.getBottom(object)
 end
 
 function collisionBox.showBoxes(player, obstacles, show)
