@@ -108,22 +108,43 @@ end
 function Utils.textinput(t)
     local font = love.graphics.getFont()
 
-    if font:getWidth(Utils.text_input) < Space_max_for_write - font:getWidth(t) and Tbx_active[1] then
+    -- Añadimos la comprobación de Tbx_active ~= nil
+    if Tbx_active ~= nil and font:getWidth(Utils.text_input) < Space_max_for_write - font:getWidth(t) then
         Utils.text_input = Utils.text_input .. t
-
     end
 end
+
+-- function Utils.textinput(t)
+--     local font = love.graphics.getFont()
+
+--     if font:getWidth(Utils.text_input) < Space_max_for_write - font:getWidth(t) and Tbx_active[1] then
+--         Utils.text_input = Utils.text_input .. t
+
+--     end
+-- end
 
 function Utils.keypressed(key)
     if key == "backspace" then
-
-        Utils.writing = not Utils.writing
-
-        local byteoffset = utf8.offset(Utils.text_input, -1)
-        if byteoffset then
-            Utils.text_input = string.sub(Utils.text_input, 1, byteoffset - 1)
+        -- Solo intentar borrar si hay texto que borrar
+        if Utils.text_input and #Utils.text_input > 0 then
+            local byteoffset = utf8.offset(Utils.text_input, -1)
+            if byteoffset then
+                Utils.text_input = string.sub(Utils.text_input, 1, byteoffset - 1)
+            end
         end
     end
 end
+
+-- function Utils.keypressed(key)
+--     if key == "backspace" then
+
+--         Utils.writing = not Utils.writing
+
+--         local byteoffset = utf8.offset(Utils.text_input, -1)
+--         if byteoffset then
+--             Utils.text_input = string.sub(Utils.text_input, 1, byteoffset - 1)
+--         end
+--     end
+-- end
 
 return Utils
