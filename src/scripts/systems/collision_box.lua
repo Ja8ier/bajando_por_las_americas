@@ -76,6 +76,15 @@ function collisionBox.check(entity, object)
 
 end
 
+function collisionBox.checkInteractionCollision(entity, object)
+
+    return entity.collisionBox.x < object.x + object.width and
+            object.x < entity.collisionBox.x + entity.collisionBox.width and 
+            entity.collisionBox.y < object.y + object.height and
+            object.y < entity.collisionBox.y + entity.collisionBox.height
+
+end
+
 function collisionBox.updatePosition(entity)
     
     --posicion X
@@ -135,6 +144,13 @@ function collisionBox.isAhead(entity, object)
     return ABottom < bBottom
 end
 
+function collisionBox.isItemAhead(entity, object)
+    local ABottom = entity.collisionBox.y + entity.collisionBox.height
+    local bBottom = object.y + object.height
+
+    return ABottom < bBottom
+end
+
 function collisionBox.showBoxes(player, obstacles, show)
 
     if show then
@@ -151,6 +167,7 @@ function collisionBox.showBoxes(player, obstacles, show)
     else
         return
     end
-    
+
 end
+
 return collisionBox

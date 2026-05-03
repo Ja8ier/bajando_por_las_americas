@@ -11,8 +11,8 @@ local worldWidth
 local layers = {}
 
 local collisions = {}
+local items = {}
 local objects = {}
-local itemsonmap = {}
 
 local scale = love.graphics.getWidth() / 256
 
@@ -46,7 +46,7 @@ function stage1.load()
     -- local object_caucho = obstacle.new(true, 120, 90, 16, 16, "bottom", love.graphics.newImage("assets/sprites/caucho.png"), false)
     -- table.insert(obstacles, object_caucho)
 
-    table.insert(itemsonmap, item.new("disco", 120, 100))
+    table.insert(items, item.new("disco", 120, 100))
 
     player.load()
 end
@@ -77,6 +77,12 @@ function stage1.update(dt)
         end
     end
 
+    for _, _item in ipairs(items) do
+        if cb.checkInteractionCollision(player, _item) then
+            --print("recoger", 10, 10)
+        end
+    end
+
     --actualizar animaciones y sonidos:
     player.updateAnimationState()
     player.update(dt)
@@ -91,21 +97,38 @@ function stage1.draw()
         local offsetX = -camera.x * layer.factor
         love.graphics.draw(layer.img, offsetX, 0, 0, scale, love.graphics.getHeight() / 144)
     end
-   
+
+    --comienzo de la cámara
     camera.begin()
 
+    --tabla a dibujar
     local drawables = {}
 
+    --insercion del player
     table.insert(drawables, player)
 
-    for _, obs in ipairs(collisions) do
-        if obs.isVisible then
-            table.insert(drawables, obs)
+    --inserto los obstaculos
+    for _, _obstacle in ipairs(collisions) do
+        if _obstacle.isVisible then
+            table.insert(drawables, _obstacle)
         end
     end
 
     local cb = require("src.scripts.systems.collision_box")
+
     table.sort(drawables, cb.isAhead)
+
+    -- local auxTableForItems = {}
+
+    -- for _, _item in ipairs(items) do
+    --     table.insert(auxTableForItems, _item)
+    -- end
+
+    -- table.sort(auxTableForItems, cb.isItemAhead)
+
+    -- for _, _item in ipairs(auxTableForItems) do
+    --     table.insert(drawables, _item)
+    -- end
 
     --Dibujar player y luego obstaculos
     for _, obj in ipairs(drawables) do
@@ -118,11 +141,11 @@ function stage1.draw()
 
     end
 
-    for _, itt in ipairs(itemsonmap) do
+    for _, itt in ipairs(items) do
         item.draw(itt)
     end
 
-    cb.showBoxes(player, collisions, false)
+    cb.showBoxes(player, collisions, true)
     camera.ended()
 
     --frontground
