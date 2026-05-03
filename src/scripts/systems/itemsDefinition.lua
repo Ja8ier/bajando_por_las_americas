@@ -122,6 +122,19 @@ local itemDefinitions = {
         onUse = function()
             -- body
         end
+    },
+
+    caucho = {
+        name = "Caucho",
+        texture = love.graphics.newImage("assets/sprites/items/caucho.png"),
+        type = ITEM_TYPES.CARRYABLE_OBJECT,
+        isStackable = false,
+        count = 1,
+        haswear = false,
+        levelOfWear = 10,
+        onUse = function()
+            -- body
+        end
     }
 
 }

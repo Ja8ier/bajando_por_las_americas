@@ -50,6 +50,7 @@ function stage1.load()
     -- table.insert(obstacles, object_caucho)
 
     table.insert(items, item.new("disco", 120, 100))
+    table.insert(items, item.new("caucho", 200, 110))
 
     player.load()
 end
