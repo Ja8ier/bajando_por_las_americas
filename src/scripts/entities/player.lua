@@ -1,6 +1,7 @@
 local sounds = require("src.scripts.sounds.sounds")
 local inputs = require("src.scripts.utils.inputs")
 local playerCollisionBox = require("src.scripts.systems.collision_box")
+local mathUtils = require("src.scripts.utils.mathUtils")
 
 local animation = require("src.scripts.systems.animation")
 
@@ -27,6 +28,18 @@ local player = {
     frameheight = 28,
     facingLeft = false,
     isMoving = false,
+
+    HP = 1000,
+    maxHP = 1000,
+    isHurt = false,
+    hurtTimer = 0,
+    attacking = false,
+    entityStatus = {
+        statusType = "none",
+        statusTimer = 0,
+        lastAttacker = nil
+    },
+
 }
 
 --#region Load, update y draw
@@ -42,6 +55,15 @@ function player.load()
 end
 
 function player.update(dt)
+
+    if player.isHurt then
+        player.hurtTimer = player.hurtTimer - dt
+        
+        if player.hurtTimer <= 0 then
+            player.isHurt = false
+            player.hurtTimer = 0
+        end
+    end
 
     animation.update(currentAnimation, player.isMoving, dt)
 
@@ -61,9 +83,21 @@ function player.update(dt)
 
     end
 
+    player.checkDeath(dt)
+
 end
 
 function player.draw()
+
+    love.graphics.setColor(0,1,0)
+    love.graphics.rectangle("fill", player.x, player.y - 50, mathUtils.calculateHealthBarWidth(player.HP, player.maxHP), 15)
+    love.graphics.setColor(1,1,1)
+    love.graphics.rectangle("line", player.x, player.y - 50, 100, 15)
+    love.graphics.print(player.HP, player.x, player.y - 73, 0, 0.7)
+
+    if player.isHurt then
+        love.graphics.setColor(1,0,0)
+    end
 
     local quad = animation.getQuad(currentAnimation)
 
@@ -92,13 +126,14 @@ local function setAnimation(animation)
     end
 end
 
+--cambiar logica
 function player.updateAnimationState()
-    local isShift = love.keyboard.isDown(inputs.game.sprint)
+    local isShift = love.keyboard.isDown(inputs.game.sprint) and (player.entityStatus.statusType ~= "slow" and player.entityStatus.statusType ~= "stun") 
     if player.isMoving then
         player.speed = isShift and 300 or 150
         local anim = isShift and "run" or "walk"
         setAnimation(anim)
-    else
+    elseif player.entityStatus.statusType ~= "slow" and player.entityStatus.statusType ~= "stun" then
         player.speed = 150
         setAnimation("walk")
     end
@@ -131,6 +166,18 @@ function player.move(dt, XorY)
 
     end
 
+end
+
+function player.checkDeath(dt)
+    if player.HP <= 0 then
+        player.HP = 0
+        player.die(dt)
+    end
+end
+
+--testing
+function player.die(dt)
+    deathEffect = {3/2 * math.pi, 32, 10}
 end
 
 return player

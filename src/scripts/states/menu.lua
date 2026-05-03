@@ -19,8 +19,6 @@ menu.Show_exit = false
 
 function menu.load()
 
-    love.graphics.setDefaultFilter("nearest", "nearest")
-
     gui.utils.font_title = love.graphics.newFont("assets/fonts/m04.TTF", 50)
 
     gui.utils.Font_update()

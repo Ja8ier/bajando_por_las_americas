@@ -16,6 +16,9 @@ function Change_state(new_state)
 end
 
 function love.load()
+    love.graphics.setDefaultFilter("nearest", "nearest")
+    math.randomseed(os.time()) -- para generar de forma aleatoria la probabilidad de que el enemigo tenga arma o no
+
     Change_state(menu)
 end
 
