@@ -11,6 +11,9 @@ local animations = {
 
 local currentAnimation = animations.walk
 
+local isWalking = false
+local isRunning = false
+
 local player = {
     x = 0,
     y = 0,
@@ -43,10 +46,20 @@ function player.update(dt)
     animation.update(currentAnimation, player.isMoving, dt)
 
     --logica de sonidos
-    -- if player.isMoving then
-    --     sounds.sound_effects.walk:play()
-    -- else
-    -- end
+    if player.isMoving then
+        -- if isWalking then
+        --     sounds.sound_effects.walk:play()
+        -- else
+        --     sounds.sound_effects.walk:pause()
+        -- end
+   
+        -- if isRunning then
+        --     sounds.sound_effects.run:play()
+        -- else
+        --     sounds.sound_effects.run:pause()
+        -- end
+
+    end
 
 end
 

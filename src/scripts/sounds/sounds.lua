@@ -2,8 +2,8 @@ local sounds = {
     background_music = {},
 
     sound_effects = {
-    --   walk = love.audio.newSource("assets/sounds/walk.mp3", "static"),
-       -- run = love.audio.newSource("assets/sounds/run.mp3", "static")
+        walk = love.audio.newSource("assets/sounds/walking.wav", "static"),
+        run = love.audio.newSource("assets/sounds/running.wav", "static")
     },
 
     cutscene_sounds = {}

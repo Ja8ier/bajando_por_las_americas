@@ -145,7 +145,7 @@ function collisionBox.showBoxes(player, obstacles, show)
         --cajas de colision
         love.graphics.setColor(1, 0.1, 0.1, 0.25)
         for _, obs in ipairs(obstacles) do
-        love.graphics.rectangle("fill", obs.collisionBox.x, obs.collisionBox.y, obs.collisionBox.width, obs.collisionBox.height)
+            love.graphics.rectangle("fill", obs.collisionBox.x, obs.collisionBox.y, obs.collisionBox.width, obs.collisionBox.height)
         end
         love.graphics.setColor(1, 1, 1)
     else

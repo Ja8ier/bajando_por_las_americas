@@ -4,6 +4,7 @@ local player = require("src.scripts.entities.player")
 local obstacle = require("src.scripts.entities.obstacle")
 local camera = require("src.scripts.systems.camera")
 local inputs = require("src.scripts.utils.inputs")
+local item = require("src.scripts.entities.item")
 
 local background
 local worldWidth
@@ -11,6 +12,7 @@ local layers = {}
 
 local collisions = {}
 local objects = {}
+local itemsonmap = {}
 
 local scale = love.graphics.getWidth() / 256
 
@@ -43,6 +45,8 @@ function stage1.load()
 
     -- local object_caucho = obstacle.new(true, 120, 90, 16, 16, "bottom", love.graphics.newImage("assets/sprites/caucho.png"), false)
     -- table.insert(obstacles, object_caucho)
+
+    table.insert(itemsonmap, item.new("disco", 120, 100))
 
     player.load()
 end
@@ -112,6 +116,10 @@ function stage1.draw()
             obstacle.draw(obj)
         end
 
+    end
+
+    for _, itt in ipairs(itemsonmap) do
+        item.draw(itt)
     end
 
     cb.showBoxes(player, collisions, false)

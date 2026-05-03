@@ -1,8 +1,8 @@
+local obstacle = {}
+
 local obstacleCollisionBox = require("src.scripts.systems.collision_box")
 local texture = ""
 local scale = love.graphics.getWidth() / 256
-
-local obstacle = {}
  
 function obstacle.new(_isVisible, _x, _y, _width, _height, collisionType, _texture, _isInteractive)
     
@@ -22,14 +22,14 @@ function obstacle.new(_isVisible, _x, _y, _width, _height, collisionType, _textu
     return newObstacle
 end
 
-function obstacle.draw(obs)
+function obstacle.draw(_obstacle)
 
-    if not obs.isVisible then
+    if not _obstacle.isVisible then
         return
     end
 
-    if obs.texture and obs.texture ~= "" then
-        love.graphics.draw(obs.texture, obs.x, obs.y, 0, obs.scale, obs.scale)
+    if _obstacle.texture and _obstacle.texture ~= "" then
+        love.graphics.draw(_obstacle.texture, _obstacle.x, _obstacle.y, 0, _obstacle.scale, _obstacle.scale)
     end
 
 end

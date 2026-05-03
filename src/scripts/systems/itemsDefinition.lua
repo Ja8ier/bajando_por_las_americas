@@ -1,3 +1,10 @@
+ITEM_TYPES = {
+    WEAPON = "weapon",
+    CONSUMIBLE = "consumible",
+    CARRYABLE_OBJECT = "carryableObject",
+    KEY_EVENT = "keyEvent"
+}
+
 local itemDefinitions = {
 
     brokeBottle = {
@@ -104,13 +111,26 @@ local itemDefinitions = {
         end
     },
 
+    disco = {
+        name = "disco easter egg",
+        texture = love.graphics.newImage("assets/sprites/items/testItem.png"),
+        type = ITEM_TYPES.WEAPON,
+        isStackable = false,
+        count = 1,
+        haswear = true,
+        levelOfWear = 10,
+        onUse = function()
+            -- body
+        end
+    }
+
 }
 
-ITEM_TYPES = {
-    WEAPON = "weapon",
-    CONSUMIBLE = "consumible",
-    CARRYABLE_OBJECT = "carryableObject",
-    KEY_EVENT = "keyEvent"
-}
+-- ITEM_TYPES = {
+--     WEAPON = "weapon",
+--     CONSUMIBLE = "consumible",
+--     CARRYABLE_OBJECT = "carryableObject",
+--     KEY_EVENT = "keyEvent"
+-- }
 
 return itemDefinitions
