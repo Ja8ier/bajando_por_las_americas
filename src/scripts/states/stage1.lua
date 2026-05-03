@@ -5,6 +5,7 @@ local obstacle = require("src.scripts.entities.obstacle")
 local camera = require("src.scripts.systems.camera")
 local inputs = require("src.scripts.utils.inputs")
 local item = require("src.scripts.entities.item")
+local tableUtils = require("src.scripts.utils.tableUtils")
 
 local worldWidth
 local layers = {}
@@ -13,11 +14,10 @@ local collisions = {}
 local items = {}
 local objects = {}
 
-local auxx = false
-
 local scale = love.graphics.getWidth() / 256
 
 local touchingItem
+local pickableItem
 
 function stage1.load()
     
@@ -85,7 +85,7 @@ function stage1.update(dt)
     for _, _item in ipairs(items) do
         if cb.checkInteractionCollision(player, _item) then
             touchingItem = true
-
+            pickableItem = _item
             break
         end
     end
@@ -149,17 +149,12 @@ function stage1.draw()
     local frontgroundOffsetX = -camera.x * layers[#layers].factor
     love.graphics.draw(layers[#layers].img, frontgroundOffsetX, 0, 0, scale, love.graphics.getHeight() / 144)
 
-    if auxx then
-        
-        love.graphics.print("pass", 10, 10)
-    end
-
 end
 
 function stage1.keypressed(key)
     if touchingItem then
         if key == inputs.game.pickUpItem then
-            auxx = true
+            tableUtils.removeByValue(items, pickableItem)
         end
     end
 end
