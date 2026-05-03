@@ -112,7 +112,7 @@ local itemDefinitions = {
     },
 
     disco = {
-        name = "disco easter egg",
+        name = "disco",
         texture = love.graphics.newImage("assets/sprites/items/testItem.png"),
         type = ITEM_TYPES.WEAPON,
         isStackable = false,
