@@ -104,6 +104,7 @@ function player.updateAnimationState()
     end
 end
 
+--movimiento del player
 function player.move(dt, XorY)
 
     if XorY == "x" then
