@@ -96,6 +96,7 @@ function player.draw()
     love.graphics.print(player.HP, player.x, player.y - 73, 0, 0.7)
 
     if player.isHurt then
+        --cambiar por animacion de damage
         love.graphics.setColor(1,0,0)
     end
 
