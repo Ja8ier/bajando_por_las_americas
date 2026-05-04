@@ -7,6 +7,7 @@ local mathUtils = require("src.scripts.utils.mathUtils")
 local obstacle = require("src.scripts.entities.obstacle")
 local item = require("src.scripts.entities.item")
 local camera = require("src.scripts.systems.camera")
+local trigger = require("src.scripts.systems.trigger")
 local inputs = require("src.scripts.utils.inputs")
 local tableUtils = require("src.scripts.utils.tableUtils")
 
@@ -18,6 +19,7 @@ local enemies = {}
 
 local collisions = {}
 local items = {}
+local triggers = {}
 
 local scale = love.graphics.getWidth() / 256
 
@@ -52,8 +54,14 @@ function stage1.load()
     table.insert(collisions, object_caucho)
 
     --Items
-    table.insert(items, item.new("disco", 120, 120))
-    table.insert(items, item.new("caucho", 200, 110))
+    local item1 = item.new("disco", 120, 120)
+    table.insert(items, item1)
+    local item2 = item.new("caucho", 200, 110)
+    table.insert(items, item2)
+
+    --Triggers
+    local triggerTest = trigger.new(nil, nil, nil, nil, false, nil, true, true, object_caucho)
+    table.insert(triggers, triggerTest)
 
     --enemies temporales
     local enemy1 = enemy.new(4, 800, 400, 90, 125, 19, 28)
@@ -196,7 +204,7 @@ function stage1.draw()
     printByOrder()
 
     local cb = require("src.scripts.systems.collision_box")
-    cb.showBoxes(player, collisions, false)
+    cb.showBoxes(player, collisions, triggers, true)
     camera.ended()
 
     --frontground
@@ -206,6 +214,7 @@ function stage1.draw()
 end
 
 function stage1.keypressed(key)
+
     if touchingItem then
         if key == inputs.game.pickUpItem then
             tableUtils.removeByValue(items, pickableItem)

@@ -149,7 +149,7 @@ function collisionBox.isAhead(entity, object)
     return collisionBox.getBottom(entity) < collisionBox.getBottom(object)
 end
 
-function collisionBox.showBoxes(player, obstacles, show)
+function collisionBox.showBoxes(player, obstacles, triggers, show)
 
     if show then
         --caja del player
@@ -162,8 +162,15 @@ function collisionBox.showBoxes(player, obstacles, show)
             love.graphics.rectangle("fill", obs.collisionBox.x, obs.collisionBox.y, obs.collisionBox.width, obs.collisionBox.height)
         end
         love.graphics.setColor(1, 1, 1)
-    else
-        return
+
+        love.graphics.setColor(1, 0.8, 0.4, 0.25)
+        for _, obs in ipairs(triggers) do
+            if obs.isVisible then
+                love.graphics.rectangle("fill", obs.x, obs.y, obs.width, obs.height)
+            end
+        end
+        love.graphics.setColor(1, 1, 1)
+
     end
 
 end
