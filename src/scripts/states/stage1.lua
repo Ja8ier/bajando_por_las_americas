@@ -15,9 +15,9 @@ local layers = {}
 
 --temporal
 local enemies = {}
+
 local collisions = {}
 local items = {}
-local objects = {}
 
 local scale = love.graphics.getWidth() / 256
 
@@ -25,7 +25,7 @@ local touchingItem
 local pickableItem
 
 function stage1.load()
-    
+
     --sirve para que las teclas al presionarlas ejecuten su accion una sola vez en lugar de hacerlo de manera constante
     love.keyboard.setKeyRepeat(false)
 
@@ -39,29 +39,23 @@ function stage1.load()
        {img = love.graphics.newImage("assets/sprites/stage1/stage1_frontground.png"), factor = 1.1}
     }
 
-    for _, layer in ipairs(layers) do
-        layer.img:setFilter("nearest", "nearest")
-    end
-
     worldWidth = layers[#layers].img:getWidth()
 
     --Colisiones
-    
     local collisionWorldRightBorder = obstacle.new(false, 2560, 0, 2, 144, "full", "", false) -- cerca o pared de atras en zona de la facultad
     table.insert(collisions, collisionWorldRightBorder)
     local collisionWall1 = obstacle.new(false, 0, 78, 2489, 6, "full", "", false) -- cerca o pared de atras en zona de la facultad
     table.insert(collisions, collisionWall1)
 
     --Objetos
-
-    -- local object_caucho = obstacle.new(true, 120, 90, 16, 16, "bottom", love.graphics.newImage("assets/sprites/caucho.png"), false)
-    -- table.insert(obstacles, object_caucho)
+    local object_caucho = obstacle.new(true, 120, 90, 16, 16, "bottom", love.graphics.newImage("assets/sprites/items/caucho.png"), false)
+    table.insert(collisions, object_caucho)
 
     --Items
-    table.insert(items, item.new("disco", 120, 100))
+    table.insert(items, item.new("disco", 120, 120))
     table.insert(items, item.new("caucho", 200, 110))
 
-    --temporal
+    --enemies temporales
     local enemy1 = enemy.new(4, 800, 400, 90, 125, 19, 28)
     table.insert(enemies, enemy1)
     local enemy2 = enemy.new(3, 600, 400, 90, 125, 19, 28)
@@ -139,32 +133,55 @@ function stage1.update(dt)
     camera.update(player.x, worldWidth * scale)
 end
 
-local function printOrder(_player, _enemies)
+local function printByOrder() --(_player, _enemies, _items, _obstacles)
 
     local drawList = {}
     local cb = require("src.scripts.systems.collision_box")
-    
-    table.insert(drawList, _player)
 
-    for i, e in ipairs(_enemies) do
+    table.insert(drawList, player)
+
+    for _, e in ipairs(enemies) do
         if not e.isDead then
             table.insert(drawList, e)
         end
     end
 
+    for _, _obstacle in ipairs(collisions) do
+        if _obstacle.isVisible then
+            table.insert(drawList, _obstacle)
+        end
+    end
+
+    for _, _item in ipairs(items) do
+        table.insert(drawList, _item)
+    end
+
     table.sort(drawList, cb.isAhead)
 
-    for i, e in ipairs(drawList) do
-        e:draw()
+    for _, obj in ipairs(drawList) do
 
-        -- caja de la entidad
-        love.graphics.setColor(1, 1, 1, 0.25)
-        love.graphics.rectangle("fill", e.collisionBox.x, e.collisionBox.y, e.collisionBox.width, e.collisionBox.height)
-        love.graphics.setColor(1, 1, 1)
+        if obj.type then
+            if obj.type == "item" then
+                item.draw(obj)
+            elseif obj.type == "obstacle" then
+                obstacle.draw(obj)
+            elseif obj.type == "player" then
+                obj.draw()
+            end
+
+        else
+            obj:draw()
+            love.graphics.setColor(1, 1, 1, 0.25)
+            love.graphics.rectangle("fill", obj.collisionBox.x, obj.collisionBox.y, obj.collisionBox.width, obj.collisionBox.height)
+            love.graphics.setColor(1, 1, 1)
+        end
+
     end
+
 end
 
 function stage1.draw()
+    
     love.graphics.setColor(1, 1, 1)
     --dibujar background
     for _, layer in ipairs(layers) do
@@ -176,42 +193,9 @@ function stage1.draw()
     --comienzo de la cámara
     camera.begin()
 
-    printOrder(player, enemies)
-
-    --tabla a dibujar
-    local drawables = {}
-
-    --insercion del player
-    table.insert(drawables, player)
-
-    --inserto los obstaculos
-    for _, _obstacle in ipairs(collisions) do
-        if _obstacle.isVisible then
-            table.insert(drawables, _obstacle)
-        end
-    end
-
-    for _, _item in ipairs(items) do
-        table.insert(drawables, _item)
-    end
+    printByOrder()
 
     local cb = require("src.scripts.systems.collision_box")
-
-    table.sort(drawables, cb.isAhead)
-
-    --Dibujar player y luego obstaculos
-    for _, obj in ipairs(drawables) do
-
-        if obj == player then
-            player.draw()
-        elseif obj.collisionBox then
-            obstacle.draw(obj)
-        else
-            item.draw(obj)
-        end
-
-    end
-
     cb.showBoxes(player, collisions, false)
     camera.ended()
 

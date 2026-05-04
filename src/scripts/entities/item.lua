@@ -12,7 +12,8 @@ function item.new(itemId, x, y)
         y = y * scale,
         width = def.texture:getWidth() * scale,
         height = def.texture:getHeight() * scale,
-        sprite = def.texture
+        sprite = def.texture,
+        type = "item"
     }
 
     return newItem

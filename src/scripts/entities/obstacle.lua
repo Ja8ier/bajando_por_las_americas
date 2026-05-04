@@ -14,7 +14,8 @@ function obstacle.new(_isVisible, _x, _y, _width, _height, collisionType, _textu
         scale = scale,
         isVisible = _isVisible,
         texture = _texture,
-        isInteractive = _isInteractive
+        isInteractive = _isInteractive,
+        type = "obstacle"
     }
     
     obstacleCollisionBox.create(newObstacle, collisionType)

@@ -138,12 +138,10 @@ function collisionBox.resolveY(entity, object)
 end
 
 function collisionBox.getBottom(obj)
-     if obj.collisionBox then
-        return obj.collisionBox.y + obj.collisionBox.height
-    elseif obj.y and obj.height then
-        return obj.y + obj.height
+    if obj.type and obj.type == "item" then
+        return obj.y / scale
     else
-        error("No es posible calcular la base de este objeto")
+        return obj.y
     end
 end
 
