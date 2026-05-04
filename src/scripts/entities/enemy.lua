@@ -219,10 +219,14 @@ end
 -- definicion de acciones de movimiento y estado
 function Enemy:stateFlee(dt, player)
     local distance = self:getDistanceToPlayer(player)
-    local safe_distance = 500
+    local safe_distance = 400
+
+    if self.isHealing and player.attacking then
+        self.isHealing = false
+    end
 
     if distance < safe_distance and not self.isHealing then
-        local flee_speed = self.speed * 0.9
+        local flee_speed = self.speed * 0.8
         if self.x < player.x then self.x = self.x - flee_speed * dt else self.x = self.x + flee_speed * dt end
         if self.y < player.y then self.y = self.y - flee_speed * dt else self.y = self.y + flee_speed * dt end
         
@@ -235,7 +239,6 @@ function Enemy:stateFlee(dt, player)
 
         if self.HP >= self.maxHP * 0.4 then
             self.isHealing = false
-            print("hola bebe")
         end
     end
 end

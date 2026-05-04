@@ -47,10 +47,10 @@ function stage1.load()
 
     --Colisiones
     
-    local collisionWorldRightBorder = obstacle.new(false, 2560, 0, 2, 144, "full", "", false) -- cerca o pared de atras en zona de la facultad
+--[[     local collisionWorldRightBorder = obstacle.new(false, 2560, 0, 2, 144, "full", "", false) -- cerca o pared de atras en zona de la facultad
     table.insert(collisions, collisionWorldRightBorder)
     local collisionWall1 = obstacle.new(false, 0, 78, 2489, 6, "full", "", false) -- cerca o pared de atras en zona de la facultad
-    table.insert(collisions, collisionWall1)
+    table.insert(collisions, collisionWall1) ]]
 
     --Objetos
 

@@ -128,13 +128,23 @@ end
 
 --cambiar logica
 function player.updateAnimationState()
-    local isShift = love.keyboard.isDown(inputs.game.sprint) and (player.entityStatus.statusType ~= "slow" and player.entityStatus.statusType ~= "stun") 
+    local isShift = love.keyboard.isDown(inputs.game.sprint) 
+    
+    local status = player.entityStatus and player.entityStatus.statusType
+    local isNormal = status ~= "slow" and status ~= "stun"
+
     if player.isMoving then
-        player.speed = isShift and 300 or 150
+        if isNormal then
+            player.speed = isShift and 300 or 150
+        end
+        
         local anim = isShift and "run" or "walk"
         setAnimation(anim)
-    elseif player.entityStatus.statusType ~= "slow" and player.entityStatus.statusType ~= "stun" then
-        player.speed = 150
+    else
+        if isNormal then
+            player.speed = 150
+        end
+        
         setAnimation("walk")
     end
 end

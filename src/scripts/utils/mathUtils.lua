@@ -5,7 +5,7 @@ local tierLifeValues = {
     [2] = 250,  -- Tier 2
     [3] = 450,  -- Tier 3
     [4] = 750,  -- Tier 4
-    [5] = 2500  -- Tier 5 (Boss)
+    [5] = 1200  -- Tier 5 (Bosse)
 }
 
 function mathUtils.calculateLife(tier)
