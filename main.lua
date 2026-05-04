@@ -7,6 +7,7 @@ Games_created = {--[[ "Partida1", "Partida 2", "Partida 3" ]]}
 -- esta funcion es global por lo tanto la puedes llamar desde cualquier parte
 -- esta funcion sirve para cambiar de interfaz solo le pasas la nueva interfaz y esta se encarga
 -- ejecutar el codigo de las mismas
+-- hola bb
 function Change_state(new_state)
     current_state = new_state
 
