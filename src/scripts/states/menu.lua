@@ -8,6 +8,7 @@ Cursor_position_x = 0; Cursor_position_y = 0
 local settings = require("src.scripts.states.settings")
 local exit = require("src.scripts.states.exit")
 local gui = require("src.scripts.gui.gui")
+local inputs = require("src.scripts.utils.inputs")
 
 --variables locales
 local sprite_Background_menu
@@ -17,8 +18,6 @@ menu.Show_settings = false
 menu.Show_exit = false
 
 function menu.load()
-
-    love.graphics.setDefaultFilter("nearest", "nearest")
 
     gui.utils.font_title = love.graphics.newFont("assets/fonts/m04.TTF", 50)
 
@@ -135,6 +134,24 @@ function menu.mousereleased(x, y, button)
             end
         end
     end
+end
+
+function menu.keypressed(key)
+
+    if Current_state == require("src.scripts.states.menu") then
+
+        if key == inputs.menu.newGame then
+            Change_state(require("src.scripts.states.create_new_game"))
+        elseif key == inputs.menu.continueGame then
+            Change_state(require("src.scripts.states.continue_the_game"))
+        elseif key == inputs.menu.settings then
+            --Change_state(require("src.scripts.states."))
+        elseif key == inputs.menu.exit then
+            --Change_state(require("src.scripts.states.create_new_game"))
+        end
+
+    end
+
 end
 
 return menu
