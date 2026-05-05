@@ -1,4 +1,5 @@
 local mathUtils = {}
+local scale = love.graphics.getWidth() / 256
 
 local tierLifeValues = {
     [1] = 100,  -- Tier 1
@@ -17,7 +18,7 @@ function mathUtils.calculateHealthBarWidth(HP, maxHP)
     if maxHP <= 0 then
         return 0
     end
-    return (HP*100)/maxHP
+    return (HP* 32 * scale)/maxHP
 end
 
 function mathUtils.getDistanceToPlayer(player, enemy)

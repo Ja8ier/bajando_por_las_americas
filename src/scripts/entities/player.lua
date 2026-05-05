@@ -5,9 +5,12 @@ local mathUtils = require("src.scripts.utils.mathUtils")
 
 local animation = require("src.scripts.systems.animation")
 
+local scale = love.graphics.getWidth() / 256
+
 local animations = {
     walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false),
-    run = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.15, false)
+    run = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.15, false),
+    crouch = animation.new("assets/sprites/player/player_crouch.png", 17, 28, 0.1, true)
 }
 
 local currentAnimation = animations.walk
@@ -90,12 +93,6 @@ end
 
 function player.draw()
 
-    love.graphics.setColor(0,1,0)
-    love.graphics.rectangle("fill", player.x, player.y - 50, mathUtils.calculateHealthBarWidth(player.HP, player.maxHP), 15)
-    love.graphics.setColor(1,1,1)
-    love.graphics.rectangle("line", player.x, player.y - 50, 100, 15)
-    love.graphics.print(player.HP, player.x, player.y - 73, 0, 0.7)
-
     if player.isHurt then
         --cambiar por animacion de damage
         love.graphics.setColor(1,0,0)
@@ -116,6 +113,8 @@ function player.draw()
         love.graphics.draw(sheet, quad, player.x, player.y, 0,
         player.scale, player.scale)
     end
+    
+    love.graphics.setColor(1,1,1)
 
 end
 
@@ -131,6 +130,13 @@ end
 --cambiar logica
 function player.updateAnimationState()
     local isShift = love.keyboard.isDown(inputs.game.sprint) and (player.entityStatus.statusType ~= "slow" and player.entityStatus.statusType ~= "stun") 
+
+    if love.keyboard.isDown(inputs.game.crouch) then
+        player.speed = 0
+        setAnimation("crouch")
+        return
+    end
+
     if player.isMoving then
         player.speed = isShift and 300 or 150
         local anim = isShift and "run" or "walk"

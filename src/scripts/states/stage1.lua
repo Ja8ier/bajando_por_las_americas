@@ -74,11 +74,11 @@ function stage1.load()
     local phoneBoothTrigger = trigger.new(nil, nil, nil, nil, true, function() isMiniGamePlaying = true end, true, true, phoneBooth)
     table.insert(triggers, phoneBoothTrigger)
 
-    --enemies temporales
-    -- local enemy1 = enemy.new(4, 800, 400, 90, 125, 19, 28)
-    -- table.insert(enemies, enemy1)
-    -- local enemy2 = enemy.new(3, 600, 400, 90, 125, 19, 28)
-    -- table.insert(enemies, enemy2)
+   -- enemies temporales
+    local enemy1 = enemy.new(4, 800, 400, 90, 125, 19, 28)
+    table.insert(enemies, enemy1)
+    local enemy2 = enemy.new(3, 600, 400, 90, 125, 19, 28)
+    table.insert(enemies, enemy2)
 
     player.load()
 end
@@ -163,7 +163,7 @@ function stage1.update(dt)
 
     for i = #enemies, 1, -1 do
         local e = enemies[i]
-        
+
         if e.isDead then
             table.remove(enemies, i)
         end
@@ -244,6 +244,13 @@ function stage1.draw()
     --frontground
     local frontgroundOffsetX = -camera.x * layers[#layers].factor
     love.graphics.draw(layers[#layers].img, frontgroundOffsetX, 0, 0, scale, love.graphics.getHeight() / 144)
+
+    love.graphics.draw(love.graphics.newImage("assets/sprites/player_life.png"), 10, 10, 0, scale, scale)
+    love.graphics.setColor(0,1,0.1)
+    love.graphics.rectangle("fill", 10, 10 + 32 * scale, mathUtils.calculateHealthBarWidth(player.HP, player.maxHP), 15)
+    love.graphics.setColor(1,1,1)
+    love.graphics.rectangle("line", 10, 10 + 32 * scale, 32 * scale, 15)
+    love.graphics.print(player.HP, 10, 25 + 32 * scale, 0, 0.85)
 
     if isMiniGamePlaying then
         miniGame.draw(1)

@@ -10,9 +10,6 @@ local inputs = require("src.scripts.utils.inputs")
 
 local currentStageIndex = 1
 local currentStage = nil
--- local isPlaying = true
--- local isPaused = false
--- local gameOver = false
 
 function game.load()
 
