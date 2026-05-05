@@ -10,6 +10,7 @@ local camera = require("src.scripts.systems.camera")
 local trigger = require("src.scripts.systems.trigger")
 local inputs = require("src.scripts.utils.inputs")
 local tableUtils = require("src.scripts.utils.tableUtils")
+local miniGame = require("src.scripts.states.minigame")
 
 local worldWidth
 local layers = {}
@@ -24,9 +25,17 @@ local triggers = {}
 local scale = love.graphics.getWidth() / 256
 
 local touchingItem
+local touchingTrigger
+local interactiveObject
 local pickableItem
+local isMiniGamePlaying
+
 
 function stage1.load()
+
+    isMiniGamePlaying = false
+
+    miniGame.load(1)
 
     --sirve para que las teclas al presionarlas ejecuten su accion una sola vez en lugar de hacerlo de manera constante
     love.keyboard.setKeyRepeat(false)
@@ -44,13 +53,15 @@ function stage1.load()
     worldWidth = layers[#layers].img:getWidth()
 
     --Colisiones
-    local collisionWorldRightBorder = obstacle.new(false, 2560, 0, 2, 144, "full", "", false) -- cerca o pared de atras en zona de la facultad
+    local collisionWorldRightBorder = obstacle.new(false, 2560, 0, 2, 144, "full", "", false, nil) -- cerca o pared de atras en zona de la facultad
     table.insert(collisions, collisionWorldRightBorder)
-    local collisionWall1 = obstacle.new(false, 0, 78, 2489, 6, "full", "", false) -- cerca o pared de atras en zona de la facultad
+    local collisionWall1 = obstacle.new(false, 0, 78, 2489, 6, "full", "", false, nil) -- cerca o pared de atras en zona de la facultad
     table.insert(collisions, collisionWall1)
 
     --Objetos
-    local object_caucho = obstacle.new(true, 120, 90, 16, 16, "bottom", love.graphics.newImage("assets/sprites/items/caucho.png"), false)
+    local phoneBooth = obstacle.new(true, 700, 50, 19, 44, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), false, 0.8)
+    table.insert(collisions, phoneBooth)
+    local object_caucho = obstacle.new(true, 120, 90, 16, 16, "bottom", love.graphics.newImage("assets/sprites/items/caucho.png"), false, nil)
     table.insert(collisions, object_caucho)
 
     --Items
@@ -60,19 +71,24 @@ function stage1.load()
     table.insert(items, item2)
 
     --Triggers
-    local triggerTest = trigger.new(nil, nil, nil, nil, false, nil, true, true, object_caucho)
-    table.insert(triggers, triggerTest)
+    local phoneBoothTrigger = trigger.new(nil, nil, nil, nil, true, function() isMiniGamePlaying = true end, true, true, phoneBooth)
+    table.insert(triggers, phoneBoothTrigger)
 
     --enemies temporales
-    local enemy1 = enemy.new(4, 800, 400, 90, 125, 19, 28)
-    table.insert(enemies, enemy1)
-    local enemy2 = enemy.new(3, 600, 400, 90, 125, 19, 28)
-    table.insert(enemies, enemy2)
+    -- local enemy1 = enemy.new(4, 800, 400, 90, 125, 19, 28)
+    -- table.insert(enemies, enemy1)
+    -- local enemy2 = enemy.new(3, 600, 400, 90, 125, 19, 28)
+    -- table.insert(enemies, enemy2)
 
     player.load()
 end
 
 function stage1.update(dt)
+
+    if isMiniGamePlaying then
+        miniGame.update(dt, 1)
+        return
+    end
 
     local cb = require("src.scripts.systems.collision_box")
 
@@ -106,6 +122,18 @@ function stage1.update(dt)
             touchingItem = true
             pickableItem = _item
             break
+        end
+    end
+
+    touchingTrigger = false
+    for _, _trigger in ipairs(triggers) do
+        if cb.checkInteractionCollision(player, _trigger) then
+            touchingTrigger = true
+            if _trigger.item then
+                interactiveObject = _trigger
+            else
+                --checkpoints activar el onTrigger del checkpoint
+            end
         end
     end
 
@@ -211,13 +239,27 @@ function stage1.draw()
     local frontgroundOffsetX = -camera.x * layers[#layers].factor
     love.graphics.draw(layers[#layers].img, frontgroundOffsetX, 0, 0, scale, love.graphics.getHeight() / 144)
 
+    if isMiniGamePlaying then
+        miniGame.draw(1)
+    end
+
 end
 
 function stage1.keypressed(key)
 
+    if isMiniGamePlaying then
+        return
+    end
+
     if touchingItem then
         if key == inputs.game.pickUpItem then
             tableUtils.removeByValue(items, pickableItem)
+        end
+    end
+
+    if touchingTrigger then
+        if key == inputs.game.interact then
+            interactiveObject.onTrigger()
         end
     end
 
@@ -242,24 +284,4 @@ function stage1.keypressed(key)
 
 end
 
--- function love.keypressed(key)
-
---     if key == "space" then
---         for i, e in ipairs(enemies) do
---             if mathUtils.getDistanceToPlayer(player, e) <= 75 and e.entityStatus.statusType ~= "stun" then
---                 player.attacking = true
-
---                 e.HP = e.HP - 10
-
---                 if e.HP <= 0 then
---                     e.isDead = true
---                 end
-
---                 break
---             else
---                 player.attacking = false
---             end
---         end
---     end
--- end
 return stage1

@@ -44,6 +44,20 @@ local inputs = {
         slot7 = "7",
         slot8 = "8",
         slot9 = "9"
+    },
+
+    minigames = {
+
+        qte = {
+            up = "up",
+            down = "down",
+            left = "left",
+            right = "right",
+            continue = "return",
+            restart = "r",
+            quit = "escape"
+        }
+
     }
 
 }

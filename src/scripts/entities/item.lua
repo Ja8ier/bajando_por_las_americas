@@ -21,14 +21,12 @@ end
 
 function item.draw(self)
     if self.sprite then
-        -- love.graphics.setColor(1, 0.1, 0.1, 0.25)
-        -- love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
-        -- love.graphics.setColor(1, 1, 1)
-         love.graphics.draw(self.sprite, self.x, self.y, 0, scale, scale)
+        love.graphics.draw(self.sprite, self.x, self.y, 0, scale, scale)
     else
-        -- fallback: rectángulo
         love.graphics.rectangle("fill", self.x, self.y, 16, 16)
     end
 end
+
+
 
 return item
