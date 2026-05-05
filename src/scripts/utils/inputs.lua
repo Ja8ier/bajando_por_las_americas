@@ -48,15 +48,15 @@ local inputs = {
 
     minigames = {
 
-        qte = {
+        ["1"] = {
             up = "up",
             down = "down",
             left = "left",
             right = "right",
             continue = "return",
             restart = "r",
-            quit = "escape"
-        }
+            quit = "lctrl"
+        },
 
     }
 

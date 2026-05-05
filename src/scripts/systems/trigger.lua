@@ -42,14 +42,4 @@ function trigger.new(_x, _y, _width, _height, _isActive, _onTrigger, _isVisible,
     return newTrigger
 end
 
--- function stage1.update(dt)
---     -- ... actualizaciones normales ...
---     for _, trig in ipairs(triggers) do
---         if trig.active and checkBasicCollision(player, trig) then
---             trig.onTrigger()
---             trig.active = false -- para que no se dispare cada frame
---         end
---     end
--- end
-
 return trigger

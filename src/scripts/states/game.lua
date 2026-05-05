@@ -105,7 +105,7 @@ end
 
 function game.keypressed(key)
 
-     if (type(inputs.game.pause) == "table" and (key == inputs.game.pause[1] or key == inputs.game.pause[2])) then
+    if (type(inputs.game.pause) == "table" and (key == inputs.game.pause[1] or key == inputs.game.pause[2])) then
 
         if not game.isPaused and not game.gameOver then
             game.isPaused = true

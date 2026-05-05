@@ -59,7 +59,7 @@ function stage1.load()
     table.insert(collisions, collisionWall1)
 
     --Objetos
-    local phoneBooth = obstacle.new(true, 700, 50, 19, 44, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), false, 0.8)
+    local phoneBooth = obstacle.new(true, 150, 50, 16, 42, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), false, 0.8)
     table.insert(collisions, phoneBooth)
     local object_caucho = obstacle.new(true, 120, 90, 16, 16, "bottom", love.graphics.newImage("assets/sprites/items/caucho.png"), false, nil)
     table.insert(collisions, object_caucho)
@@ -87,6 +87,12 @@ function stage1.update(dt)
 
     if isMiniGamePlaying then
         miniGame.update(dt, 1)
+
+        if miniGame.isExited(1) then
+            miniGame.load(1)
+            isMiniGamePlaying = false
+        end
+
         return
     end
 
@@ -232,7 +238,7 @@ function stage1.draw()
     printByOrder()
 
     local cb = require("src.scripts.systems.collision_box")
-    cb.showBoxes(player, collisions, triggers, true)
+    cb.showBoxes(player, collisions, triggers, false)
     camera.ended()
 
     --frontground
@@ -248,6 +254,7 @@ end
 function stage1.keypressed(key)
 
     if isMiniGamePlaying then
+        miniGame.keypressed(key)
         return
     end
 

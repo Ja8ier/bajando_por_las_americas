@@ -2,6 +2,8 @@ local inputs = require("src.scripts.utils.inputs")
 
 local qte = {}
 
+local exit
+
 --configuraciones
 local config = {
     baseLength = 3,
@@ -27,10 +29,10 @@ local level = 1
 local sequenceLength = config.baseLength
 
 local possibleInputs = {
-    inputs.minigames.qte.up,
-    inputs.minigames.qte.down,
-    inputs.minigames.qte.left,
-    inputs.minigames.qte.right
+    inputs.minigames["1"].up,
+    inputs.minigames["1"].down,
+    inputs.minigames["1"].left,
+    inputs.minigames["1"].right
 }
 
 local lastFeedback = ""
@@ -98,12 +100,17 @@ local function beginRound()
 end
 
 function qte.load()
+    exit = false
     loadAssets()
     state = "start"
     level = 1
 end
 
 function qte.update(dt)
+
+    if exit == true then
+        return
+    end
 
     blinkTimer = blinkTimer + dt
     if blinkTimer >= 0.5 then
@@ -149,8 +156,12 @@ end
 
 function qte.keypressed(key)
 
+    if key == inputs.minigames["1"].quit then
+        exit = true
+    end
+
     if state == "start" then
-        if key == inputs.minigames.qte.continue then
+        if key == inputs.minigames["1"].continue then
             sounds.start:clone():play()
             beginRound()
         end
@@ -158,7 +169,7 @@ function qte.keypressed(key)
     end
 
     if state == "success" then
-        if key == inputs.minigames.qte.continue then
+        if key == inputs.minigames["1"].continue then
             if level < config.maxLevel then
                 level = level + 1
                 beginRound()
@@ -168,7 +179,7 @@ function qte.keypressed(key)
     end
 
     if state == "fail" then
-        if key == inputs.minigames.qte.restart then
+        if key == inputs.minigames["1"].restart then
             level = 1
             beginRound()
         end
@@ -194,7 +205,20 @@ function qte.keypressed(key)
     end
 end
 
+function qte.isExited()
+
+    if exit then
+        exit = false
+        return true
+    end
+
+end
+
 function qte.draw()
+
+    if exit then
+        return
+    end
 
     local w = love.graphics.getWidth()
     local h = love.graphics.getHeight()
