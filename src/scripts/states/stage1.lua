@@ -247,7 +247,7 @@ function stage1.draw()
 
     love.graphics.draw(love.graphics.newImage("assets/sprites/player_life.png"), 10, 10, 0, scale, scale)
     love.graphics.setColor(0,1,0.1)
-    love.graphics.rectangle("fill", 10, 10 + 32 * scale, mathUtils.calculateHealthBarWidth(player.HP, player.maxHP), 15)
+    love.graphics.rectangle("fill", 10, 10 + 32 * scale, mathUtils.calculateHealthBarWidth(player.HP, player.maxHP, 32 * scale), 15)
     love.graphics.setColor(1,1,1)
     love.graphics.rectangle("line", 10, 10 + 32 * scale, 32 * scale, 15)
     love.graphics.print(player.HP, 10, 25 + 32 * scale, 0, 0.85)
