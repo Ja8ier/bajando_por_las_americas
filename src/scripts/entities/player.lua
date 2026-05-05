@@ -51,8 +51,8 @@ local player = {
 function player.load()
 
     player.scale = (love.graphics.getWidth() / 256)
-    player.y = love.graphics.getHeight() - player.frameheight * player.scale - 100
-    player.x = 100
+    player.y = love.graphics.getHeight() - player.frameheight * player.scale - 200
+    player.x = 200
 
     playerCollisionBox.create(player, "bottom")
 
