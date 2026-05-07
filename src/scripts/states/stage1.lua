@@ -30,7 +30,6 @@ local interactiveObject
 local pickableItem
 local isMiniGamePlaying
 
-
 function stage1.load()
 
     isMiniGamePlaying = false
@@ -47,27 +46,31 @@ function stage1.load()
        {img = love.graphics.newImage("assets/sprites/stage1/stage1_background2.png"), factor = 0.9},
        {img = love.graphics.newImage("assets/sprites/stage1/stage1_background1.png"), factor = 1.0},
        {img = love.graphics.newImage("assets/sprites/stage1/stage1_street.png"), factor = 1.0},
-       {img = love.graphics.newImage("assets/sprites/stage1/stage1_frontground.png"), factor = 1.1}
+       {img = love.graphics.newImage("assets/sprites/stage1/stage1_frontground.png"), factor = 1.0}
     }
 
     worldWidth = layers[#layers].img:getWidth()
 
-    --Colisiones
-    local collisionWorldRightBorder = obstacle.new(false, 2560, 0, 2, 144, "full", "", false, nil) -- cerca o pared de atras en zona de la facultad
+    --Cajas de colisiones
+    local collisionWorldRightBorder = obstacle.new(false, 2560, 0, 2, 144, "full", "", false, nil)
+    local collisionWall1 = obstacle.new(false, 0, 78, 2560, 6, "full", "", false, nil)
+    -- local collisionWall2 = obstacle.new(false, 785, 78, 2560, 6, "full", "", false, nil)
+
     table.insert(collisions, collisionWorldRightBorder)
-    local collisionWall1 = obstacle.new(false, 0, 78, 2489, 6, "full", "", false, nil) -- cerca o pared de atras en zona de la facultad
     table.insert(collisions, collisionWall1)
 
-    --Objetos
+    --Objetos con textura
     local phoneBooth = obstacle.new(true, 150, 50, 16, 42, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), false, 0.8)
+    local object_caucho = obstacle.new(true, 120, 100, 16, 16, "bottom", love.graphics.newImage("assets/sprites/items/caucho.png"), false, nil)
+
     table.insert(collisions, phoneBooth)
-    local object_caucho = obstacle.new(true, 120, 90, 16, 16, "bottom", love.graphics.newImage("assets/sprites/items/caucho.png"), false, nil)
     table.insert(collisions, object_caucho)
 
     --Items
     local item1 = item.new("disco", 120, 120)
-    table.insert(items, item1)
     local item2 = item.new("caucho", 200, 110)
+
+    table.insert(items, item1)
     table.insert(items, item2)
 
     --Triggers
@@ -75,10 +78,10 @@ function stage1.load()
     table.insert(triggers, phoneBoothTrigger)
 
    -- enemies temporales
-    local enemy1 = enemy.new(4, 800, 400, 90, 125, 19, 28)
-    table.insert(enemies, enemy1)
-    local enemy2 = enemy.new(3, 600, 400, 90, 125, 19, 28)
-    table.insert(enemies, enemy2)
+    -- local enemy1 = enemy.new(4, 800, 400, 90, 125, 19, 28)
+    -- table.insert(enemies, enemy1)
+    -- local enemy2 = enemy.new(3, 600, 400, 90, 125, 19, 28)
+    -- table.insert(enemies, enemy2)
 
     player.load()
 end
@@ -130,7 +133,8 @@ function stage1.update(dt)
             break
         end
     end
-
+    
+    --detección del contacto de un player con un trigger
     touchingTrigger = false
     for _, _trigger in ipairs(triggers) do
         if cb.checkInteractionCollision(player, _trigger) then
@@ -175,7 +179,7 @@ function stage1.update(dt)
     camera.update(player.x, worldWidth * scale)
 end
 
-local function printByOrder() --(_player, _enemies, _items, _obstacles)
+local function printByOrder()
 
     local drawList = {}
     local cb = require("src.scripts.systems.collision_box")
@@ -222,9 +226,12 @@ local function printByOrder() --(_player, _enemies, _items, _obstacles)
 
 end
 
+
+
 function stage1.draw()
-    
+
     love.graphics.setColor(1, 1, 1)
+
     --dibujar background
     for _, layer in ipairs(layers) do
         --desplazamiento de cada capa
@@ -232,12 +239,22 @@ function stage1.draw()
         love.graphics.draw(layer.img, offsetX, 0, 0, scale, love.graphics.getHeight() / 144)
     end
 
+    local cb = require("src.scripts.systems.collision_box")
+
     --comienzo de la cámara
     camera.begin()
 
     printByOrder()
 
-    local cb = require("src.scripts.systems.collision_box")
+    for _, _trigger in ipairs(triggers) do
+        if cb.checkInteractionCollision(player, _trigger) then
+
+            if _trigger.item then
+                love.graphics.print("Presiona ".. inputs.game.interact .. " para interactuar", _trigger.item.x - 100 , _trigger.item.y - 30, 0, 1, 1)
+            end
+        end
+    end
+
     cb.showBoxes(player, collisions, triggers, false)
     camera.ended()
 
@@ -245,12 +262,12 @@ function stage1.draw()
     local frontgroundOffsetX = -camera.x * layers[#layers].factor
     love.graphics.draw(layers[#layers].img, frontgroundOffsetX, 0, 0, scale, love.graphics.getHeight() / 144)
 
-    love.graphics.draw(love.graphics.newImage("assets/sprites/player_life.png"), 10, 10, 0, scale, scale)
+    love.graphics.draw(love.graphics.newImage("assets/sprites/player_life.png"), 10, 10, 0, scale * 0.8, scale * 0.8)
     love.graphics.setColor(0,1,0.1)
-    love.graphics.rectangle("fill", 10, 10 + 32 * scale, mathUtils.calculateHealthBarWidth(player.HP, player.maxHP, 32 * scale), 15)
+    love.graphics.rectangle("fill", 10, 10 + 32 * scale * 0.8, mathUtils.calculateHealthBarWidth(player.HP, player.maxHP, 32 * scale * 0.8), 15)
     love.graphics.setColor(1,1,1)
-    love.graphics.rectangle("line", 10, 10 + 32 * scale, 32 * scale, 15)
-    love.graphics.print(player.HP, 10, 25 + 32 * scale, 0, 0.85)
+    love.graphics.rectangle("line", 10, 10 + 32 * scale * 0.8, 32 * scale * 0.8, 15)
+    love.graphics.print("Vida:".. player.HP, 10, 25 + 32 * scale * 0.8, 0, 1.08, 0.85)
 
     if isMiniGamePlaying then
         miniGame.draw(1)
