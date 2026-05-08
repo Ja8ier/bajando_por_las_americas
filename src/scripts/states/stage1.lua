@@ -216,45 +216,9 @@ function stage1.keypressed(key)
         end
     end
 
-    --temporal
     if key == inputs.game.attack then
-        for i, e in ipairs(enemies) do
-            if mathUtils.getDistanceToPlayer(player, e) <= 75 and e.entityStatus.statusType ~= "stun" then
-                player.attacking = true
-
-                e.HP = e.HP - 10
-
-                if e.HP <= 0 then
-                    e.isDead = true
-                end
-
-                break
-            else
-                player.attacking = false
-            end
-        end
+        player.attack(enemies)
     end
-
 end
 
--- function love.keypressed(key)
-
---     if key == "space" then
---         for i, e in ipairs(enemies) do
---             if mathUtils.getDistanceToPlayer(player, e) <= 75 and e.entityStatus.statusType ~= "stun" then
---                 player.attacking = true
-
---                 e.HP = e.HP - 10
-
---                 if e.HP <= 0 then
---                     e.isDead = true
---                 end
-
---                 break
---             else
---                 player.attacking = false
---             end
---         end
---     end
--- end
 return stage1

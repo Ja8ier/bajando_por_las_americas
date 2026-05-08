@@ -7,7 +7,11 @@ local animation = require("src.scripts.systems.animation")
 
 local animations = {
     walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false),
-    run = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.15, false)
+    run = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.15, false),
+    --[[bottleAttack = animation.new(),
+    knifeAttack = animation.new(),
+    batAttack = animation.new(),
+    wrenchAttack = animation.new(), ]]
 }
 
 local currentAnimation = animations.walk
@@ -29,6 +33,8 @@ local player = {
     facingLeft = false,
     isMoving = false,
 
+    isCrouching = false,
+    armament = {isArmed = true, typeWeapon = "bottle"},
     HP = 1000,
     maxHP = 1000,
     isHurt = false,
@@ -178,6 +184,96 @@ function player.move(dt, XorY)
 
 end
 
+function player.involuntaryMovement(dt, XorY, direction, factorSpeed, setback, obstacles)
+
+    local cb = require("src.scripts.systems.collision_box")
+
+    if XorY == "x" then
+
+        if direction == "left" then
+            player.x = math.max(player.x - dt * player.speed * factorSpeed * setback, 0)
+        elseif direction == "right" then
+            player.x = player.x + dt * player.speed * factorSpeed * setback
+        end
+
+    player.updateCollisionBox()
+
+    --Resolver x
+    for _, obs in ipairs(obstacles) do
+        if cb.check(player, obs) then
+            cb.resolveX(player, obs)
+        end
+    end
+    
+    elseif XorY == "y" then
+
+        if direction == "up" then
+            player.y = math.min(math.max(player.y - dt * player.speed * factorSpeed * setback, 0), love.graphics.getHeight() - player.scale * player.height)
+        elseif direction == "down" then
+            player.y = math.min(player.y + dt * player.speed * factorSpeed * setback, love.graphics.getHeight() - player.scale * player.height)
+        end
+
+    end
+
+    player.updateCollisionBox()
+
+    --Resolver y
+    for _, obs in ipairs(obstacles) do
+        if cb.check(player, obs) then
+            cb.resolveY(player, obs)
+        end
+    end
+
+end
+
+local function takeHP(e, amountOfHP)
+    e.HP = e.HP - amountOfHP
+
+    if e.HP <= 0 then
+        e.isDead = true
+    end
+end
+
+function player.attack(enemies)
+
+    for i, e in ipairs(enemies) do
+        if mathUtils.getDistanceToPlayer(player, e) <= 75 and e.entityStatus.statusType ~= "stun" then
+            player.attacking = true
+
+            if player.armament.isArmed then
+                    
+                if player.armament.typeWeapon == "bottle" then
+                    takeHP(e, 40)
+                    --setAnimation("bottleAttack")
+                    break
+
+                elseif player.armament.typeWeapon == "knife" then
+                    takeHP(e, 60)
+                    --setAnimation("knifeAttack")
+                    break
+
+                elseif player.armament.typeWeapon == "bat" then
+                    takeHP(e, 80)
+                    --setAnimation("batAttack")
+                    break
+
+                elseif player.armament.typeWeapon == "wrench" then
+                    takeHP(e, 100)
+                    --setAnimation("wrenchAttack")
+                    break
+                end
+            else
+                takeHP(e, 20)
+                --player.updateAnimationState()
+                break
+            end
+
+        else
+            player.attacking = false
+        end
+    end
+end
+
 function player.checkDeath(dt)
     if player.HP <= 0 then
         player.HP = 0
@@ -187,7 +283,7 @@ end
 
 --testing
 function player.die(dt)
-    local deathEffect = {3/2 * math.pi, 32, 10}
+    --logica al morir el player
 end
 
 return player

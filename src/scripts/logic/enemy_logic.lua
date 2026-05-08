@@ -28,7 +28,7 @@ function EnemyLogic.createTree()
 
     -- Subárbol para enemigos desarmados (Tiers 1 al 4)
     local unarmedAttackTree = AI.newCondition(
-        function(e) return --[[ player.is_crouching ]] false end, -- Condición de jugador agachado
+        function(e) return player.isCrouching end, -- Condición de jugador agachado
         actionSweep,
         AI.newCondition(
             function(e) return e.tier == 1 end,

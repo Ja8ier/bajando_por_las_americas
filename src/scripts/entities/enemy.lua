@@ -6,10 +6,6 @@ local mathUtils = require("src.scripts.utils.mathUtils")
 local entityStateSystem = require("src.scripts.systems.entity_state_system")
 local animation = require("src.scripts.systems.animation")
 
-local animations = {
-    walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.5, false)
-}
-
 local WeaponsByTier = {
     [1] = {"bottle"},
     [2] = {"bottle", "knife"},
@@ -62,11 +58,43 @@ local function getRandomWeaponForEnemy(tier)
     return { hasWeapon = true, weapon = assignedWeapon }
 end
 
+local function chooseTypeMovement(animations, equipment)
+    if equipment.hasWeapon then
+        if equipment.weapon == "bottle" then
+            animations.walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
+            animations.attackWithBottle = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+
+        elseif equipment.weapon == "knife" then
+            animations.walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
+            animations.attackWithKnife = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+
+        elseif equipment.weapon == "bat" then
+            animations.walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
+            animations.attackWithBat = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+        
+        elseif equipment.weapon == "wrench" then
+            animations.walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
+            animations.attackWithWrench = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+        end
+
+        animations.commonWeaponAttack = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+    else
+        animations.walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
+        animations.jabAttack = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+        animations.comboAttack = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+        animations.sweepKick = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+        animations.groundSlam = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+        animations.heavySmash = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+    end
+
+    return animations.walk
+end
+
 function Enemy.new(tier, _x, _y, _width, _height, boxW, boxH)
 
     local equipment = getRandomWeaponForEnemy(tier)
 
-    print(equipment.hasWeapon)
+    print(tostring(equipment.hasWeapon) .. ": " .. tostring(equipment.weapon))
     local instance = {}
         instance.HP = mathUtils.calculateLife(tier)
         instance.maxHP = mathUtils.calculateLife(tier)
@@ -92,11 +120,9 @@ function Enemy.new(tier, _x, _y, _width, _height, boxW, boxH)
         instance.facingLeft = false
         instance.isMoving = true
 
-        instance.animations = {
-            walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
-        }
+        instance.animations = {}
 
-        instance.currentAnimation = instance.animations.walk
+        instance.currentAnimation = chooseTypeMovement(instance.animations, equipment)
 
         instance.entityStatus = {
             statusType = "none",
@@ -122,7 +148,7 @@ function Enemy:update(dt, player, obs)
         animation.update(self.currentAnimation, self.isMoving, dt)
     end
 
-    entityStateSystem.updateStatus(player, dt, self)
+    entityStateSystem.updateStatus(player, dt, self, obstacles)
 end
 
 function Enemy:draw()
@@ -165,6 +191,9 @@ function Enemy:jabAttack(dt, player)
         player.HP = player.HP - baseDamage.jabAttack * multipliers[self.tier]
         print("jab: ".. baseDamage.jabAttack * multipliers[self.tier])
 
+        if self.animations.jabAttack then
+            self:setAnimation("jabAttack")
+        end
     end
 end
 
@@ -172,7 +201,10 @@ function Enemy:comboAttack(dt, player)
     if self:hitTimer(dt, player) then
         player.HP = player.HP - baseDamage.comboAttack * multipliers[self.tier]
         print("combo: ".. baseDamage.comboAttack * multipliers[self.tier])
-        
+
+        if self.animations.comboAttack then
+            self:setAnimation("comboAttack")
+        end
     end
 end
 
@@ -183,6 +215,9 @@ function Enemy:sweepKick(dt, player)
 
         entityStateSystem.applyStatusToTarget(player, entitiesStates[1].state, entitiesStates[1].duration)
 
+        if self.animations.sweepKick then
+            self:setAnimation("sweepKick")
+        end
     end
 end
 
@@ -193,6 +228,9 @@ function Enemy:groundSlam(dt, player)
 
         entityStateSystem.applyStatusToTarget(player, entitiesStates[2].state, entitiesStates[2].duration)
 
+        if self.animations.groundSlam then
+            self:setAnimation("groundSlam")
+        end
     end
 end
 
@@ -201,6 +239,9 @@ function Enemy:heavySmash(dt, player)
         player.HP = player.HP - baseDamage.heavySmash * multipliers[self.tier]
         print("heavy smash: "..  baseDamage.heavySmash * multipliers[self.tier])
 
+        if self.animations.heavySmash then
+            self:setAnimation("heavySmash")
+        end
     end
 end
 
@@ -218,6 +259,9 @@ function Enemy:commonWeaponAttack(dt, player)
         player.HP = player.HP - baseDamage.commonWeaponAttack * multipliers[self.tier]
         print("common weapon attack: ".. baseDamage.commonWeaponAttack * multipliers[self.tier])
 
+        if self.animations.commonWeaponAttack then
+            self:setAnimation("commonWeaponAttack")
+        end
     end
 end
 
@@ -228,8 +272,12 @@ function Enemy:specialBottleAttack(dt, player)
         
         entityStateSystem.applyStatusToTarget(player, entitiesStates[3].state, entitiesStates[3].duration)
 
+        if self.animations.attackWithBottle then
+            self:setAnimation("attackWithBottle")
+        end
     end
 end
+
 function Enemy:specialKnifeAttack(dt, player)
     if self:hitTimer(dt, player) then
         player.HP = player.HP - baseDamage.specialKnifeAttack * multipliers[self.tier]
@@ -237,8 +285,12 @@ function Enemy:specialKnifeAttack(dt, player)
         
         entityStateSystem.applyStatusToTarget(player, entitiesStates[4].state, entitiesStates[4].duration)
 
+        if self.animations.attackWithKnife then
+            self:setAnimation("attackWithKnife")
+        end
     end
 end
+
 function Enemy:specialBatAttack(dt, player)
     if self:hitTimer(dt, player) then
         player.HP = player.HP - baseDamage.specialBatAttack * multipliers[self.tier]
@@ -246,8 +298,12 @@ function Enemy:specialBatAttack(dt, player)
         
         entityStateSystem.applyStatusToTarget(player, entitiesStates[1].state, entitiesStates[1].duration)
 
+        if self.animations.attackWithBat then
+            self:setAnimation("attackWithBat")
+        end
     end
 end
+
 function Enemy:specialWrenchAttack(dt, player)
     if self:hitTimer(dt, player) then
         player.HP = player.HP - baseDamage.specialWrenchAttack * multipliers[self.tier]
@@ -255,6 +311,9 @@ function Enemy:specialWrenchAttack(dt, player)
         
         entityStateSystem.applyStatusToTarget(player, entitiesStates[2].state, entitiesStates[2].duration)
 
+        if self.animations.attackWithWrench then
+            self:setAnimation("attackWithWrench")
+        end
     end
 end
 
@@ -314,6 +373,7 @@ function Enemy:stateFlee(dt, player)
 
     if distance < safe_distance and not self.isHealing then
 
+        self:setAnimation("walk")
         self.isMoving = true
 
         if player.x < self.x then self.facingLeft = false else self.facingLeft = true end
@@ -334,6 +394,8 @@ function Enemy:stateFlee(dt, player)
 end
 
 function Enemy:statePatrol(dt)
+
+    self:setAnimation("walk")
 
     if self.direction < 0 then self.facingLeft = true else self.facingLeft = false end
 
@@ -392,11 +454,11 @@ function Enemy:chaseTarget(dt, player)
         self:move(dt, "x", "left", 0.9, dirX)
         self:move(dt, "y", "up", 0.9, dirY)
 
-        self.isMoving = false
+        self.isMoving = true
         return true
 
     else
-        self.isMoving = false
+        self.isMoving = true
         return true
     end
 end
