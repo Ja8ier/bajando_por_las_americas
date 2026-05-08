@@ -3,7 +3,6 @@ local stage1 = {}
 local player = require("src.scripts.entities.player")
 local enemy = require("src.scripts.entities.enemy")
 local mathUtils = require("src.scripts.utils.mathUtils")
-
 local obstacle = require("src.scripts.entities.obstacle")
 local item = require("src.scripts.entities.item")
 local camera = require("src.scripts.systems.camera")
@@ -11,6 +10,7 @@ local trigger = require("src.scripts.systems.trigger")
 local inputs = require("src.scripts.utils.inputs")
 local tableUtils = require("src.scripts.utils.tableUtils")
 local miniGame = require("src.scripts.states.minigame")
+local cb = require("src.scripts.systems.collision_box")
 
 local worldWidth
 local layers = {}
@@ -29,6 +29,7 @@ local touchingTrigger
 local interactiveObject
 local pickableItem
 local isMiniGamePlaying
+local spawnPoint = {x = 200, y = love.graphics.getHeight() - player.frameheight * player.scale - 300}
 
 function stage1.load()
 
@@ -60,7 +61,7 @@ function stage1.load()
     table.insert(collisions, collisionWall1)
 
     --Objetos con textura
-    local phoneBooth = obstacle.new(true, 150, 50, 16, 42, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), false, 0.8)
+    local phoneBooth = obstacle.new(true, 2340, 50, 16, 42, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), false, 0.8)
     local object_caucho = obstacle.new(true, 120, 100, 16, 16, "bottom", love.graphics.newImage("assets/sprites/items/caucho.png"), false, nil)
 
     table.insert(collisions, phoneBooth)
@@ -75,7 +76,11 @@ function stage1.load()
 
     --Triggers
     local phoneBoothTrigger = trigger.new(nil, nil, nil, nil, true, function() isMiniGamePlaying = true end, true, true, phoneBooth)
+    local spawnTrigger = trigger.new(90, 84, 6, 70, true, function () spawnPoint.x = player.x spawnPoint.y = player.y end, true, false, nil)
+    local test = trigger.new(500, 84, 6, 70, true, function ()  player.x = spawnPoint.x player.y = spawnPoint.y end, true, false, nil)
     table.insert(triggers, phoneBoothTrigger)
+    table.insert(triggers, spawnTrigger)
+    table.insert(triggers, test)
 
    -- enemies temporales
     -- local enemy1 = enemy.new(4, 800, 400, 90, 125, 19, 28)
@@ -83,7 +88,7 @@ function stage1.load()
     -- local enemy2 = enemy.new(3, 600, 400, 90, 125, 19, 28)
     -- table.insert(enemies, enemy2)
 
-    player.load()
+    player.load(spawnPoint)
 end
 
 function stage1.update(dt)
@@ -98,8 +103,6 @@ function stage1.update(dt)
 
         return
     end
-
-    local cb = require("src.scripts.systems.collision_box")
 
     --Mover x
     player.isMoving = false
@@ -133,7 +136,7 @@ function stage1.update(dt)
             break
         end
     end
-    
+
     --detección del contacto de un player con un trigger
     touchingTrigger = false
     for _, _trigger in ipairs(triggers) do
@@ -142,7 +145,11 @@ function stage1.update(dt)
             if _trigger.item then
                 interactiveObject = _trigger
             else
-                --checkpoints activar el onTrigger del checkpoint
+                --activar el onTrigger si está activo del checkpoint
+                if _trigger.isActive then
+                    _trigger.onTrigger()
+                    _trigger.isActive = false
+                end
             end
         end
     end
@@ -182,7 +189,6 @@ end
 local function printByOrder()
 
     local drawList = {}
-    local cb = require("src.scripts.systems.collision_box")
 
     table.insert(drawList, player)
 
@@ -226,8 +232,6 @@ local function printByOrder()
 
 end
 
-
-
 function stage1.draw()
 
     love.graphics.setColor(1, 1, 1)
@@ -238,8 +242,6 @@ function stage1.draw()
         local offsetX = -camera.x * layer.factor
         love.graphics.draw(layer.img, offsetX, 0, 0, scale, love.graphics.getHeight() / 144)
     end
-
-    local cb = require("src.scripts.systems.collision_box")
 
     --comienzo de la cámara
     camera.begin()
@@ -262,6 +264,7 @@ function stage1.draw()
     local frontgroundOffsetX = -camera.x * layers[#layers].factor
     love.graphics.draw(layers[#layers].img, frontgroundOffsetX, 0, 0, scale, love.graphics.getHeight() / 144)
 
+    --Barra de vida del player
     love.graphics.draw(love.graphics.newImage("assets/sprites/player_life.png"), 10, 10, 0, scale * 0.8, scale * 0.8)
     love.graphics.setColor(0,1,0.1)
     love.graphics.rectangle("fill", 10, 10 + 32 * scale * 0.8, mathUtils.calculateHealthBarWidth(player.HP, player.maxHP, 32 * scale * 0.8), 15)

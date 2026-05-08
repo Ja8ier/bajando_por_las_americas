@@ -10,7 +10,8 @@ local scale = love.graphics.getWidth() / 256
 local animations = {
     walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false),
     run = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.15, false),
-    crouch = animation.new("assets/sprites/player/player_crouch.png", 17, 28, 0.1, true)
+    crouch = animation.new("assets/sprites/player/player_crouch.png", 17, 28, 0.1, true),
+    walkWileCarry = animation.new("assets/sprites/player/player_walking_while_carring.png", 20, 29, 0.25, false)
 }
 
 local currentAnimation = animations.walk
@@ -48,11 +49,11 @@ local player = {
 
 --#region Load, update y draw
 
-function player.load()
+function player.load(spawnPoint)
 
-    player.scale = (love.graphics.getWidth() / 256)
-    player.y = love.graphics.getHeight() - player.frameheight * player.scale - 200
-    player.x = 200
+    player.scale = scale
+    player.x = spawnPoint.x
+    player.y = spawnPoint.y
 
     playerCollisionBox.create(player, "bottom")
 
@@ -129,6 +130,7 @@ end
 
 --cambiar logica
 function player.updateAnimationState()
+    
     local isShift = love.keyboard.isDown(inputs.game.sprint) and (player.entityStatus.statusType ~= "slow" and player.entityStatus.statusType ~= "stun") 
 
     if love.keyboard.isDown(inputs.game.crouch) then
