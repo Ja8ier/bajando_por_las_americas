@@ -187,7 +187,7 @@ end
 
 --testing
 function player.die(dt)
-    deathEffect = {3/2 * math.pi, 32, 10}
+    local deathEffect = {3/2 * math.pi, 32, 10}
 end
 
 return player

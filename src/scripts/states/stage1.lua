@@ -47,10 +47,12 @@ function stage1.load()
 
     --Colisiones
     
---[[     local collisionWorldRightBorder = obstacle.new(false, 2560, 0, 2, 144, "full", "", false) -- cerca o pared de atras en zona de la facultad
+    local collisionWorldRightBorder = obstacle.new(false, 2560, 0, 2, 144, "full", "", false) -- cerca o pared de atras en zona de la facultad
     table.insert(collisions, collisionWorldRightBorder)
+    local box1 = obstacle.new(true, 100, 120, 30, 30, "full", "", false) -- cerca o pared de atras en zona de la facultad
+    table.insert(collisions, box1)
     local collisionWall1 = obstacle.new(false, 0, 78, 2489, 6, "full", "", false) -- cerca o pared de atras en zona de la facultad
-    table.insert(collisions, collisionWall1) ]]
+    table.insert(collisions, collisionWall1)
 
     --Objetos
 
@@ -62,9 +64,9 @@ function stage1.load()
     table.insert(items, item.new("caucho", 200, 110))
 
     --temporal
-    local enemy1 = enemy.new(4, 800, 400, 90, 125, 19, 28)
+    local enemy1 = enemy.new(4, 800, 400, 90, 140, 19, 28)
     table.insert(enemies, enemy1)
-    local enemy2 = enemy.new(3, 600, 400, 90, 125, 19, 28)
+    local enemy2 = enemy.new(3, 600, 400, 90, 140, 19, 28)
     table.insert(enemies, enemy2)
 
     player.load()
@@ -108,21 +110,7 @@ function stage1.update(dt)
     end
 
     for i, e in ipairs(enemies) do
-        e:update(dt, player)
-
-        e.updateCollisionBox()
-        for _, obs in ipairs(collisions) do
-            if cb.check(e, obs) then
-                cb.resolveX(e, obs)
-            end
-        end
-
-        e:updateCollisionBox()
-        for _, obs in ipairs(collisions) do
-            if cb.check(e, obs) then
-                cb.resolveY(e, obs)
-            end
-        end
+        e:update(dt, player, collisions)
     end
 
     for i = #enemies, 1, -1 do
@@ -212,7 +200,7 @@ function stage1.draw()
 
     end
 
-    cb.showBoxes(player, collisions, false)
+    cb.showBoxes(player, collisions, true)
     camera.ended()
 
     --frontground

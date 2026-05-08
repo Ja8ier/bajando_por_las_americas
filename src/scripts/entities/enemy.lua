@@ -4,8 +4,11 @@ local EnemyCollisionBox = require("src.scripts.systems.collision_box")
 local EnemyLogic = require("src.scripts.logic.enemy_logic")
 local mathUtils = require("src.scripts.utils.mathUtils")
 local entityStateSystem = require("src.scripts.systems.entity_state_system")
+local animation = require("src.scripts.systems.animation")
 
-local scale = love.graphics.getWidth() / 256
+local animations = {
+    walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.5, false)
+}
 
 local WeaponsByTier = {
     [1] = {"bottle"},
@@ -44,6 +47,8 @@ local multipliers = {
     [4] = 1.8
 }
 
+local obstacles = {}
+
 local function getRandomWeaponForEnemy(tier)
     local hasWeaponChance = 0.5
     
@@ -76,11 +81,22 @@ function Enemy.new(tier, _x, _y, _width, _height, boxW, boxH)
         instance.weapon = equipment.weapon
         instance.width = boxW
         instance.height = boxH
-        instance.currentColor = {0,0,1}
         instance.direction = 1
         instance.patrolTimer = 0
         instance.isHealing = false
         instance.attackCooldown = 0
+
+        instance.scale = love.graphics.getWidth() / 256
+        instance.frameWidth = 19
+        instance.frameheight = 28
+        instance.facingLeft = false
+        instance.isMoving = true
+
+        instance.animations = {
+            walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
+        }
+
+        instance.currentAnimation = instance.animations.walk
 
         instance.entityStatus = {
             statusType = "none",
@@ -96,16 +112,20 @@ function Enemy.new(tier, _x, _y, _width, _height, boxW, boxH)
     return instance
 end
 
-function Enemy:update(dt, player)
+function Enemy:update(dt, player, obs)
+
+    obstacles = obs
+
     self.tree:evaluate(self, dt)
+
+    if self.currentAnimation then
+        animation.update(self.currentAnimation, self.isMoving, dt)
+    end
 
     entityStateSystem.updateStatus(player, dt, self)
 end
 
 function Enemy:draw()
-    
-    love.graphics.setColor(self.currentColor)
-    love.graphics.rectangle("fill", self.x, self.y, self.enemyWidth, self.enemyHeight)
     
     love.graphics.setColor(0,1,0)
     love.graphics.rectangle("fill", self.x, self.y - 50, mathUtils.calculateHealthBarWidth(self.HP, self.maxHP), 15)
@@ -113,6 +133,29 @@ function Enemy:draw()
     love.graphics.rectangle("line", self.x, self.y - 50, 100, 15)
     love.graphics.print(self.HP, self.x, self.y - 73, 0, 0.7)
 
+    local quad = animation.getQuad(self.currentAnimation)
+
+    if not quad then
+        return
+    end
+    
+    local sheet = animation.getSheet(self.currentAnimation)
+
+    if self.facingLeft then
+        love.graphics.draw(sheet, quad, self.x + self.scale * self.frameWidth,
+        self.y, 0, - self.scale, self.scale)
+    else
+        love.graphics.draw(sheet, quad, self.x, self.y, 0,
+        self.scale, self.scale)
+    end
+
+end
+
+function Enemy:setAnimation(animName)
+    local newAnimation = self.animations[animName]
+    if newAnimation and self.currentAnimation ~= newAnimation then
+        self.currentAnimation = newAnimation
+    end
 end
 
 -- definicion de ataques sin armas
@@ -217,6 +260,50 @@ end
 
 
 -- definicion de acciones de movimiento y estado
+
+function Enemy:move(dt, XorY, direction, factorSpeed, setback)
+
+    local cb = require("src.scripts.systems.collision_box")
+
+    if XorY == "x" then
+
+        if direction == "left" then
+            self.x = math.max(self.x - dt * self.speed * factorSpeed * setback, 0)
+        elseif direction == "right" then
+            self.x = self.x + dt * self.speed * factorSpeed * setback
+        end
+
+
+    self.updateCollisionBox()
+
+    --Resolver x
+    for _, obs in ipairs(obstacles) do
+        if cb.check(self, obs) then
+            cb.resolveX(self, obs)
+        end
+    end
+    
+    elseif XorY == "y" then
+
+        if direction == "up" then
+            self.y = math.min(math.max(self.y - dt * self.speed * factorSpeed * setback, 0), love.graphics.getHeight() - self.scale * self.height)
+        elseif direction == "down" then
+            self.y = math.min(self.y + dt * self.speed * factorSpeed * setback, love.graphics.getHeight() - self.scale * self.height)
+        end
+
+    end
+
+    self.updateCollisionBox()
+
+    --Resolver y
+    for _, obs in ipairs(obstacles) do
+        if cb.check(self, obs) then
+            cb.resolveY(self, obs)
+        end
+    end
+
+end
+
 function Enemy:stateFlee(dt, player)
     local distance = self:getDistanceToPlayer(player)
     local safe_distance = 400
@@ -226,14 +313,17 @@ function Enemy:stateFlee(dt, player)
     end
 
     if distance < safe_distance and not self.isHealing then
-        local flee_speed = self.speed * 0.8
-        if self.x < player.x then self.x = self.x - flee_speed * dt else self.x = self.x + flee_speed * dt end
-        if self.y < player.y then self.y = self.y - flee_speed * dt else self.y = self.y + flee_speed * dt end
+
+        self.isMoving = true
+
+        if player.x < self.x then self.facingLeft = false else self.facingLeft = true end
+
+        if self.x < player.x then self:move(dt, "x", "left", 0.8, 1) else self:move(dt, "x", "right", 0.8, 1) end
+        if self.y < player.y then self:move(dt, "y", "up", 0.8, 1) else self:move(dt, "y", "down", 0.8, 1) end
         
-        self.currentColor = {1, 1, 0}
     else
+        self.isMoving = false
         self.isHealing = true
-        self.currentColor = {0, 1, 0}
                 
         self.HP = self.HP + (10 * dt * self.tier)
 
@@ -244,17 +334,20 @@ function Enemy:stateFlee(dt, player)
 end
 
 function Enemy:statePatrol(dt)
+
+    if self.direction < 0 then self.facingLeft = true else self.facingLeft = false end
+
+    self.isMoving = true
     self.patrolTimer = self.patrolTimer + dt
 
     if self.patrolTimer > 3 then
         self.direction = self.direction * -1
         self.patrolTimer = 0
+        self.facingLeft = not self.facingLeft
     end
 
-    self.x = self.x + (self.speed * 0.5 * self.direction * dt)
+    if self.direction < 0 then self:move(dt, "x", "left", 0.5, 1) else self:move(dt, "x", "right", 0.5, 1) end
     
-    self.currentColor = {0,0,1}
-
 end
 
 function Enemy:getDistanceToPlayer(player)
@@ -268,34 +361,42 @@ function Enemy:getDistanceToPlayer(player)
 end
 
 function Enemy:chaseTarget(dt, player)
-    local attackSpeed = self.speed * 0.9
     local minDistance = 75
 
     local dx = player.x - self.x
     local dy = player.y - self.y
     local distance = math.sqrt(dx^2 + dy^2)
 
-    self.currentColor = {1,0,0}
+    if player.x < self.x then 
+        self.facingLeft = true 
+    else 
+        self.facingLeft = false 
+    end
 
     if distance > minDistance then
         local dirX = dx / distance
         local dirY = dy / distance
 
-        self.x = self.x + dirX * attackSpeed * dt
-        self.y = self.y + dirY * attackSpeed * dt
+        -- Movimiento hacia el jugador
+        self:move(dt, "x", "right", 0.9, dirX)
+        self:move(dt, "y", "down", 0.9, dirY)
 
+        self.isMoving = true
         return false
 
     elseif distance <= (minDistance - 5) then
         local dirX = dx / distance
         local dirY = dy / distance
 
-        self.x = self.x - dirX * (attackSpeed * 0.5) * dt
-        self.y = self.y - dirY * (attackSpeed * 0.5) * dt
+        -- Retroceso si está demasiado cerca del player
+        self:move(dt, "x", "left", 0.9, dirX)
+        self:move(dt, "y", "up", 0.9, dirY)
 
+        self.isMoving = false
         return true
 
     else
+        self.isMoving = false
         return true
     end
 end
@@ -309,7 +410,6 @@ function Enemy:hitTimer(dt, player)
         end
 
         if self.attackCooldown <= 0 then
-            self.currentColor = {1, 0, 0}
             self.attackCooldown = 2
 
             player.isHurt = true
