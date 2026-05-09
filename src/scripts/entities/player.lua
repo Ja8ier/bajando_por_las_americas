@@ -11,13 +11,15 @@ local animations = {
     walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false),
     run = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.15, false),
     crouch = animation.new("assets/sprites/player/player_crouch.png", 17, 28, 0.1, true),
-    walkWileCarry = animation.new("assets/sprites/player/player_walking_while_carring.png", 20, 29, 0.25, false)
+    walkWileCarry = animation.new("assets/sprites/player/player_walking_while_carring.png", 20, 29, 0.25, false),
+    attack = animation.new("assets/sprites/player/player_attack.png", 31, 31, 0.080, false)
 }
 
 local currentAnimation = animations.walk
 
-local isWalking = false
-local isRunning = false
+local wasAttackPressed = false
+local attackTimer = 0
+local attackDuration = 0.48
 
 local player = {
     x = 0,
@@ -70,7 +72,14 @@ function player.update(dt)
         end
     end
 
+    local oldMoving = player.isMoving
+    if currentAnimation == animations.attack then
+        player.isMoving = true
+    end
+    
     animation.update(currentAnimation, player.isMoving, dt)
+    player.isMoving = oldMoving
+    -- animation.update(currentAnimation, player.isMoving, dt)
 
     --logica de sonidos
     if player.isMoving then
@@ -129,9 +138,7 @@ local function setAnimation(animation)
 end
 
 --cambiar logica
-function player.updateAnimationState()
-    
-    local isShift = love.keyboard.isDown(inputs.game.sprint) and (player.entityStatus.statusType ~= "slow" and player.entityStatus.statusType ~= "stun") 
+function player.updateAnimationState(dt)
 
     if love.keyboard.isDown(inputs.game.crouch) then
         player.speed = 0
@@ -139,14 +146,36 @@ function player.updateAnimationState()
         return
     end
 
+    local isAttackPressed = love.keyboard.isDown(inputs.game.attack)
+
+    if isAttackPressed and not wasAttackPressed then
+        attackTimer = attackDuration
+        setAnimation("attack")
+        player.speed = 0
+    end
+
+    wasAttackPressed = isAttackPressed
+
+    if attackTimer > 0 then
+        attackTimer = attackTimer - dt
+        return
+    end
+
+    local isShift = love.keyboard.isDown(inputs.game.sprint) and (player.entityStatus.statusType ~= "slow" and player.entityStatus.statusType ~= "stun") 
+
     if player.isMoving then
-        player.speed = isShift and 300 or 150
-        local anim = isShift and "run" or "walk"
-        setAnimation(anim)
+        if isShift then
+            player.speed = 300
+            setAnimation("run")
+        else
+            player.speed = 150
+            setAnimation("walk")
+        end
     elseif player.entityStatus.statusType ~= "slow" and player.entityStatus.statusType ~= "stun" then
         player.speed = 150
         setAnimation("walk")
     end
+
 end
 
 --movimiento del player

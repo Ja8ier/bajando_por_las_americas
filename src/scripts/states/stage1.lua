@@ -53,16 +53,16 @@ function stage1.load()
     worldWidth = layers[#layers].img:getWidth()
 
     --Cajas de colisiones
-    local collisionWorldRightBorder = obstacle.new(false, 2560, 0, 2, 144, "full", "", false, nil)
-    local collisionWall1 = obstacle.new(false, 0, 78, 2560, 6, "full", "", false, nil)
+    local collisionWorldRightBorder = obstacle.new(false, 2560, 0, 2, 144, "full", "", nil)
+    local collisionWall1 = obstacle.new(false, 0, 78, 2560, 6, "full", "", nil)
     -- local collisionWall2 = obstacle.new(false, 785, 78, 2560, 6, "full", "", false, nil)
 
     table.insert(collisions, collisionWorldRightBorder)
     table.insert(collisions, collisionWall1)
 
     --Objetos con textura
-    local phoneBooth = obstacle.new(true, 2340, 50, 16, 42, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), false, 0.8)
-    local object_caucho = obstacle.new(true, 120, 100, 16, 16, "bottom", love.graphics.newImage("assets/sprites/items/caucho.png"), false, nil)
+    local phoneBooth = obstacle.new(true, 2340, 50, 16, 42, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), 0.8)
+    local object_caucho = obstacle.new(true, 120, 100, 16, 16, "bottom", love.graphics.newImage("assets/sprites/items/caucho.png"), nil)
 
     table.insert(collisions, phoneBooth)
     table.insert(collisions, object_caucho)
@@ -75,18 +75,21 @@ function stage1.load()
     table.insert(items, item2)
 
     --Triggers
-    local phoneBoothTrigger = trigger.new(nil, nil, nil, nil, true, function() isMiniGamePlaying = true end, true, true, phoneBooth)
-    local spawnTrigger = trigger.new(90, 84, 6, 70, true, function () spawnPoint.x = player.x spawnPoint.y = player.y end, true, false, nil)
-    local test = trigger.new(500, 84, 6, 70, true, function ()  player.x = spawnPoint.x player.y = spawnPoint.y end, true, false, nil)
+    local phoneBoothTrigger = trigger.new(nil, nil, nil, nil, true, function() isMiniGamePlaying = true end, true, phoneBooth)
+    local spawnTrigger = trigger.new(90, 84, 6, 80, true, function () spawnPoint.x = player.x spawnPoint.y = player.y end, true, nil)
+    local middleTrigger = trigger.new(1180, 84, 6, 80, true, function () end, true, nil)
+    local endTrigger = trigger.new(2100, 84, 6, 80, true, function () end, true, nil)
+
     table.insert(triggers, phoneBoothTrigger)
     table.insert(triggers, spawnTrigger)
-    table.insert(triggers, test)
+    table.insert(triggers, middleTrigger)
+    table.insert(triggers, endTrigger)
 
    -- enemies temporales
-    -- local enemy1 = enemy.new(4, 800, 400, 90, 125, 19, 28)
-    -- table.insert(enemies, enemy1)
-    -- local enemy2 = enemy.new(3, 600, 400, 90, 125, 19, 28)
-    -- table.insert(enemies, enemy2)
+    local enemy1 = enemy.new(4, 800, 400, 90, 125, 19, 28)
+    table.insert(enemies, enemy1)
+    local enemy2 = enemy.new(3, 600, 400, 90, 125, 19, 28)
+    table.insert(enemies, enemy2)
 
     player.load(spawnPoint)
 end
@@ -141,16 +144,17 @@ function stage1.update(dt)
     touchingTrigger = false
     for _, _trigger in ipairs(triggers) do
         if cb.checkInteractionCollision(player, _trigger) then
+
             touchingTrigger = true
-            if _trigger.item then
-                interactiveObject = _trigger
-            else
-                --activar el onTrigger si está activo del checkpoint
-                if _trigger.isActive then
+            if _trigger.isActive then
+                if _trigger.item and _trigger.item ~= nil then
+                    interactiveObject = _trigger
+                else
                     _trigger.onTrigger()
                     _trigger.isActive = false
                 end
             end
+
         end
     end
 
@@ -181,7 +185,7 @@ function stage1.update(dt)
     end
 
     --actualizar animaciones y sonidos:
-    player.updateAnimationState()
+    player.updateAnimationState(dt)
     player.update(dt)
     camera.update(player.x, worldWidth * scale)
 end

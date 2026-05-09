@@ -3,11 +3,11 @@ local scale = love.graphics.getWidth() / 256
 
 local trigger = {}
 
-function trigger.new(_x, _y, _width, _height, _isActive, _onTrigger, _isVisible, _applyToItem, _item)
+function trigger.new(_x, _y, _width, _height, _isActive, _onTrigger, _isVisible, _item)
 
     local applyToItemAux = false
 
-    if _applyToItem then
+    if _item ~= nil then
         local edgeWidth = 6
         applyToItemAux = true
 
@@ -31,8 +31,8 @@ function trigger.new(_x, _y, _width, _height, _isActive, _onTrigger, _isVisible,
         width = _width * scale,
         height = _height * scale,
         isActive = _isActive,
-        onTrigger = _onTrigger,
         isVisible = _isVisible,
+        onTrigger = _onTrigger
     }
 
     if applyToItemAux then

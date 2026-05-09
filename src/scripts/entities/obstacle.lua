@@ -3,7 +3,7 @@ local obstacle = {}
 local obstacleCollisionBox = require("src.scripts.systems.collision_box")
 local scale = (love.graphics.getWidth() / 256)
 
-function obstacle.new(_isVisible, _x, _y, _width, _height, collisionType, _texture, _isInteractive, _scaleFactor)
+function obstacle.new(_isVisible, _x, _y, _width, _height, collisionType, _texture, _scaleFactor)
 
     
     local newObstacle = {
@@ -14,7 +14,6 @@ function obstacle.new(_isVisible, _x, _y, _width, _height, collisionType, _textu
         scale = scale,
         isVisible = _isVisible,
         texture = _texture,
-        isInteractive = _isInteractive,
         type = "obstacle"
     }
     
