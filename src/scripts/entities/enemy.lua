@@ -6,6 +6,8 @@ local mathUtils = require("src.scripts.utils.mathUtils")
 local entityStateSystem = require("src.scripts.systems.entity_state_system")
 local animation = require("src.scripts.systems.animation")
 
+NextBossWeaponIndex = 1 -- guarda el indice del boss del nivel actual
+
 local WeaponsByTier = {
     [1] = {"bottle"},
     [2] = {"bottle", "knife"},
@@ -40,7 +42,8 @@ local multipliers = {
     [1] = 1,
     [2] = 1.3,
     [3] = 1.5,
-    [4] = 1.8
+    [4] = 1.8,
+    [5] = {2, 2.1, 2.2, 2.3} or 1
 }
 
 local obstacles = {}
@@ -58,43 +61,66 @@ local function getRandomWeaponForEnemy(tier)
     return { hasWeapon = true, weapon = assignedWeapon }
 end
 
-local function chooseTypeMovement(animations, equipment)
-    if equipment.hasWeapon then
-        if equipment.weapon == "bottle" then
+local function chooseTypeMovement(animations, equipment, tier)
+    if tier == 5 then
+        if NextBossWeaponIndex == 1 then
             animations.walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
             animations.attackWithBottle = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
 
-        elseif equipment.weapon == "knife" then
+        elseif NextBossWeaponIndex == 2 then
             animations.walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
             animations.attackWithKnife = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
 
-        elseif equipment.weapon == "bat" then
+        elseif NextBossWeaponIndex == 3 then
             animations.walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
             animations.attackWithBat = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
         
-        elseif equipment.weapon == "wrench" then
+        elseif NextBossWeaponIndex == 4 then
             animations.walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
             animations.attackWithWrench = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
         end
-
-        animations.commonWeaponAttack = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
     else
-        animations.walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
-        animations.jabAttack = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
-        animations.comboAttack = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
-        animations.sweepKick = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
-        animations.groundSlam = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
-        animations.heavySmash = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+        if equipment.hasWeapon then
+            if equipment.weapon == "bottle" then
+                animations.walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
+                animations.attackWithBottle = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+
+            elseif equipment.weapon == "knife" then
+                animations.walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
+                animations.attackWithKnife = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+
+            elseif equipment.weapon == "bat" then
+                animations.walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
+                animations.attackWithBat = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+            
+            elseif equipment.weapon == "wrench" then
+                animations.walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
+                animations.attackWithWrench = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+            end
+
+            animations.commonWeaponAttack = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+        else
+            animations.walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
+            animations.jabAttack = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+            animations.comboAttack = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+            animations.sweepKick = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+            animations.groundSlam = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+            animations.heavySmash = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+        end
     end
 
     return animations.walk
 end
 
-function Enemy.new(tier, _x, _y, _width, _height, boxW, boxH)
+function Enemy.new(tier, _x, _y, boxW, boxH)
 
-    local equipment = getRandomWeaponForEnemy(tier)
+    
+    local equipment
+    if tier ~= 5 then
+        equipment = getRandomWeaponForEnemy(tier)
+        print(tostring(equipment.hasWeapon) .. ": " .. tostring(equipment.weapon))
+    end
 
-    print(tostring(equipment.hasWeapon) .. ": " .. tostring(equipment.weapon))
     local instance = {}
         instance.HP = mathUtils.calculateLife(tier)
         instance.maxHP = mathUtils.calculateLife(tier)
@@ -103,31 +129,36 @@ function Enemy.new(tier, _x, _y, _width, _height, boxW, boxH)
         instance.x = _x
         instance.y = _y
         instance.speed = 150
-        instance.enemyWidth = _width
-        instance.enemyHeight = _height
-        instance.hasWeapon = equipment.hasWeapon
-        instance.weapon = equipment.weapon
         instance.width = boxW
         instance.height = boxH
         instance.direction = 1
         instance.patrolTimer = 0
         instance.isHealing = false
         instance.attackCooldown = 0
-
-        instance.scale = love.graphics.getWidth() / 256
+        if tier == 5 then instance.scale = 1.5*love.graphics.getWidth()/256 else instance.scale = love.graphics.getWidth()/256 end
         instance.frameWidth = 19
         instance.frameheight = 28
         instance.facingLeft = false
         instance.isMoving = true
-
         instance.animations = {}
-
-        instance.currentAnimation = chooseTypeMovement(instance.animations, equipment)
-
+        instance.currentAnimation = chooseTypeMovement(instance.animations, equipment, tier)
         instance.entityStatus = {
             statusType = "none",
             statusTimer = 0,
         }
+
+    if tier == 5 then
+        instance.createEnemies = false
+        instance.hasWeapon = true
+        if NextBossWeaponIndex <= 4 then instance.weapon = WeaponsByTier[4][NextBossWeaponIndex] end
+
+        if NextBossWeaponIndex > #WeaponsByTier[4] then
+            NextBossWeaponIndex = 1
+        end
+    else
+        instance.hasWeapon = equipment.hasWeapon
+        instance.weapon = equipment.weapon
+    end
 
     EnemyCollisionBox.create(instance, "bottom")
 
@@ -187,7 +218,7 @@ end
 -- definicion de ataques sin armas
 function Enemy:jabAttack(dt, player)
 
-    if self:hitTimer(dt, player) then
+    if self:hitTimer(dt, player, 2) then
         player.HP = player.HP - baseDamage.jabAttack * multipliers[self.tier]
         print("jab: ".. baseDamage.jabAttack * multipliers[self.tier])
 
@@ -198,7 +229,7 @@ function Enemy:jabAttack(dt, player)
 end
 
 function Enemy:comboAttack(dt, player)
-    if self:hitTimer(dt, player) then
+    if self:hitTimer(dt, player, 2) then
         player.HP = player.HP - baseDamage.comboAttack * multipliers[self.tier]
         print("combo: ".. baseDamage.comboAttack * multipliers[self.tier])
 
@@ -209,7 +240,7 @@ function Enemy:comboAttack(dt, player)
 end
 
 function Enemy:sweepKick(dt, player)
-    if self:hitTimer(dt, player) then
+    if self:hitTimer(dt, player, 2) then
         player.HP = player.HP - baseDamage.sweepKick * multipliers[self.tier]
         print("kick: ".. baseDamage.sweepKick * multipliers[self.tier])
 
@@ -222,7 +253,7 @@ function Enemy:sweepKick(dt, player)
 end
 
 function Enemy:groundSlam(dt, player)
-    if self:hitTimer(dt, player) then
+    if self:hitTimer(dt, player, 2) then
         player.HP = player.HP - baseDamage.groundSlam * multipliers[self.tier]
         print("slam: ".. baseDamage.groundSlam * multipliers[self.tier])
 
@@ -235,7 +266,7 @@ function Enemy:groundSlam(dt, player)
 end
 
 function Enemy:heavySmash(dt, player)
-    if self:hitTimer(dt, player) then
+    if self:hitTimer(dt, player, 2) then
         player.HP = player.HP - baseDamage.heavySmash * multipliers[self.tier]
         print("heavy smash: "..  baseDamage.heavySmash * multipliers[self.tier])
 
@@ -246,16 +277,31 @@ function Enemy:heavySmash(dt, player)
 end
 
 function Enemy:specialAttackBoss(dt, player)
-    if self:hitTimer(dt, player) then
-        player.HP = player.HP - 500 -- falta implementar
-        print("special")
+    --if self:hitTimer(dt, player, 5) then
 
-    end
+        if self.attackCooldown > 0 then
+            self.attackCooldown = self.attackCooldown - dt
+        end
+
+        if self.attackCooldown <= 0 then
+            self.attackCooldown = 5
+
+            self:setAnimation("walk")
+
+            if player.x < self.x then self.facingLeft = false else self.facingLeft = true end
+
+            if self.x < player.x then self:move(dt, "x", "left", 1.1, 1) else self:move(dt, "x", "right", 1.1, 1) end
+            if self.y < player.y then self:move(dt, "y", "up", 1.1, 1) else self:move(dt, "y", "down", 1.1, 1) end
+        end
+
+        print("special attack boss")
+
+    --end
 end
 
 -- definicion de ataques con armas
 function Enemy:commonWeaponAttack(dt, player)
-    if self:hitTimer(dt, player) then
+    if self:hitTimer(dt, player, 2) then
         player.HP = player.HP - baseDamage.commonWeaponAttack * multipliers[self.tier]
         print("common weapon attack: ".. baseDamage.commonWeaponAttack * multipliers[self.tier])
 
@@ -266,10 +312,16 @@ function Enemy:commonWeaponAttack(dt, player)
 end
 
 function Enemy:specialBottleAttack(dt, player)
-    if self:hitTimer(dt, player) then
-        player.HP = player.HP - baseDamage.specialBottleAttack * multipliers[self.tier]
-        print("special bottle: ".. baseDamage.specialBottleAttack * multipliers[self.tier])
-        
+    if self:hitTimer(dt, player, 2) then
+        if self.tier == 5 then
+            player.HP = player.HP - baseDamage.specialBottleAttack * multipliers[self.tier][NextBossWeaponIndex]
+            print("special bottle: ".. baseDamage.specialBottleAttack * multipliers[self.tier][NextBossWeaponIndex])
+    
+        else
+            player.HP = player.HP - baseDamage.specialBottleAttack * multipliers[self.tier]
+            print("special bottle: ".. baseDamage.specialBottleAttack * multipliers[self.tier])
+        end
+ 
         entityStateSystem.applyStatusToTarget(player, entitiesStates[3].state, entitiesStates[3].duration)
 
         if self.animations.attackWithBottle then
@@ -279,23 +331,34 @@ function Enemy:specialBottleAttack(dt, player)
 end
 
 function Enemy:specialKnifeAttack(dt, player)
-    if self:hitTimer(dt, player) then
-        player.HP = player.HP - baseDamage.specialKnifeAttack * multipliers[self.tier]
-        print("special knife: " ..baseDamage.specialKnifeAttack * multipliers[self.tier])
+    if self:hitTimer(dt, player, 2) then
+        if self.tier == 5 then
+            player.HP = player.HP - baseDamage.specialKnifeAttack * multipliers[self.tier][NextBossWeaponIndex]
+            print("special knife: ".. baseDamage.specialKnifeAttack * multipliers[self.tier][NextBossWeaponIndex])
         
+        else
+            player.HP = player.HP - baseDamage.specialKnifeAttack * multipliers[self.tier]
+            print("special knife: ".. baseDamage.specialKnifeAttack * multipliers[self.tier])
+        end
+
         entityStateSystem.applyStatusToTarget(player, entitiesStates[4].state, entitiesStates[4].duration)
 
         if self.animations.attackWithKnife then
             self:setAnimation("attackWithKnife")
-        end
+        end 
     end
 end
 
 function Enemy:specialBatAttack(dt, player)
-    if self:hitTimer(dt, player) then
-        player.HP = player.HP - baseDamage.specialBatAttack * multipliers[self.tier]
-        print("special bat: ".. baseDamage.specialBatAttack * multipliers[self.tier])
-        
+    if self:hitTimer(dt, player, 2) then 
+        if self.tier == 5 then
+            player.HP = player.HP - baseDamage.specialBatAttack * multipliers[self.tier][NextBossWeaponIndex]
+            print("special bat: ".. baseDamage.specialBatAttack * multipliers[self.tier][NextBossWeaponIndex])
+        else
+            player.HP = player.HP - baseDamage.specialBatAttack * multipliers[self.tier]
+            print("special bat: ".. baseDamage.specialBatAttack * multipliers[self.tier])
+        end
+
         entityStateSystem.applyStatusToTarget(player, entitiesStates[1].state, entitiesStates[1].duration)
 
         if self.animations.attackWithBat then
@@ -305,10 +368,15 @@ function Enemy:specialBatAttack(dt, player)
 end
 
 function Enemy:specialWrenchAttack(dt, player)
-    if self:hitTimer(dt, player) then
-        player.HP = player.HP - baseDamage.specialWrenchAttack * multipliers[self.tier]
-        print("special wrench: "..baseDamage.specialWrenchAttack * multipliers[self.tier])
-        
+    if self:hitTimer(dt, player, 2) then
+        if self.tier == 5 then
+            player.HP = player.HP - baseDamage.specialWrenchAttack * multipliers[self.tier][NextBossWeaponIndex]
+            print("special wrench: ".. baseDamage.specialWrenchAttack * multipliers[self.tier][NextBossWeaponIndex])
+        else
+            player.HP = player.HP - baseDamage.specialWrenchAttack * multipliers[self.tier]
+            print("special wrench: ".. baseDamage.specialWrenchAttack * multipliers[self.tier])     
+        end
+
         entityStateSystem.applyStatusToTarget(player, entitiesStates[2].state, entitiesStates[2].duration)
 
         if self.animations.attackWithWrench then
@@ -463,7 +531,7 @@ function Enemy:chaseTarget(dt, player)
     end
 end
 
-function Enemy:hitTimer(dt, player)
+function Enemy:hitTimer(dt, player, duration)
     if self:chaseTarget(dt, player) then
         if self.attackCooldown > 0 then
             self.attackCooldown = self.attackCooldown - dt
@@ -472,7 +540,7 @@ function Enemy:hitTimer(dt, player)
         end
 
         if self.attackCooldown <= 0 then
-            self.attackCooldown = 2
+            self.attackCooldown = duration
 
             player.isHurt = true
             player.hurtTimer = 0.10

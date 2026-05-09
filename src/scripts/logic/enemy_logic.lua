@@ -103,15 +103,33 @@ function EnemyLogic.createTree()
         actionCommonWeapon
     )
 
+    local bossWeaponAttackTree = AI.newCondition(
+        function(e) return e.weapon == "bottle" end,
+        actionSpecialBottle,
+        AI.newCondition(
+            function(e) return e.weapon == "knife" end,
+            actionSpecialKnife,
+            AI.newCondition(
+                function(e) return e.weapon == "bat" end,
+                actionSpecialBat,
+                actionSpecialWrench -- Por defecto, si el arma es "wrench"
+            )
+        )
+    )
+
     -- Árbol Principal (Evaluador de Tiers y Eventos)
     return AI.newCondition(
         function(e) return e.tier == 5 end, -- Rama exclusiva para el Boss (Tier 5)
         AI.newCondition(
-            function(e) return e.HP < 20 end,
+            function(e) return e.isHealing or e.HP < e.maxHP * 0.20 end,
             actionFlee,
             AI.newCondition(
-                function(e) return e:getDistanceToPlayer() < 300 end,
-                actionBossSpecial,
+                function(e) return e:getDistanceToPlayer(player) <= 350 end,
+                AI.newCondition(
+                    function(e) return math.random() < 1 end,
+                    actionBossSpecial,
+                    bossWeaponAttackTree
+                ),
                 actionWalk
             )
         ),

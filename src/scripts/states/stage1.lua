@@ -56,18 +56,21 @@ function stage1.load()
 
     --Objetos
 
-    -- local object_caucho = obstacle.new(true, 120, 90, 16, 16, "bottom", love.graphics.newImage("assets/sprites/caucho.png"), false)
-    -- table.insert(obstacles, object_caucho)
+--[[     local object_caucho = obstacle.new(true, 250, 100, 16, 16, "bottom", love.graphics.newImage("assets/sprites/items/caucho.png"), false)
+    table.insert(collisions, object_caucho)
 
     --Items
     table.insert(items, item.new("disco", 120, 100))
     table.insert(items, item.new("caucho", 200, 110))
 
     --temporal
-    local enemy1 = enemy.new(4, 800, 400, 90, 140, 19, 28)
+    local enemy1 = enemy.new(4, 800, 400, 19, 28)
     table.insert(enemies, enemy1)
-    local enemy2 = enemy.new(3, 600, 400, 90, 140, 19, 28)
-    table.insert(enemies, enemy2)
+    local enemy2 = enemy.new(3, 600, 400, 19, 28)
+    table.insert(enemies, enemy2) ]]
+
+    local boss1 = enemy.new(5, 1000, 400, 19, 28)
+    table.insert(enemies, boss1)
 
     player.load()
 end
@@ -117,6 +120,10 @@ function stage1.update(dt)
         local e = enemies[i]
         
         if e.isDead then
+            if e.tier == 5 then
+                NextBossWeaponIndex = NextBossWeaponIndex + 1
+            end
+
             table.remove(enemies, i)
         end
     end
@@ -144,11 +151,6 @@ local function printOrder(_player, _enemies)
 
     for i, e in ipairs(drawList) do
         e:draw()
-
-        -- caja de la entidad
-        love.graphics.setColor(1, 1, 1, 0.25)
-        love.graphics.rectangle("fill", e.collisionBox.x, e.collisionBox.y, e.collisionBox.width, e.collisionBox.height)
-        love.graphics.setColor(1, 1, 1)
     end
 end
 
@@ -200,7 +202,7 @@ function stage1.draw()
 
     end
 
-    cb.showBoxes(player, collisions, true)
+    cb.showBoxes(player, collisions, enemies, true)
     camera.ended()
 
     --frontground

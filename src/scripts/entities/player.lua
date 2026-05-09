@@ -34,7 +34,7 @@ local player = {
     isMoving = false,
 
     isCrouching = false,
-    armament = {isArmed = true, typeWeapon = "bottle"},
+    armament = {isArmed = true, weaponSelect = "bottle"},
     HP = 1000,
     maxHP = 1000,
     isHurt = false,
@@ -242,22 +242,22 @@ function player.attack(enemies)
 
             if player.armament.isArmed then
                     
-                if player.armament.typeWeapon == "bottle" then
+                if player.armament.weaponSelect == "bottle" then
                     takeHP(e, 40)
                     --setAnimation("bottleAttack")
                     break
 
-                elseif player.armament.typeWeapon == "knife" then
+                elseif player.armament.weaponSelect == "knife" then
                     takeHP(e, 60)
                     --setAnimation("knifeAttack")
                     break
 
-                elseif player.armament.typeWeapon == "bat" then
+                elseif player.armament.weaponSelect == "bat" then
                     takeHP(e, 80)
                     --setAnimation("batAttack")
                     break
 
-                elseif player.armament.typeWeapon == "wrench" then
+                elseif player.armament.weaponSelect == "wrench" then
                     takeHP(e, 100)
                     --setAnimation("wrenchAttack")
                     break

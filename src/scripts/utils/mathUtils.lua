@@ -5,11 +5,15 @@ local tierLifeValues = {
     [2] = 250,  -- Tier 2
     [3] = 450,  -- Tier 3
     [4] = 750,  -- Tier 4
-    [5] = 1200  -- Tier 5 (Bosse)
+    [5] = {2000, 3000, 4000, 5000}  -- Tier 5 (Bosse)
 }
 
 function mathUtils.calculateLife(tier)
-    return tierLifeValues[tier]
+    if tier == 5 then
+        return tierLifeValues[tier][NextBossWeaponIndex]
+    else
+        return tierLifeValues[tier]
+    end
 end
 
 function mathUtils.calculateHealthBarWidth(HP, maxHP)

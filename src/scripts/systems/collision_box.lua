@@ -12,7 +12,7 @@ collisionBox.TYPES = {
     -- CUSTOM = "custom" --solo para casos especiales donde se necesite una colision particular
 }
 
-local scale = love.graphics.getWidth() / 256
+--local scale = love.graphics.getWidth() / 256
 
 function collisionBox.create(entity, type)
     
@@ -24,12 +24,12 @@ function collisionBox.create(entity, type)
 
     --Ancho y alto
 
-    _width = (entity.width) * scale
+    _width = (entity.width) * entity.scale
 
     if type == collisionBox.TYPES.BOTTOM or type == collisionBox.TYPES.TOP then
-        _height = (entity.height * scale) / 3
+        _height = (entity.height * entity.scale) / 3
     elseif type == collisionBox.TYPES.FULL then
-        _height = entity.height * scale
+        _height = entity.height * entity.scale
     end
 
     --posicion X
@@ -39,7 +39,7 @@ function collisionBox.create(entity, type)
     if type == collisionBox.TYPES.FULL or type == collisionBox.TYPES.TOP then
         _y = entity.y
     elseif type == collisionBox.TYPES.BOTTOM then
-        _y = entity.y + ((2 * entity.height * scale) / 3)
+        _y = entity.y + ((2 * entity.height * entity.scale) / 3)
     end
 
     --tipo de collision box
@@ -95,7 +95,7 @@ function collisionBox.updatePosition(entity)
     if entity.collisionBox.type == collisionBox.TYPES.FULL or entity.collisionBox.type  == collisionBox.TYPES.TOP then
         entity.collisionBox.y = entity.y
     elseif entity.collisionBox.type == collisionBox.TYPES.BOTTOM then
-        entity.collisionBox.y = entity.y + ((2 * entity.height * scale) / 3)
+        entity.collisionBox.y = entity.y + ((2 * entity.height * entity.scale) / 3)
     end
     
 end
@@ -151,18 +151,23 @@ function collisionBox.isAhead(entity, object)
     return collisionBox.getBottom(entity) < collisionBox.getBottom(object)
 end
 
-function collisionBox.showBoxes(player, obstacles, show)
+function collisionBox.showBoxes(player, obstacles, enemies, show)
 
     if show then
         --caja del player
-        love.graphics.setColor(1, 1, 1, 0.25)
+        love.graphics.setColor(1, 1, 1, 0.15)
         love.graphics.rectangle("fill", player.collisionBox.x, player.collisionBox.y, player.collisionBox.width, player.collisionBox.height)
 
         --cajas de colision
-        love.graphics.setColor(1, 0.1, 0.1, 0.25)
         for _, obs in ipairs(obstacles) do
             love.graphics.rectangle("fill", obs.collisionBox.x, obs.collisionBox.y, obs.collisionBox.width, obs.collisionBox.height)
         end
+
+        -- caja de los enemigos
+        for i, e in ipairs(enemies) do
+            love.graphics.rectangle("fill", e.collisionBox.x, e.collisionBox.y, e.collisionBox.width, e.collisionBox.height)
+        end
+
         love.graphics.setColor(1, 1, 1)
     else
         return
