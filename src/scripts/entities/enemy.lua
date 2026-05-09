@@ -294,7 +294,7 @@ function Enemy:specialAttackBoss(dt, player)
             if self.y < player.y then self:move(dt, "y", "up", 1.1, 1) else self:move(dt, "y", "down", 1.1, 1) end
         end
 
-        print("special attack boss")
+        --print("special attack boss")
 
     --end
 end

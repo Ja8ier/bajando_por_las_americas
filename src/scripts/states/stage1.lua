@@ -2,13 +2,12 @@ local stage1 = {}
 
 local player = require("src.scripts.entities.player")
 local enemy = require("src.scripts.entities.enemy")
-local mathUtils = require("src.scripts.utils.mathUtils")
-
 local obstacle = require("src.scripts.entities.obstacle")
 local item = require("src.scripts.entities.item")
 local camera = require("src.scripts.systems.camera")
 local inputs = require("src.scripts.utils.inputs")
 local tableUtils = require("src.scripts.utils.tableUtils")
+local inventory = require("src.scripts.systems.inventory")
 
 local worldWidth
 local layers = {}
@@ -23,6 +22,7 @@ local scale = love.graphics.getWidth() / 256
 
 local touchingItem
 local pickableItem
+local openInventory = false
 
 function stage1.load()
     
@@ -56,7 +56,7 @@ function stage1.load()
 
     --Objetos
 
---[[     local object_caucho = obstacle.new(true, 250, 100, 16, 16, "bottom", love.graphics.newImage("assets/sprites/items/caucho.png"), false)
+    local object_caucho = obstacle.new(true, 250, 100, 16, 16, "bottom", love.graphics.newImage("assets/sprites/items/caucho.png"), false)
     table.insert(collisions, object_caucho)
 
     --Items
@@ -67,7 +67,7 @@ function stage1.load()
     local enemy1 = enemy.new(4, 800, 400, 19, 28)
     table.insert(enemies, enemy1)
     local enemy2 = enemy.new(3, 600, 400, 19, 28)
-    table.insert(enemies, enemy2) ]]
+    table.insert(enemies, enemy2)
 
     local boss1 = enemy.new(5, 1000, 400, 19, 28)
     table.insert(enemies, boss1)
@@ -203,12 +203,16 @@ function stage1.draw()
     end
 
     cb.showBoxes(player, collisions, enemies, true)
+
     camera.ended()
 
     --frontground
     local frontgroundOffsetX = -camera.x * layers[#layers].factor
     love.graphics.draw(layers[#layers].img, frontgroundOffsetX, 0, 0, scale, love.graphics.getHeight() / 144)
 
+    if openInventory then
+        inventory.draw()
+    end
 end
 
 function stage1.keypressed(key)
@@ -221,6 +225,12 @@ function stage1.keypressed(key)
     if key == inputs.game.attack then
         player.attack(enemies)
     end
+
+    if key == inputs.game.openInventory then
+        openInventory = not openInventory
+    end
+
+    inventory.keypressed(key)
 end
 
 return stage1
