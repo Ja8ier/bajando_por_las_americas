@@ -4,7 +4,7 @@ local inputs = require("src.scripts.utils.inputs")
 -- El margen inicial dentro del rectángulo grande
 local INITIAL_MARGIN = 5
 -- El ancho de cada slot + el espacio entre ellos
-local SLOT_SPACING = 105
+local SLOT_SPACING = 85
 
 local keyPressed = {false, false, false, false, false, false, false, false, false}
 local previousKey = 0
@@ -19,20 +19,20 @@ end
 
 function inventory.draw()
     
-    love.graphics.setColor(1, 1, 1, 0.25)
-    local startX = (love.graphics.getWidth() - 950) / 2
-    love.graphics.rectangle("fill", startX, 600, 950, 110, 10, 10)
+    love.graphics.setColor(1, 1, 1, 0.10)
+    local startX = (love.graphics.getWidth() - 770) / 2
+    love.graphics.rectangle("fill", startX, 620, 770, 90, 10, 10)
 
     -- Slots
     for i = 0, 8 do
         local slotX = startX + INITIAL_MARGIN + (i * SLOT_SPACING)
         
-        love.graphics.setColor(1, 1, 1, 1)
-        love.graphics.rectangle("fill", slotX, 605, 100, 100, 10, 10)
+        love.graphics.setColor(1, 1, 1, 0.25)
+        love.graphics.rectangle("fill", slotX, 625, 80, 80, 10, 10)
 
         if keyPressed[i + 1] then love.graphics.setColor(0, 1, 0) else love.graphics.setColor(0, 0, 0, 0.8) end
 
-        love.graphics.rectangle("line", slotX, 605, 100, 100, 10, 10)
+        love.graphics.rectangle("line", slotX, 625, 80, 80, 10, 10)
     end
 end
 

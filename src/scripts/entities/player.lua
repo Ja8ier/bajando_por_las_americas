@@ -37,15 +37,11 @@ local player = {
     armament = {isArmed = true, weaponSelect = "bottle"},
     HP = 1000,
     maxHP = 1000,
+    numberAttempts = 3,
     isHurt = false,
     hurtTimer = 0,
     attacking = false,
-    entityStatus = {
-        statusType = "none",
-        statusTimer = 0,
-        lastAttacker = nil
-    },
-
+    entityStatus = {statusType = "none", statusTimer = 0}
 }
 
 --#region Load, update y draw
@@ -154,6 +150,55 @@ function player.updateAnimationState()
         setAnimation("walk")
     end
 end
+
+--[[ 
+function player.updateAnimationState(dt)
+    -- 1. Lógica de Ataque (Prioridad Máxima)
+    local isAttackPressed = love.keyboard.isDown(inputs.game.attack)
+
+    if isAttackPressed and not wasAttackPressed then
+        attackTimer = attackDuration
+        setAnimation("attack")
+        player.speed = 0 -- Te detienes al atacar
+    end
+
+    wasAttackPressed = isAttackPressed
+
+    if attackTimer > 0 then
+        attackTimer = attackTimer - dt
+        return -- Salimos: el ataque bloquea el movimiento y el sprint
+    end
+
+    -- 2. Verificación de Estados (Protección)
+    local status = player.entityStatus and player.entityStatus.statusType
+    local isNormal = status ~= "slow" and status ~= "stun"
+    local isShift = love.keyboard.isDown(inputs.game.sprint)
+
+    -- 3. Lógica de Movimiento y Animación
+    if player.isMoving then
+        -- Solo permitimos cambiar la velocidad si el estado es NORMAL
+        if isNormal then
+            if isShift then
+                player.speed = 300
+                setAnimation("run")
+            else
+                player.speed = 150
+                setAnimation("walk")
+            end
+        else
+            -- Si NO es normal (slow/stun), mantenemos la animación de walk
+            -- pero NO tocamos player.speed (deja que el sistema de estados lo maneje)
+            setAnimation("walk")
+        end
+    else
+        -- Si está quieto y no tiene efectos, reseteamos a velocidad base
+        if isNormal then
+            player.speed = 150
+        end
+        setAnimation("walk")
+    end
+end
+]]
 
 --movimiento del player
 function player.move(dt, XorY)
@@ -274,16 +319,25 @@ function player.attack(enemies)
     end
 end
 
+function player.cleanStatus()
+    player.speed = 150
+    player.facingLeft = false
+    player.isMoving = false
+    player.isCrouching = false
+    player.armament = {isArmed = true, weaponSelect = "bottle"}
+    player.HP = 1000
+    player.numberAttempts = 3
+    player.isHurt = false
+    player.hurtTimer = 0
+    player.attacking = false
+    player.entityStatus = {statusType = "none", statusTimer = 0}
+    currentAnimation = animations.walk
+end
+
 function player.checkDeath(dt)
     if player.HP <= 0 then
         player.HP = 0
-        player.die(dt)
     end
-end
-
---testing
-function player.die(dt)
-    --logica al morir el player
 end
 
 return player

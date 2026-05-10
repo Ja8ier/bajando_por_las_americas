@@ -215,6 +215,18 @@ function stage1.draw()
     end
 end
 
+function stage1.cleanStatus()
+    enemies = {}
+    collisions = {}
+    items = {}
+    objects = {}
+    layers = {}
+    
+    touchingItem = false
+    pickableItem = nil
+    openInventory = false
+end
+
 function stage1.keypressed(key)
     if touchingItem then
         if key == inputs.game.pickUpItem then

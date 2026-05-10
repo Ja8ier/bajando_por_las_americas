@@ -64,8 +64,8 @@ end
 local function chooseTypeMovement(animations, equipment, tier)
     if tier == 5 then
         if NextBossWeaponIndex == 1 then
-            animations.walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
-            animations.attackWithBottle = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+            animations.walk = animation.new("assets/sprites/bosses/boss1_walk.png", 41, 61, 0.25, false)
+            animations.attackWithBottle = animation.new("assets/sprites/bosses/boss1_attack.png", 63, 56, 0.3, false)
 
         elseif NextBossWeaponIndex == 2 then
             animations.walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
@@ -135,7 +135,7 @@ function Enemy.new(tier, _x, _y, boxW, boxH)
         instance.patrolTimer = 0
         instance.isHealing = false
         instance.attackCooldown = 0
-        if tier == 5 then instance.scale = 1.5*love.graphics.getWidth()/256 else instance.scale = love.graphics.getWidth()/256 end
+        if tier == 5 then instance.scale = love.graphics.getWidth()/256 else instance.scale = love.graphics.getWidth()/256 end
         instance.frameWidth = 19
         instance.frameheight = 28
         instance.facingLeft = false
@@ -277,26 +277,14 @@ function Enemy:heavySmash(dt, player)
 end
 
 function Enemy:specialAttackBoss(dt, player)
-    --if self:hitTimer(dt, player, 5) then
+    if self:hitTimer(dt, player, 2) then
+        player.HP = player.HP - baseDamage.specialBatAttack * multipliers[3]
+        print("common weapon attack: ".. baseDamage.specialBatAttack * multipliers[3])
 
-        if self.attackCooldown > 0 then
-            self.attackCooldown = self.attackCooldown - dt
+        if self.animations.attackWithBottle then
+            self:setAnimation("attackWithBottle")
         end
-
-        if self.attackCooldown <= 0 then
-            self.attackCooldown = 5
-
-            self:setAnimation("walk")
-
-            if player.x < self.x then self.facingLeft = false else self.facingLeft = true end
-
-            if self.x < player.x then self:move(dt, "x", "left", 1.1, 1) else self:move(dt, "x", "right", 1.1, 1) end
-            if self.y < player.y then self:move(dt, "y", "up", 1.1, 1) else self:move(dt, "y", "down", 1.1, 1) end
-        end
-
-        --print("special attack boss")
-
-    --end
+    end
 end
 
 -- definicion de ataques con armas
