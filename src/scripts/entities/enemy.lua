@@ -16,7 +16,7 @@ local WeaponsByTier = {
 }
 
 local entitiesStates = {
-    {state = "knockback", duration = 1},
+    {state = "knockback", duration = 0.5},
     {state = "stun", duration= 2},
     {state = "slow", duration = 4},
     {state = "bleed", duration = 3}
@@ -46,6 +46,19 @@ local multipliers = {
     [5] = {2, 2.1, 2.2, 2.3} or 1
 }
 
+local dimensions = {
+
+    [1] = { walk={40, 60}, heal={57, 62}, die={62, 59}, attack={60, 59}, jabAttack={64, 59}, comboAttack={64, 58}, sweepKick={48, 59}, scale = 0.5 }, --tier1
+    [2] = { walk={40, 60}, heal={57, 62}, die={62, 59}, attack={60, 59}, jabAttack={64, 59}, comboAttack={64, 58}, sweepKick={48, 59}, groundSlam={61, 63}, scale = 0.5 }, --tier2
+    [3] = { walk={40, 60}, heal={57, 62}, die={62, 59}, attack={60, 59}, jabAttack={64, 59}, comboAttack={64, 58}, sweepKick={48, 59}, groundSlam={61, 63}, heavySmash={49, 64}, scale = 0.5 }, --tier3
+    [4] = { walk={40, 60}, heal={57, 62}, die={62, 59}, attack={60, 59}, jabAttack={64, 59}, comboAttack={64, 58}, sweepKick={48, 59}, groundSlam={61, 63}, heavySmash={49, 64}, scale = 0.5 }, --tier4
+    [5] = {{ walk={41, 61}, attack={63, 56}, heal={59, 64}, die={59, 62}, scale = 0.7 }, --boss1
+            { walk={}, attack={}, heal={}, die={}, scale = 0.7  }, --boss2
+            { walk={}, attack={}, heal={}, die={}, scale = 0.7  }, --boss3
+            { walk={}, attack={}, heal={}, die={}, scale = 0.7  }  --boss4
+          }
+}
+
 local obstacles = {}
 
 local function getRandomWeaponForEnemy(tier)
@@ -64,55 +77,77 @@ end
 local function chooseTypeMovement(animations, equipment, tier)
     if tier == 5 then
         if NextBossWeaponIndex == 1 then
-            animations.walk = animation.new("assets/sprites/bosses/boss1_walk.png", 41, 61, 0.25, false)
-            animations.attackWithBottle = animation.new("assets/sprites/bosses/boss1_attack.png", 63, 56, 0.3, false)
+            animations.walk = animation.new("assets/sprites/enemies/boss1/boss1_walk.png", 41, 61, 0.25, false)
+            animations.attack = animation.new("assets/sprites/enemies/boss1/boss1_attack.png", 63, 56, 2, false)
+            animations.heal = animation.new("assets/sprites/enemies/boss1/boss1_healthing.png", 59, 64, 0.15, false)
+            animations.die = animation.new("assets/sprites/enemies/boss1/boss1_dead.png", 59, 62, 0.4, false)
 
         elseif NextBossWeaponIndex == 2 then
-            animations.walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
-            animations.attackWithKnife = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+            animations.walk = animation.new("assets/sprites/enemies/boss1/boss1_walk.png", 41, 61, 0.25, false)
+            animations.attack = animation.new("assets/sprites/enemies/boss1/boss1_attack.png", 63, 56, 2, false)
+            animations.heal = animation.new("assets/sprites/enemies/boss1/boss1_healthing.png", 59, 64, 0.15, false)
+            animations.die = animation.new("assets/sprites/enemies/boss1/boss1_dead.png", 59, 62, 0.4, false)
 
         elseif NextBossWeaponIndex == 3 then
-            animations.walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
-            animations.attackWithBat = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+            animations.walk = animation.new("assets/sprites/enemies/boss1/boss1_walk.png", 41, 61, 0.25, false)
+            animations.attack = animation.new("assets/sprites/enemies/boss1/boss1_attack.png", 63, 56, 2, false)
+            animations.heal = animation.new("assets/sprites/enemies/boss1/boss1_healthing.png", 59, 64, 0.15, false)
+            animations.die = animation.new("assets/sprites/enemies/boss1/boss1_dead.png", 59, 62, 0.4, false)
         
         elseif NextBossWeaponIndex == 4 then
-            animations.walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
-            animations.attackWithWrench = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+            animations.walk = animation.new("assets/sprites/enemies/boss1/boss1_walk.png", 41, 61, 0.25, false)
+            animations.attack = animation.new("assets/sprites/enemies/boss1/boss1_attack.png", 63, 56, 2, false)
+            animations.heal = animation.new("assets/sprites/enemies/boss1/boss1_healthing.png", 59, 64, 0.15, false)
+            animations.die = animation.new("assets/sprites/enemies/boss1/boss1_dead.png", 59, 62, 0.4, false)
         end
     else
         if equipment.hasWeapon then
             if equipment.weapon == "bottle" then
-                animations.walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
-                animations.attackWithBottle = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+                animations.walk = animation.new("assets/sprites/enemies/oldman/oldman_walk_40x60-250.png", 40, 60, 0.25, false)
+                animations.attack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_weapon_60x59-100.png", 60, 59, 0.33, false)
+                animations.sweepKick = animation.new("assets/sprites/enemies/oldman/attacks/oldman_sweepKick_48x59-150.png", 48, 59, 0.33, false)
+                animations.heal = animation.new("assets/sprites/enemies/oldman/oldman_healthing_57x62-200.png", 57, 62, 0.2, false)
+                animations.die = animation.new("assets/sprites/enemies/oldman/oldman_dead_62x59-250.png", 62, 59, 0.25, false)
 
             elseif equipment.weapon == "knife" then
-                animations.walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
-                animations.attackWithKnife = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+                animations.walk = animation.new("assets/sprites/enemies/oldman/oldman_walk_40x60-250.png", 40, 60, 0.25, false)
+                animations.attack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_weapon_60x59-100.png", 60, 59, 0.3, false)
+                animations.sweepKick = animation.new("assets/sprites/enemies/oldman/attacks/oldman_sweepKick_48x59-150.png", 48, 59, 0.3, false)
+                animations.heal = animation.new("assets/sprites/enemies/oldman/oldman_healthing_57x62-200.png", 57, 62, 0.2, false)
+                animations.die = animation.new("assets/sprites/enemies/oldman/oldman_dead_62x59-250.png", 62, 59, 0.25, false)
 
             elseif equipment.weapon == "bat" then
-                animations.walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
-                animations.attackWithBat = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
-            
+                animations.walk = animation.new("assets/sprites/enemies/oldman/oldman_walk_40x60-250.png", 40, 60, 0.25, false)
+                animations.attack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_weapon_60x59-100.png", 60, 59, 0.3, false)
+                animations.sweepKick = animation.new("assets/sprites/enemies/oldman/attacks/oldman_sweepKick_48x59-150.png", 48, 59, 0.33, false)
+                animations.heal = animation.new("assets/sprites/enemies/oldman/oldman_healthing_57x62-200.png", 57, 62, 0.2, false)
+                animations.die = animation.new("assets/sprites/enemies/oldman/oldman_dead_62x59-250.png", 62, 59, 0.25, false)
+
             elseif equipment.weapon == "wrench" then
-                animations.walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
-                animations.attackWithWrench = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+                animations.walk = animation.new("assets/sprites/enemies/oldman/oldman_walk_40x60-250.png", 40, 60, 0.25, false)
+                animations.attack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_weapon_60x59-100.png", 60, 59, 0.33, false)
+                animations.sweepKick = animation.new("assets/sprites/enemies/oldman/attacks/oldman_sweepKick_48x59-150.png", 48, 59, 0.33, false)
+                animations.heal = animation.new("assets/sprites/enemies/oldman/oldman_healthing_57x62-200.png", 57, 62, 0.2, false)
+                animations.die = animation.new("assets/sprites/enemies/oldman/oldman_dead_62x59-250.png", 62, 59, 0.25, false)
             end
 
-            animations.commonWeaponAttack = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+            animations.commonWeaponAttack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_weapon_60x59-100.png", 60, 59, 0.33, false)
         else
-            animations.walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false)
-            animations.jabAttack = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
-            animations.comboAttack = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
-            animations.sweepKick = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
-            animations.groundSlam = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
-            animations.heavySmash = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.25, false)
+            animations.walk = animation.new("assets/sprites/enemies/oldman/oldman_walk_40x60-250.png", 40, 60, 0.25, false)
+            animations.heal = animation.new("assets/sprites/enemies/oldman/oldman_healthing_57x62-200.png", 57, 62, 0.2, false)
+            animations.die = animation.new("assets/sprites/enemies/oldman/oldman_dead_62x59-250.png", 62, 59, 0.25, false)
+            animations.jabAttack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_jab_64x59-150.png", 64, 59, 0.5, false)
+            animations.comboAttack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_combo_64x58-150.png", 64, 58, 0.4, false)
+            animations.sweepKick = animation.new("assets/sprites/enemies/oldman/attacks/oldman_sweepKick_48x59-150.png", 48, 59, 0.33, false)
+            animations.groundSlam = animation.new("assets/sprites/enemies/oldman/attacks/oldman_groundSlam_61x63-150.png", 61, 63, 0.4, false)
+            animations.heavySmash = animation.new("assets/sprites/enemies/oldman/attacks/oldman_heavySmash_49x64-150.png", 49, 64, 0.33, false)
         end
     end
 
     return animations.walk
 end
 
-function Enemy.new(tier, _x, _y, boxW, boxH)
+function Enemy.new(tier, _x, _y)
 
     
     local equipment
@@ -126,18 +161,21 @@ function Enemy.new(tier, _x, _y, boxW, boxH)
         instance.maxHP = mathUtils.calculateLife(tier)
         instance.tier = tier --estas usando el digito de esta variable, tomar precauciones si decides cambiarlo a letras
         instance.isDead = false
+        instance.animationDie = false
+        instance.deathTimer = 1
         instance.x = _x
         instance.y = _y
         instance.speed = 150
-        instance.width = boxW
-        instance.height = boxH
+        if tier == 5 then instance.width = dimensions[tier][NextBossWeaponIndex].walk[1] else instance.width = dimensions[tier].walk[1] end
+        if tier == 5 then instance.height = dimensions[tier][NextBossWeaponIndex].walk[2] else instance.height = dimensions[tier].walk[2] end
         instance.direction = 1
         instance.patrolTimer = 0
         instance.isHealing = false
         instance.attackCooldown = 0
-        if tier == 5 then instance.scale = love.graphics.getWidth()/256 else instance.scale = love.graphics.getWidth()/256 end
-        instance.frameWidth = 19
-        instance.frameheight = 28
+        if tier == 5 then instance.scale = (love.graphics.getWidth() / 256) * dimensions[tier][NextBossWeaponIndex].scale
+        else instance.scale = (love.graphics.getWidth() / 256) * dimensions[tier].scale end
+        if tier == 5 then instance.frameWidth = dimensions[tier][NextBossWeaponIndex].walk[1] else instance.frameWidth = dimensions[tier].walk[1] end
+        if tier == 5 then instance.frameHeight = dimensions[tier][NextBossWeaponIndex].walk[2] else instance.frameHeight = dimensions[tier].walk[2] end
         instance.facingLeft = false
         instance.isMoving = true
         instance.animations = {}
@@ -170,6 +208,8 @@ function Enemy.new(tier, _x, _y, boxW, boxH)
 end
 
 function Enemy:update(dt, player, obs)
+
+    self:handleDeathTimer(dt)
 
     obstacles = obs
 
@@ -208,6 +248,41 @@ function Enemy:draw()
 
 end
 
+function Enemy:selectDimensions(anim)
+    if not dimensions or not dimensions[self.tier] then
+        self:setAnimation(anim)
+        return
+    end
+
+    local data = nil
+
+    if self.tier == 5 then
+        local bossTable = dimensions[self.tier][NextBossWeaponIndex]
+        if bossTable then
+            data = bossTable[anim]
+        end
+    else
+        data = dimensions[self.tier][anim]
+    end
+
+    if data and type(data) == "table" and data[1] and data[2] then
+        self.width = data[1]
+        self.height = data[2]
+    else
+        print("Advertencia: No se encontraron dimensiones para: " .. tostring(anim))
+    end
+
+    self:setAnimation(anim)
+end
+
+local function checkAnimation(self, anim)
+    if self.isDead then
+        self:selectDimensions("die")
+    else
+        self:selectDimensions(anim)
+    end
+end
+
 function Enemy:setAnimation(animName)
     local newAnimation = self.animations[animName]
     if newAnimation and self.currentAnimation ~= newAnimation then
@@ -222,9 +297,7 @@ function Enemy:jabAttack(dt, player)
         player.HP = player.HP - baseDamage.jabAttack * multipliers[self.tier]
         print("jab: ".. baseDamage.jabAttack * multipliers[self.tier])
 
-        if self.animations.jabAttack then
-            self:setAnimation("jabAttack")
-        end
+        checkAnimation(self, "jabAttack")
     end
 end
 
@@ -233,9 +306,7 @@ function Enemy:comboAttack(dt, player)
         player.HP = player.HP - baseDamage.comboAttack * multipliers[self.tier]
         print("combo: ".. baseDamage.comboAttack * multipliers[self.tier])
 
-        if self.animations.comboAttack then
-            self:setAnimation("comboAttack")
-        end
+        checkAnimation(self, "comboAttack")
     end
 end
 
@@ -244,11 +315,7 @@ function Enemy:sweepKick(dt, player)
         player.HP = player.HP - baseDamage.sweepKick * multipliers[self.tier]
         print("kick: ".. baseDamage.sweepKick * multipliers[self.tier])
 
-        entityStateSystem.applyStatusToTarget(player, entitiesStates[1].state, entitiesStates[1].duration)
-
-        if self.animations.sweepKick then
-            self:setAnimation("sweepKick")
-        end
+        checkAnimation(self, "sweepKick")
     end
 end
 
@@ -259,9 +326,7 @@ function Enemy:groundSlam(dt, player)
 
         entityStateSystem.applyStatusToTarget(player, entitiesStates[2].state, entitiesStates[2].duration)
 
-        if self.animations.groundSlam then
-            self:setAnimation("groundSlam")
-        end
+        checkAnimation(self, "groundSlam")
     end
 end
 
@@ -270,20 +335,16 @@ function Enemy:heavySmash(dt, player)
         player.HP = player.HP - baseDamage.heavySmash * multipliers[self.tier]
         print("heavy smash: "..  baseDamage.heavySmash * multipliers[self.tier])
 
-        if self.animations.heavySmash then
-            self:setAnimation("heavySmash")
-        end
+        checkAnimation(self, "heavySmash")
     end
 end
 
 function Enemy:specialAttackBoss(dt, player)
     if self:hitTimer(dt, player, 2) then
         player.HP = player.HP - baseDamage.specialBatAttack * multipliers[3]
-        print("common weapon attack: ".. baseDamage.specialBatAttack * multipliers[3])
+        print("special attack boss: ".. baseDamage.specialBatAttack * multipliers[3])
 
-        if self.animations.attackWithBottle then
-            self:setAnimation("attackWithBottle")
-        end
+        checkAnimation(self, "attack")
     end
 end
 
@@ -312,8 +373,8 @@ function Enemy:specialBottleAttack(dt, player)
  
         entityStateSystem.applyStatusToTarget(player, entitiesStates[3].state, entitiesStates[3].duration)
 
-        if self.animations.attackWithBottle then
-            self:setAnimation("attackWithBottle")
+        if self.animations.attack then
+            self:setAnimation("attack")
         end
     end
 end
@@ -331,8 +392,8 @@ function Enemy:specialKnifeAttack(dt, player)
 
         entityStateSystem.applyStatusToTarget(player, entitiesStates[4].state, entitiesStates[4].duration)
 
-        if self.animations.attackWithKnife then
-            self:setAnimation("attackWithKnife")
+        if self.animations.attack then
+            self:setAnimation("attack")
         end 
     end
 end
@@ -349,8 +410,8 @@ function Enemy:specialBatAttack(dt, player)
 
         entityStateSystem.applyStatusToTarget(player, entitiesStates[1].state, entitiesStates[1].duration)
 
-        if self.animations.attackWithBat then
-            self:setAnimation("attackWithBat")
+        if self.animations.attack then
+            self:setAnimation("attack")
         end
     end
 end
@@ -362,13 +423,13 @@ function Enemy:specialWrenchAttack(dt, player)
             print("special wrench: ".. baseDamage.specialWrenchAttack * multipliers[self.tier][NextBossWeaponIndex])
         else
             player.HP = player.HP - baseDamage.specialWrenchAttack * multipliers[self.tier]
-            print("special wrench: ".. baseDamage.specialWrenchAttack * multipliers[self.tier])     
+            print("special wrench: ".. baseDamage.specialWrenchAttack * multipliers[self.tier])
         end
 
         entityStateSystem.applyStatusToTarget(player, entitiesStates[2].state, entitiesStates[2].duration)
 
-        if self.animations.attackWithWrench then
-            self:setAnimation("attackWithWrench")
+        if self.animations.attack then
+            self:setAnimation("attack")
         end
     end
 end
@@ -379,6 +440,8 @@ end
 function Enemy:move(dt, XorY, direction, factorSpeed, setback)
 
     local cb = require("src.scripts.systems.collision_box")
+
+    checkAnimation(self, "walk")
 
     if XorY == "x" then
 
@@ -427,10 +490,9 @@ function Enemy:stateFlee(dt, player)
         self.isHealing = false
     end
 
-    if distance < safe_distance and not self.isHealing then
+    self.isMoving = true
 
-        self:setAnimation("walk")
-        self.isMoving = true
+    if distance < safe_distance and not self.isHealing then
 
         if player.x < self.x then self.facingLeft = false else self.facingLeft = true end
 
@@ -438,9 +500,10 @@ function Enemy:stateFlee(dt, player)
         if self.y < player.y then self:move(dt, "y", "up", 0.8, 1) else self:move(dt, "y", "down", 0.8, 1) end
         
     else
-        self.isMoving = false
         self.isHealing = true
-                
+        
+        checkAnimation(self, "heal")
+
         self.HP = self.HP + (10 * dt * self.tier)
 
         if self.HP >= self.maxHP * 0.4 then
@@ -450,8 +513,6 @@ function Enemy:stateFlee(dt, player)
 end
 
 function Enemy:statePatrol(dt)
-
-    self:setAnimation("walk")
 
     if self.direction < 0 then self.facingLeft = true else self.facingLeft = false end
 
@@ -465,7 +526,6 @@ function Enemy:statePatrol(dt)
     end
 
     if self.direction < 0 then self:move(dt, "x", "left", 0.5, 1) else self:move(dt, "x", "right", 0.5, 1) end
-    
 end
 
 function Enemy:getDistanceToPlayer(player)
@@ -491,6 +551,8 @@ function Enemy:chaseTarget(dt, player)
         self.facingLeft = false 
     end
 
+    self.isMoving = true
+
     if distance > minDistance then
         local dirX = dx / distance
         local dirY = dy / distance
@@ -499,7 +561,6 @@ function Enemy:chaseTarget(dt, player)
         self:move(dt, "x", "right", 0.9, dirX)
         self:move(dt, "y", "down", 0.9, dirY)
 
-        self.isMoving = true
         return false
 
     elseif distance <= (minDistance - 5) then
@@ -510,11 +571,8 @@ function Enemy:chaseTarget(dt, player)
         self:move(dt, "x", "left", 0.9, dirX)
         self:move(dt, "y", "up", 0.9, dirY)
 
-        self.isMoving = true
         return true
-
     else
-        self.isMoving = true
         return true
     end
 end
@@ -534,6 +592,17 @@ function Enemy:hitTimer(dt, player, duration)
             player.hurtTimer = 0.10
 
             return true
+        end
+    end
+end
+
+function Enemy:handleDeathTimer(dt)
+    if self.isDead and not self.animationDie then
+        if self.deathTimer > 0 then
+            self.deathTimer = self.deathTimer - dt
+        else
+            self.deathTimer = 0
+            self.animationDie = true
         end
     end
 end

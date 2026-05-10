@@ -64,12 +64,12 @@ function stage1.load()
     table.insert(items, item.new("caucho", 200, 110))
 
     --temporal
-    local enemy1 = enemy.new(4, 800, 400, 19, 28)
+    local enemy1 = enemy.new(4, 800, 400)
     table.insert(enemies, enemy1)
-    local enemy2 = enemy.new(3, 600, 400, 19, 28)
+    local enemy2 = enemy.new(4, 600, 400)
     table.insert(enemies, enemy2)
 
-    local boss1 = enemy.new(5, 1000, 400, 19, 28)
+    local boss1 = enemy.new(5, 1000, 400)
     table.insert(enemies, boss1)
 
     player.load()
@@ -119,7 +119,7 @@ function stage1.update(dt)
     for i = #enemies, 1, -1 do
         local e = enemies[i]
         
-        if e.isDead then
+        if e.isDead and e.animationDie then
             if e.tier == 5 then
                 NextBossWeaponIndex = NextBossWeaponIndex + 1
             end
@@ -142,9 +142,7 @@ local function printOrder(_player, _enemies)
     table.insert(drawList, _player)
 
     for i, e in ipairs(_enemies) do
-        if not e.isDead then
-            table.insert(drawList, e)
-        end
+        table.insert(drawList, e)
     end
 
     table.sort(drawList, cb.isAhead)
@@ -210,7 +208,7 @@ function stage1.draw()
     local frontgroundOffsetX = -camera.x * layers[#layers].factor
     love.graphics.draw(layers[#layers].img, frontgroundOffsetX, 0, 0, scale, love.graphics.getHeight() / 144)
 
-    if openInventory then
+    if openInventory and not player.isDead then
         inventory.draw()
     end
 end
@@ -228,21 +226,23 @@ function stage1.cleanStatus()
 end
 
 function stage1.keypressed(key)
-    if touchingItem then
-        if key == inputs.game.pickUpItem then
-            tableUtils.removeByValue(items, pickableItem)
+    if not player.isDead then
+        if touchingItem then
+            if key == inputs.game.pickUpItem then
+                tableUtils.removeByValue(items, pickableItem)
+            end
         end
-    end
 
-    if key == inputs.game.attack then
-        player.attack(enemies)
-    end
+        if key == inputs.game.attack then
+            player.attack(enemies)
+        end
 
-    if key == inputs.game.openInventory then
-        openInventory = not openInventory
-    end
+        if key == inputs.game.openInventory then
+            openInventory = not openInventory
+        end
 
-    inventory.keypressed(key)
+        inventory.keypressed(key)
+    end
 end
 
 return stage1

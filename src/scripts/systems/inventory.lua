@@ -1,5 +1,6 @@
 local inventory = {}
 local inputs = require("src.scripts.utils.inputs")
+local player = require("src.scripts.entities.player")
 
 -- El margen inicial dentro del rectángulo grande
 local INITIAL_MARGIN = 5
@@ -43,15 +44,17 @@ local function checkKeySelect(index)
 end
 
 function inventory.keypressed(key)
-    if key ==  inputs.game.slot1 then checkKeySelect(1)
-    elseif key ==  inputs.game.slot2 then checkKeySelect(2)
-    elseif key ==  inputs.game.slot3 then checkKeySelect(3)
-    elseif key ==  inputs.game.slot4 then checkKeySelect(4)
-    elseif key ==  inputs.game.slot5 then checkKeySelect(5)
-    elseif key ==  inputs.game.slot6 then checkKeySelect(6)
-    elseif key ==  inputs.game.slot7 then checkKeySelect(7)
-    elseif key ==  inputs.game.slot8 then checkKeySelect(8)
-    elseif key ==  inputs.game.slot9 then checkKeySelect(9)
+    if not player.isDead then
+        if key ==  inputs.game.slot1 then checkKeySelect(1)
+        elseif key ==  inputs.game.slot2 then checkKeySelect(2)
+        elseif key ==  inputs.game.slot3 then checkKeySelect(3)
+        elseif key ==  inputs.game.slot4 then checkKeySelect(4)
+        elseif key ==  inputs.game.slot5 then checkKeySelect(5)
+        elseif key ==  inputs.game.slot6 then checkKeySelect(6)
+        elseif key ==  inputs.game.slot7 then checkKeySelect(7)
+        elseif key ==  inputs.game.slot8 then checkKeySelect(8)
+        elseif key ==  inputs.game.slot9 then checkKeySelect(9)
+        end
     end
 end
 

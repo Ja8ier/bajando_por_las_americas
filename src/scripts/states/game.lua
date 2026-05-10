@@ -13,7 +13,6 @@ local currentStage = nil
 local isPlaying = true
 local isPaused = false
 local gameOver = false
-local playerIsDead = false
 local oneTime = true
 
 function game.load()
@@ -56,9 +55,8 @@ end
 
 function game.restoreStage()
 
-    playerIsDead = false
     oneTime = true
-
+    player.isDead = false
     player.HP = player.maxHP/2
     player.entityStatus = {statusType = "none", statusTimer = 0}
 
@@ -74,7 +72,7 @@ end
 
 function game.restartStage()
 
-    playerIsDead = false
+    player.isDead = false
     oneTime = true
     isPlaying = true
     gameOver = false
@@ -115,7 +113,7 @@ function game.update(dt)
         end
 
         if player.numberAttempts > 0 then
-            playerIsDead = true
+            player.isDead = true
         else
             gameOver = true
             isPlaying = false
@@ -143,7 +141,7 @@ function game.draw()
         exitGame.y + 15 + (exitGame.h - 50)/2, exitGame.y + 65 + (exitGame.h - 50)/2, true))
     end
 
-    if playerIsDead then
+    if player.isDead then
         love.graphics.setColor(0, 0, 0, 0.7)
         love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
         love.graphics.setColor(1, 1, 1)
@@ -172,10 +170,10 @@ function game.keypressed(key)
 
     end
 
-    if playerIsDead and key == "r" then
+    if player.isDead and key == "r" then
         game.restoreStage()
 
-    elseif playerIsDead and key == "escape" then
+    elseif player.isDead and key == "escape" then
         game.restoreStage()
         
         -- aqui va la logica para guardar datos (seguir este orden de lineas de codigo)
@@ -207,7 +205,7 @@ function game.mousereleased(x, y)
             (y > exitGame.y + 15 + (exitGame.h - 50)/2 and y < exitGame.y + 65 + (exitGame.h - 50)/2) then
             
             -- aqui va la logica para guardar datos (seguir este orden de lineas de codigo)
-
+            game.restartStage()
             Change_state(require("src.scripts.states.menu"))
         end
     end

@@ -33,6 +33,7 @@ local player = {
     facingLeft = false,
     isMoving = false,
 
+    isDead = false,
     isCrouching = false,
     armament = {isArmed = true, weaponSelect = "bottle"},
     HP = 1000,
@@ -276,6 +277,7 @@ local function takeHP(e, amountOfHP)
 
     if e.HP <= 0 then
         e.isDead = true
+        e.HP = 0
     end
 end
 
@@ -324,6 +326,7 @@ function player.cleanStatus()
     player.facingLeft = false
     player.isMoving = false
     player.isCrouching = false
+    player.isDead = false
     player.armament = {isArmed = true, weaponSelect = "bottle"}
     player.HP = 1000
     player.numberAttempts = 3
@@ -337,6 +340,7 @@ end
 function player.checkDeath(dt)
     if player.HP <= 0 then
         player.HP = 0
+        player.isDead = true
     end
 end
 

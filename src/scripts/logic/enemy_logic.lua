@@ -84,23 +84,25 @@ function EnemyLogic.createTree()
 
     -- Subárbol para cuando el enemigo tiene un arma
     local weaponAttackTree = AI.newCondition(
-        function(e) return math.random() < e:getSpecialProbability() end, -- Probabilidad de ataque especial
-        -- Evalúa el tipo de arma para ejecutar su ataque característico
+        function(e) return player.isCrouching end, -- Condición de jugador agachado
+        actionSweep,
         AI.newCondition(
-            function(e) return e.weapon == "bottle" end,
-            actionSpecialBottle,
+            function(e) return math.random() < e:getSpecialProbability() end, -- Probabilidad de ataque especial
             AI.newCondition(
-                function(e) return e.weapon == "knife" end,
-                actionSpecialKnife,
+                function(e) return e.weapon == "bottle" end,
+                actionSpecialBottle,
                 AI.newCondition(
-                    function(e) return e.weapon == "bat" end,
-                    actionSpecialBat,
-                    actionSpecialWrench -- Por defecto, si el arma es "wrench"
+                    function(e) return e.weapon == "knife" end,
+                    actionSpecialKnife,
+                    AI.newCondition(
+                        function(e) return e.weapon == "bat" end,
+                        actionSpecialBat,
+                        actionSpecialWrench -- Por defecto, si el arma es "wrench"
+                    )
                 )
-            )
-        ),
-        -- Por defecto, si no se cumple la probabilidad del especial, golpea normal
-        actionCommonWeapon
+            ),
+            actionCommonWeapon -- Por defecto, si no se cumple la probabilidad del especial, golpea normal
+        )
     )
 
     local bossWeaponAttackTree = AI.newCondition(
