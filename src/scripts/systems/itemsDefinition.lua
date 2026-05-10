@@ -106,33 +106,6 @@ local itemDefinitions = {
         scale = scale * 1
     },
 
-    disco = {
-        name = "disco",
-        texture = love.graphics.newImage("assets/sprites/items/testItem.png"),
-        type = ITEM_TYPES.WEAPON,
-        isStackable = false,
-        count = 1,
-        haswear = true,
-        levelOfWear = 10,
-        onUse = function()
-            -- body
-        end,
-        scale = scale * 1
-    },
-
-    caucho = {
-        name = "Caucho",
-        texture = love.graphics.newImage("assets/sprites/items/caucho.png"),
-        type = ITEM_TYPES.CARRYABLE_OBJECT,
-        isStackable = false,
-        count = 1,
-        haswear = false,
-        levelOfWear = 10,
-        onUse = function()
-            -- body
-        end,
-        scale = scale * 1
-    }
 
 }
 

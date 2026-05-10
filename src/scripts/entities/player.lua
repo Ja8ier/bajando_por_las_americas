@@ -5,19 +5,21 @@ local mathUtils = require("src.scripts.utils.mathUtils")
 
 local animation = require("src.scripts.systems.animation")
 
+local scale = love.graphics.getWidth() / 256
+
 local animations = {
     walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false),
     run = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.15, false),
-    --[[bottleAttack = animation.new(),
-    knifeAttack = animation.new(),
-    batAttack = animation.new(),
-    wrenchAttack = animation.new(), ]]
+    crouch = animation.new("assets/sprites/player/player_crouch.png", 22, 28, 0.1, true),
+    attack = animation.new("assets/sprites/player/player_attack.png", 31, 31, 0.080, false),
+    walkWileCarry = animation.new("assets/sprites/player/player_walking_while_carring.png", 20, 29, 0.25, false),
 }
 
 local currentAnimation = animations.walk
 
-local isWalking = false
-local isRunning = false
+local wasAttackPressed = false
+local attackTimer = 0
+local attackDuration = 0.40
 
 local player = {
     x = 0,
@@ -26,6 +28,7 @@ local player = {
     scale = 1,
     width = 19,
     height = 28,
+    type = "player",
 
     --sprideSheet base (de pie)
     frameWidth = 19,
@@ -47,11 +50,11 @@ local player = {
 
 --#region Load, update y draw
 
-function player.load()
+function player.load(spawnPoint)
 
-    player.scale = (love.graphics.getWidth() / 256)
-    player.y = love.graphics.getHeight() - player.frameheight * player.scale - 100
-    player.x = 100
+    player.scale = scale
+    player.x = spawnPoint.x
+    player.y = spawnPoint.y
 
     playerCollisionBox.create(player, "bottom")
 
@@ -68,7 +71,14 @@ function player.update(dt)
         end
     end
 
+    local oldMoving = player.isMoving
+    if currentAnimation == animations.attack then
+        player.isMoving = true
+    end
+    
     animation.update(currentAnimation, player.isMoving, dt)
+    player.isMoving = oldMoving
+    -- animation.update(currentAnimation, player.isMoving, dt)
 
     --logica de sonidos
     if player.isMoving then
@@ -92,13 +102,8 @@ end
 
 function player.draw()
 
-    love.graphics.setColor(0,1,0)
-    love.graphics.rectangle("fill", player.x, player.y - 50, mathUtils.calculateHealthBarWidth(player.HP, player.maxHP), 15)
-    love.graphics.setColor(1,1,1)
-    love.graphics.rectangle("line", player.x, player.y - 50, 100, 15)
-    love.graphics.print(player.HP, player.x, player.y - 73, 0, 0.7)
-
     if player.isHurt then
+        --cambiar por animacion de damage
         love.graphics.setColor(1,0,0)
     end
 
@@ -117,6 +122,8 @@ function player.draw()
         love.graphics.draw(sheet, quad, player.x, player.y, 0,
         player.scale, player.scale)
     end
+    
+    love.graphics.setColor(1,1,1)
 
 end
 
@@ -130,30 +137,15 @@ local function setAnimation(animation)
 end
 
 --cambiar logica
-function player.updateAnimationState()
-    local isShift = love.keyboard.isDown(inputs.game.sprint) 
-    
-    local status = player.entityStatus and player.entityStatus.statusType
-    local isNormal = status ~= "slow" and status ~= "stun"
 
-    if player.isMoving then
-        if isNormal then
-            player.speed = isShift and 300 or 150
-        end
-        
-        local anim = isShift and "run" or "walk"
-        setAnimation(anim)
-    else
-        if isNormal then
-            player.speed = 150
-        end
-        
-        setAnimation("walk")
-    end
-end
-
---[[ 
 function player.updateAnimationState(dt)
+
+    if love.keyboard.isDown(inputs.game.crouch) then
+        setAnimation("crouch")
+        player.speed = 0
+        return
+    end
+
     -- 1. Lógica de Ataque (Prioridad Máxima)
     local isAttackPressed = love.keyboard.isDown(inputs.game.attack)
 
@@ -199,7 +191,46 @@ function player.updateAnimationState(dt)
         setAnimation("walk")
     end
 end
-]]
+
+-- function player.updateAnimationState(dt)
+
+--     if love.keyboard.isDown(inputs.game.crouch) then
+--         setAnimation("crouch")
+--         player.speed = 0
+--         return
+--     end
+
+--     local isAttackPressed = love.keyboard.isDown(inputs.game.attack)
+
+--     if isAttackPressed and not wasAttackPressed then
+--         attackTimer = attackDuration
+--         setAnimation("attack")
+--         player.speed = 0
+--     end
+
+--     wasAttackPressed = isAttackPressed
+
+--     if attackTimer > 0 then
+--         attackTimer = attackTimer - dt
+--         return
+--     end
+
+--     local isShift = love.keyboard.isDown(inputs.game.sprint) and (player.entityStatus.statusType ~= "slow" and player.entityStatus.statusType ~= "stun") 
+
+--     if player.isMoving then
+--         if isShift then
+--             player.speed = 300
+--             setAnimation("run")
+--         else
+--             player.speed = 150
+--             setAnimation("walk")
+--         end
+--     elseif player.entityStatus.statusType ~= "slow" and player.entityStatus.statusType ~= "stun" then
+--         player.speed = 150
+--         setAnimation("walk")
+--     end
+
+-- end
 
 --movimiento del player
 function player.move(dt, XorY)
@@ -343,5 +374,6 @@ function player.checkDeath(dt)
         player.isDead = true
     end
 end
+
 
 return player

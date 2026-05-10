@@ -1,4 +1,8 @@
-local game = {}
+local game = {
+    isPlaying = false,
+    isPaused = false,
+    gameOver = false
+}
 local stages = {}
 
 local inputs = require("src.scripts.utils.inputs")
@@ -10,9 +14,6 @@ local exitGame = panel.new((love.graphics.getWidth() - 350)/2, (love.graphics.ge
 
 local currentStageIndex = 1
 local currentStage = nil
-local isPlaying = true
-local isPaused = false
-local gameOver = false
 local oneTime = true
 
 function game.load()
@@ -29,9 +30,9 @@ function game.load()
         currentStage.load()
     end
 
-    isPlaying = true
-    isPaused = false
-    gameOver = false
+    game.isPlaying = true
+    game.isPaused = false
+    game.gameOver = false
 
 end
 
@@ -47,8 +48,8 @@ function game.nextStage()
         end
     else
         --final del juego
-        gameOver = true
-        isPlaying = false
+        game.gameOver = true
+        game.isPlaying = false
     end
 
 end
@@ -64,9 +65,9 @@ function game.restoreStage()
     player.y = love.graphics.getHeight() - player.frameheight * player.scale - 100
     player.x = 100
 
-    isPlaying = true
-    gameOver = false
-    isPaused = false
+    game.isPlaying = true
+    game.gameOver = false
+    game.isPaused = false
 
 end
 
@@ -74,9 +75,9 @@ function game.restartStage()
 
     player.isDead = false
     oneTime = true
-    isPlaying = true
-    gameOver = false
-    isPaused = false
+    game.isPlaying = true
+    game.gameOver = false
+    game.isPaused = false
 
     if currentStage and currentStage.cleanStatus then
         currentStage.cleanStatus()
@@ -93,11 +94,11 @@ end
 
 function game.update(dt)
 
-    if not isPlaying or gameOver then
+    if not game.isPlaying or game.gameOver then
         return
     end
 
-    if isPaused then
+    if game.isPaused then
         return
     end
 
@@ -108,15 +109,15 @@ function game.update(dt)
     if player.HP <= 0 then
         if oneTime then
             player.numberAttempts = player.numberAttempts - 1
-            isPlaying = false
+            game.isPlaying = false
             oneTime = false
         end
 
         if player.numberAttempts > 0 then
             player.isDead = true
         else
-            gameOver = true
-            isPlaying = false
+            game.gameOver = true
+            game.isPlaying = false
         end
     end
 end
@@ -127,7 +128,7 @@ function game.draw()
         currentStage.draw()
     end
 
-    if isPaused then
+    if game.isPaused then
         love.graphics.setColor(0, 0, 0, 0.7)
         love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
         love.graphics.setColor(1, 1, 1)
@@ -149,7 +150,7 @@ function game.draw()
         love.graphics.print("Presiona R para Restaurar, ESC para Guardar y Salir", 10, 10)
     end
 
-    if gameOver then
+    if game.gameOver then
         love.graphics.setColor(0, 0, 0, 0.7)
         love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
         love.graphics.setColor(1, 1, 1)
@@ -158,14 +159,15 @@ function game.draw()
     end
 end
 
+
 function game.keypressed(key)
 
      if (type(inputs.game.pause) == "table") and (key == inputs.game.pause[1] or key == inputs.game.pause[2]) then
 
-        if not isPaused and not gameOver and isPlaying then
-            isPaused = true
+        if not game.isPaused and not game.gameOver and game.isPlaying then
+            game.isPaused = true
         else
-            isPaused = false
+            game.isPaused = false
         end
 
     end
@@ -182,10 +184,10 @@ function game.keypressed(key)
         Change_state(require("src.scripts.states.menu"))
     end
 
-    if gameOver and key == "r" then
+    if game.gameOver and key == "r" then
         game.restartStage()
 
-    elseif gameOver and key == "escape" then
+    elseif game.gameOver and key == "escape" then
 
         -- aqui va la logica para guardar datos (seguir este orden de lineas de codigo)
 
@@ -193,14 +195,14 @@ function game.keypressed(key)
         Change_state(require("src.scripts.states.menu"))
     end
 
-    if not isPaused and not gameOver and currentStage and currentStage.keypressed then
+    if not game.isPaused and not game.gameOver and currentStage and currentStage.keypressed then
         currentStage.keypressed(key)
     end
     
 end
 
 function game.mousereleased(x, y)
-    if isPaused then
+    if game.isPaused then
         if (x > exitGame.x + (exitGame.w - 250)/2 and x < exitGame.x + (exitGame.w - 250)/2 + 250) and
             (y > exitGame.y + 15 + (exitGame.h - 50)/2 and y < exitGame.y + 65 + (exitGame.h - 50)/2) then
             

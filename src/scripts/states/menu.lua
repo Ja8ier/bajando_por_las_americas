@@ -136,6 +136,7 @@ function menu.mousereleased(x, y, button)
     end
 end
 
+
 function menu.keypressed(key)
 
     if Current_state == require("src.scripts.states.menu") then
