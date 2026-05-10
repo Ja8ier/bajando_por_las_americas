@@ -24,12 +24,12 @@ function collisionBox.create(entity, type)
 
     --Ancho y alto
 
-    _width = (entity.width) * scale
+    _width = (entity.width) * entity.scale
 
     if type == collisionBox.TYPES.BOTTOM or type == collisionBox.TYPES.TOP then
-        _height = (entity.height * scale) / 3
+        _height = (entity.height * entity.scale) / 3
     elseif type == collisionBox.TYPES.FULL then
-        _height = entity.height * scale
+        _height = entity.height * entity.scale
     end
 
     --posicion X
@@ -39,7 +39,7 @@ function collisionBox.create(entity, type)
     if type == collisionBox.TYPES.FULL or type == collisionBox.TYPES.TOP then
         _y = entity.y
     elseif type == collisionBox.TYPES.BOTTOM then
-        _y = entity.y + ((2 * entity.height * scale) / 3)
+        _y = entity.y + ((2 * entity.height * entity.scale) / 3)
     end
 
     --tipo de collision box
@@ -138,12 +138,10 @@ function collisionBox.resolveY(entity, object)
 end
 
 function collisionBox.getBottom(obj)
-     if obj.collisionBox then
-        return obj.collisionBox.y + obj.collisionBox.height
-    elseif obj.y and obj.height then
-        return obj.y + obj.height
+    if obj.type and obj.type == "item" then
+        return obj.y / scale
     else
-        error("No es posible calcular la base de este objeto")
+        return obj.y
     end
 end
 
@@ -151,7 +149,7 @@ function collisionBox.isAhead(entity, object)
     return collisionBox.getBottom(entity) < collisionBox.getBottom(object)
 end
 
-function collisionBox.showBoxes(player, obstacles, show)
+function collisionBox.showBoxes(player, obstacles, enemies, triggers, show)
 
     if show then
         --caja del player
@@ -164,8 +162,20 @@ function collisionBox.showBoxes(player, obstacles, show)
             love.graphics.rectangle("fill", obs.collisionBox.x, obs.collisionBox.y, obs.collisionBox.width, obs.collisionBox.height)
         end
         love.graphics.setColor(1, 1, 1)
-    else
-        return
+
+        love.graphics.setColor(1, 0.8, 0.4, 0.25)
+        for _, obs in ipairs(triggers) do
+            if obs.isVisible then
+                love.graphics.rectangle("fill", obs.x, obs.y, obs.width, obs.height)
+            end
+        end
+
+        for i, e in ipairs(enemies) do
+            love.graphics.rectangle("fill", e.collisionBox.x, e.collisionBox.y, e.collisionBox.width, e.collisionBox.height)
+        end
+
+        love.graphics.setColor(1, 1, 1)
+
     end
 
 end

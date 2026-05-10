@@ -136,6 +136,7 @@ function menu.mousereleased(x, y, button)
     end
 end
 
+
 function menu.keypressed(key)
 
     if Current_state == require("src.scripts.states.menu") then
@@ -145,9 +146,9 @@ function menu.keypressed(key)
         elseif key == inputs.menu.continueGame then
             Change_state(require("src.scripts.states.continue_the_game"))
         elseif key == inputs.menu.settings then
-            --Change_state(require("src.scripts.states."))
+            menu.Show_settings = true
         elseif key == inputs.menu.exit then
-            --Change_state(require("src.scripts.states.create_new_game"))
+            menu.Show_exit = true
         end
 
     end

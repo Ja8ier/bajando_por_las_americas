@@ -4,10 +4,11 @@ ITEM_TYPES = {
     CARRYABLE_OBJECT = "carryableObject",
     KEY_EVENT = "keyEvent"
 }
+local scale = love.graphics.getWidth() / 256
 
 local itemDefinitions = {
 
-    brokeBottle = {
+    bottle = {
         name = "Pico de botella",
         texture = "",
         type = ITEM_TYPES.WEAPON,
@@ -17,12 +18,13 @@ local itemDefinitions = {
         levelOfWear = 10,
         onUse = function()
             --atack
-        end
+        end,
+        scale = scale * 1
     },
 
     knife = {
         name = "Cuchillo",
-        texture = "",
+        texture = love.graphics.newImage("assets/sprites/items/knife.png"),
         type = ITEM_TYPES.WEAPON,
         isStackable = false,
         count = 1,
@@ -30,10 +32,11 @@ local itemDefinitions = {
         levelOfWear = 10,
         onUse = function()
             --atack
-        end
+        end,
+        scale = scale * 0.5
     },
 
-    baseballBat = {
+    bat = {
         name = "Bate de baseball",
         texture = "",
         type = ITEM_TYPES.WEAPON,
@@ -43,20 +46,8 @@ local itemDefinitions = {
         levelOfWear = 10,
         onUse = function()
             --atack
-        end
-    },
-
-    ironBar = {
-        name = "Palanca de hierro",
-        texture = "",
-        type = ITEM_TYPES.WEAPON,
-        isStackable = false,
-        count = 1,
-        haswear = true,
-        levelOfWear = 10,
-        onUse = function()
-            --atack
-        end
+        end,
+        scale = scale * 1
     },
 
     wrench = {
@@ -69,7 +60,8 @@ local itemDefinitions = {
         levelOfWear = 10,
         onUse = function()
             --atack
-        end
+        end,
+        scale = scale * 1
     },
 
     stones = {
@@ -82,7 +74,8 @@ local itemDefinitions = {
         levelOfWear = 0,
         onUse = function()
             --throw
-        end
+        end,
+        scale = scale * 1
     },
 
     heavyStone = {
@@ -95,7 +88,8 @@ local itemDefinitions = {
         levelOfWear = 0,
         onUse = function()
             --pick up
-        end
+        end,
+        scale = scale * 1
     },
 
     paperKey = {
@@ -108,34 +102,11 @@ local itemDefinitions = {
         levelOfWear = 0,
         onUse = function()
             --ver codigo
-        end
+        end,
+        scale = scale * 1
     },
 
-    disco = {
-        name = "disco",
-        texture = love.graphics.newImage("assets/sprites/items/testItem.png"),
-        type = ITEM_TYPES.WEAPON,
-        isStackable = false,
-        count = 1,
-        haswear = true,
-        levelOfWear = 10,
-        onUse = function()
-            -- body
-        end
-    },
 
-    caucho = {
-        name = "Caucho",
-        texture = love.graphics.newImage("assets/sprites/items/caucho.png"),
-        type = ITEM_TYPES.CARRYABLE_OBJECT,
-        isStackable = false,
-        count = 1,
-        haswear = false,
-        levelOfWear = 10,
-        onUse = function()
-            -- body
-        end
-    }
 
 }
 

@@ -1,14 +1,20 @@
-local game = {}
+local game = {
+    isPlaying = false,
+    isPaused = false,
+    gameOver = false
+}
 local stages = {}
 
 local inputs = require("src.scripts.utils.inputs")
---local gui = require("src.scripts.gui.gui")
+local gui = require("src.scripts.gui.gui")
+local panel = require("src.scripts.gui.panel")
+local player = require("src.scripts.entities.player")
+
+local exitGame = panel.new((love.graphics.getWidth() - 350)/2, (love.graphics.getHeight() - 150)/2, 400, 200, "PAUSA", 30)
 
 local currentStageIndex = 1
 local currentStage = nil
-local isPlaying = true
-local isPaused = false
-local gameOver = false
+local oneTime = true
 
 function game.load()
 
@@ -24,9 +30,9 @@ function game.load()
         currentStage.load()
     end
 
-    isPlaying = true
-    isPaused = false
-    gameOver = false
+    game.isPlaying = true
+    game.isPaused = false
+    game.gameOver = false
 
 end
 
@@ -42,31 +48,57 @@ function game.nextStage()
         end
     else
         --final del juego
-        gameOver = true
-        isPlaying = false
+        game.gameOver = true
+        game.isPlaying = false
     end
+
+end
+
+function game.restoreStage()
+
+    oneTime = true
+    player.isDead = false
+    player.HP = player.maxHP/2
+    player.entityStatus = {statusType = "none", statusTimer = 0}
+
+    -- esta logica deberia cambiar para aparecer en el ultimo checkpoint
+    player.y = love.graphics.getHeight() - player.frameheight * player.scale - 100
+    player.x = 100
+
+    game.isPlaying = true
+    game.gameOver = false
+    game.isPaused = false
 
 end
 
 function game.restartStage()
 
+    player.isDead = false
+    oneTime = true
+    game.isPlaying = true
+    game.gameOver = false
+    game.isPaused = false
+
+    if currentStage and currentStage.cleanStatus then
+        currentStage.cleanStatus()
+    end
+
+    if player and player.cleanStatus then
+        player.cleanStatus()
+    end
+
     if currentStage and currentStage.load then
         currentStage.load()
     end
-
-    isPlaying = true
-    gameOver = false
-    isPaused = false
-
 end
 
 function game.update(dt)
 
-    if not isPlaying or gameOver then
+    if not game.isPlaying or game.gameOver then
         return
     end
 
-    if isPaused then
+    if game.isPaused then
         return
     end
 
@@ -74,6 +106,20 @@ function game.update(dt)
         currentStage.update(dt)
     end
 
+    if player.HP <= 0 then
+        if oneTime then
+            player.numberAttempts = player.numberAttempts - 1
+            game.isPlaying = false
+            oneTime = false
+        end
+
+        if player.numberAttempts > 0 then
+            player.isDead = true
+        else
+            game.gameOver = true
+            game.isPlaying = false
+        end
+    end
 end
 
 function game.draw()
@@ -82,43 +128,90 @@ function game.draw()
         currentStage.draw()
     end
 
-    if isPaused then
+    if game.isPaused then
         love.graphics.setColor(0, 0, 0, 0.7)
         love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
         love.graphics.setColor(1, 1, 1)
-        love.graphics.print("PAUSA", love.graphics.getWidth()/2 - 120, love.graphics.getHeight()/2, 0, 2, 2)
-        love.graphics.print("Presiona " .. inputs.game.pause[1] .. " o " .. string.upper(inputs.game.pause[2]) .. " para reanudar", 10, 10)
+        love.graphics.print("Presiona " ..string.upper(inputs.game.pause[1]).. " o ".. string.upper(inputs.game.pause[2]) .. " para reanudar", 10, 10)
+
+        exitGame.visible = true
+        panel.draw(exitGame)
+
+        gui.Draw_button("Guardar y Salir", exitGame.x + (exitGame.w - 250)/2, exitGame.y + 15 + (exitGame.h - 50)/2, 250, 50, 10,
+        gui.utils.Search_opacity(exitGame.x + (exitGame.w - 250)/2, exitGame.x + (exitGame.w - 250)/2 + 250,
+        exitGame.y + 15 + (exitGame.h - 50)/2, exitGame.y + 65 + (exitGame.h - 50)/2, true))
     end
 
-    if gameOver then
+    if player.isDead then
         love.graphics.setColor(0, 0, 0, 0.7)
         love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
         love.graphics.setColor(1, 1, 1)
-        love.graphics.print("GAME OVER", love.graphics.getWidth()/2 - 190, love.graphics.getHeight()/2, 0, 2, 2)
+        love.graphics.print("Te quedan " .. player.numberAttempts .. " intentos", (love.graphics.getWidth() - 500)/2, love.graphics.getHeight()/2, 0, 2, 2)
+        love.graphics.print("Presiona R para Restaurar, ESC para Guardar y Salir", 10, 10)
+    end
+
+    if game.gameOver then
+        love.graphics.setColor(0, 0, 0, 0.7)
+        love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.print("GAME OVER", (love.graphics.getWidth() - 300)/2, love.graphics.getHeight()/2, 0, 2, 2)
         love.graphics.print("Presiona R para reiniciar, ESC para salir", 10, 10)
     end
 end
 
+
 function game.keypressed(key)
 
-     if (type(inputs.game.pause) == "table" and (key == inputs.game.pause[1] or key == inputs.game.pause[2])) then
+     if (type(inputs.game.pause) == "table") and (key == inputs.game.pause[1] or key == inputs.game.pause[2]) then
 
-        if not isPaused and not gameOver then
-            isPaused = true
+        if not game.isPaused and not game.gameOver and game.isPlaying then
+            game.isPaused = true
         else
-            isPaused = false
+            game.isPaused = false
         end
 
     end
 
-    if gameOver or key == "r" then
-        --game.restartStage()
+    if player.isDead and key == "r" then
+        game.restoreStage()
+
+    elseif player.isDead and key == "escape" then
+        game.restoreStage()
+        
+        -- aqui va la logica para guardar datos (seguir este orden de lineas de codigo)
+
+        game.restartStage()
+        Change_state(require("src.scripts.states.menu"))
     end
 
-    if not isPaused and not gameOver and currentStage and currentStage.keypressed then
+    if game.gameOver and key == "r" then
+        game.restartStage()
+
+    elseif game.gameOver and key == "escape" then
+
+        -- aqui va la logica para guardar datos (seguir este orden de lineas de codigo)
+
+        game.restartStage()
+        Change_state(require("src.scripts.states.menu"))
+    end
+
+    if not game.isPaused and not game.gameOver and currentStage and currentStage.keypressed then
         currentStage.keypressed(key)
     end
     
+end
+
+function game.mousereleased(x, y)
+    if game.isPaused then
+        if (x > exitGame.x + (exitGame.w - 250)/2 and x < exitGame.x + (exitGame.w - 250)/2 + 250) and
+            (y > exitGame.y + 15 + (exitGame.h - 50)/2 and y < exitGame.y + 65 + (exitGame.h - 50)/2) then
+            
+            -- aqui va la logica para guardar datos (seguir este orden de lineas de codigo)
+            game.restartStage()
+            Change_state(require("src.scripts.states.menu"))
+        end
+    end
+
 end
 
 return game

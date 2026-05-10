@@ -5,15 +5,21 @@ local mathUtils = require("src.scripts.utils.mathUtils")
 
 local animation = require("src.scripts.systems.animation")
 
+local scale = love.graphics.getWidth() / 256
+
 local animations = {
     walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false),
-    run = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.15, false)
+    run = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.15, false),
+    crouch = animation.new("assets/sprites/player/player_crouch.png", 22, 28, 0.1, true),
+    attack = animation.new("assets/sprites/player/player_attack.png", 31, 31, 0.080, false),
+    walkWileCarry = animation.new("assets/sprites/player/player_walking_while_carring.png", 20, 29, 0.25, false),
 }
 
 local currentAnimation = animations.walk
 
-local isWalking = false
-local isRunning = false
+local wasAttackPressed = false
+local attackTimer = 0
+local attackDuration = 0.40
 
 local player = {
     x = 0,
@@ -22,6 +28,7 @@ local player = {
     scale = 1,
     width = 19,
     height = 28,
+    type = "player",
 
     --sprideSheet base (de pie)
     frameWidth = 19,
@@ -29,26 +36,26 @@ local player = {
     facingLeft = false,
     isMoving = false,
 
+    isDead = false,
+    isCrouching = false,
+    armament = {isArmed = true, weaponSelect = "bottle"},
     HP = 1000,
     maxHP = 1000,
+    numberAttempts = 3,
     isHurt = false,
     hurtTimer = 0,
     attacking = false,
-    entityStatus = {
-        statusType = "none",
-        statusTimer = 0,
-        lastAttacker = nil
-    },
+    entityStatus = {statusType = "none", statusTimer = 0}
 
 }
 
 --#region Load, update y draw
 
-function player.load()
+function player.load(spawnPoint)
 
-    player.scale = (love.graphics.getWidth() / 256)
-    player.y = love.graphics.getHeight() - player.frameheight * player.scale - 100
-    player.x = 100
+    player.scale = scale
+    player.x = spawnPoint.x
+    player.y = spawnPoint.y
 
     playerCollisionBox.create(player, "bottom")
 
@@ -65,7 +72,14 @@ function player.update(dt)
         end
     end
 
+    local oldMoving = player.isMoving
+    if currentAnimation == animations.attack then
+        player.isMoving = true
+    end
+    
     animation.update(currentAnimation, player.isMoving, dt)
+    player.isMoving = oldMoving
+    -- animation.update(currentAnimation, player.isMoving, dt)
 
     --logica de sonidos
     if player.isMoving then
@@ -89,13 +103,8 @@ end
 
 function player.draw()
 
-    love.graphics.setColor(0,1,0)
-    love.graphics.rectangle("fill", player.x, player.y - 50, mathUtils.calculateHealthBarWidth(player.HP, player.maxHP), 15)
-    love.graphics.setColor(1,1,1)
-    love.graphics.rectangle("line", player.x, player.y - 50, 100, 15)
-    love.graphics.print(player.HP, player.x, player.y - 73, 0, 0.7)
-
     if player.isHurt then
+        --cambiar por animacion de damage
         love.graphics.setColor(1,0,0)
     end
 
@@ -114,6 +123,8 @@ function player.draw()
         love.graphics.draw(sheet, quad, player.x, player.y, 0,
         player.scale, player.scale)
     end
+    
+    love.graphics.setColor(1,1,1)
 
 end
 
@@ -127,17 +138,100 @@ local function setAnimation(animation)
 end
 
 --cambiar logica
-function player.updateAnimationState()
-    local isShift = love.keyboard.isDown(inputs.game.sprint) and (player.entityStatus.statusType ~= "slow" and player.entityStatus.statusType ~= "stun") 
+
+function player.updateAnimationState(dt)
+
+    if love.keyboard.isDown(inputs.game.crouch) then
+        setAnimation("crouch")
+        player.speed = 0
+        return
+    end
+
+    -- 1. Lógica de Ataque (Prioridad Máxima)
+    local isAttackPressed = love.keyboard.isDown(inputs.game.attack)
+
+    if isAttackPressed and not wasAttackPressed then
+        attackTimer = attackDuration
+        setAnimation("attack")
+        player.speed = 0 -- Te detienes al atacar
+    end
+
+    wasAttackPressed = isAttackPressed
+
+    if attackTimer > 0 then
+        attackTimer = attackTimer - dt
+        return -- Salimos: el ataque bloquea el movimiento y el sprint
+    end
+
+    -- 2. Verificación de Estados (Protección)
+    local status = player.entityStatus and player.entityStatus.statusType
+    local isNormal = status ~= "slow" and status ~= "stun"
+    local isShift = love.keyboard.isDown(inputs.game.sprint)
+
+    -- 3. Lógica de Movimiento y Animación
     if player.isMoving then
-        player.speed = isShift and 300 or 150
-        local anim = isShift and "run" or "walk"
-        setAnimation(anim)
-    elseif player.entityStatus.statusType ~= "slow" and player.entityStatus.statusType ~= "stun" then
-        player.speed = 150
+        -- Solo permitimos cambiar la velocidad si el estado es NORMAL
+        if isNormal then
+            if isShift then
+                player.speed = 300
+                setAnimation("run")
+            else
+                player.speed = 150
+                setAnimation("walk")
+            end
+        else
+            -- Si NO es normal (slow/stun), mantenemos la animación de walk
+            -- pero NO tocamos player.speed (deja que el sistema de estados lo maneje)
+            setAnimation("walk")
+        end
+    else
+        -- Si está quieto y no tiene efectos, reseteamos a velocidad base
+        if isNormal then
+            player.speed = 150
+        end
         setAnimation("walk")
     end
 end
+
+-- function player.updateAnimationState(dt)
+
+--     if love.keyboard.isDown(inputs.game.crouch) then
+--         setAnimation("crouch")
+--         player.speed = 0
+--         return
+--     end
+
+--     local isAttackPressed = love.keyboard.isDown(inputs.game.attack)
+
+--     if isAttackPressed and not wasAttackPressed then
+--         attackTimer = attackDuration
+--         setAnimation("attack")
+--         player.speed = 0
+--     end
+
+--     wasAttackPressed = isAttackPressed
+
+--     if attackTimer > 0 then
+--         attackTimer = attackTimer - dt
+--         return
+--     end
+
+--     local isShift = love.keyboard.isDown(inputs.game.sprint) and (player.entityStatus.statusType ~= "slow" and player.entityStatus.statusType ~= "stun") 
+
+--     if player.isMoving then
+--         if isShift then
+--             player.speed = 300
+--             setAnimation("run")
+--         else
+--             player.speed = 150
+--             setAnimation("walk")
+--         end
+--     elseif player.entityStatus.statusType ~= "slow" and player.entityStatus.statusType ~= "stun" then
+--         player.speed = 150
+--         setAnimation("walk")
+--     end
+
+-- end
 
 --movimiento del player
 function player.move(dt, XorY)
@@ -168,16 +262,120 @@ function player.move(dt, XorY)
 
 end
 
-function player.checkDeath(dt)
-    if player.HP <= 0 then
-        player.HP = 0
-        player.die(dt)
+function player.involuntaryMovement(dt, XorY, direction, factorSpeed, setback, obstacles)
+
+    local cb = require("src.scripts.systems.collision_box")
+
+    if XorY == "x" then
+
+        if direction == "left" then
+            player.x = math.max(player.x - dt * player.speed * factorSpeed * setback, 0)
+        elseif direction == "right" then
+            player.x = player.x + dt * player.speed * factorSpeed * setback
+        end
+
+    player.updateCollisionBox()
+
+    --Resolver x
+    for _, obs in ipairs(obstacles) do
+        if cb.check(player, obs) then
+            cb.resolveX(player, obs)
+        end
+    end
+    
+    elseif XorY == "y" then
+
+        if direction == "up" then
+            player.y = math.min(math.max(player.y - dt * player.speed * factorSpeed * setback, 0), love.graphics.getHeight() - player.scale * player.height)
+        elseif direction == "down" then
+            player.y = math.min(player.y + dt * player.speed * factorSpeed * setback, love.graphics.getHeight() - player.scale * player.height)
+        end
+
+    end
+
+    player.updateCollisionBox()
+
+    --Resolver y
+    for _, obs in ipairs(obstacles) do
+        if cb.check(player, obs) then
+            cb.resolveY(player, obs)
+        end
+    end
+
+end
+
+
+local function takeHP(e, amountOfHP)
+    e.HP = e.HP - amountOfHP
+
+    if e.HP <= 0 then
+        e.isDead = true
+        e.HP = 0
     end
 end
 
---testing
-function player.die(dt)
-    deathEffect = {3/2 * math.pi, 32, 10}
+function player.attack(enemies)
+
+    for i, e in ipairs(enemies) do
+        if mathUtils.getDistanceToPlayer(player, e) <= 75 and e.entityStatus.statusType ~= "stun" then
+            player.attacking = true
+
+            if player.armament.isArmed then
+                    
+                if player.armament.weaponSelect == "bottle" then
+                    takeHP(e, 40)
+                    --setAnimation("bottleAttack")
+                    break
+
+                elseif player.armament.weaponSelect == "knife" then
+                    takeHP(e, 60)
+                    --setAnimation("knifeAttack")
+                    break
+
+                elseif player.armament.weaponSelect == "bat" then
+                    takeHP(e, 80)
+                    --setAnimation("batAttack")
+                    break
+
+                elseif player.armament.weaponSelect == "wrench" then
+                    takeHP(e, 100)
+                    --setAnimation("wrenchAttack")
+                    break
+                end
+            else
+                takeHP(e, 20)
+                --player.updateAnimationState()
+                break
+            end
+
+        else
+            player.attacking = false
+        end
+    end
 end
+
+function player.cleanStatus()
+    player.speed = 150
+    player.facingLeft = false
+    player.isMoving = false
+    player.isCrouching = false
+    player.isDead = false
+    player.armament = {isArmed = true, weaponSelect = "bottle"}
+    player.HP = 1000
+    player.numberAttempts = 3
+    player.isHurt = false
+    player.hurtTimer = 0
+    player.attacking = false
+    player.entityStatus = {statusType = "none", statusTimer = 0}
+    currentAnimation = animations.walk
+end
+
+function player.checkDeath(dt)
+    if player.HP <= 0 then
+        player.HP = 0
+        player.isDead = true
+    end
+end
+
 
 return player
