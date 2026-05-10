@@ -28,7 +28,7 @@ function EnemyLogic.createTree()
 
     -- Subárbol para enemigos desarmados (Tiers 1 al 4)
     local unarmedAttackTree = AI.newCondition(
-        function(e) return --[[ player.is_crouching ]] false end, -- Condición de jugador agachado
+        function(e) return player.isCrouching end, -- Condición de jugador agachado
         actionSweep,
         AI.newCondition(
             function(e) return e.tier == 1 end,
@@ -84,34 +84,54 @@ function EnemyLogic.createTree()
 
     -- Subárbol para cuando el enemigo tiene un arma
     local weaponAttackTree = AI.newCondition(
-        function(e) return math.random() < e:getSpecialProbability() end, -- Probabilidad de ataque especial
-        -- Evalúa el tipo de arma para ejecutar su ataque característico
+        function(e) return player.isCrouching end, -- Condición de jugador agachado
+        actionSweep,
         AI.newCondition(
-            function(e) return e.weapon == "bottle" end,
-            actionSpecialBottle,
+            function(e) return math.random() < e:getSpecialProbability() end, -- Probabilidad de ataque especial
             AI.newCondition(
-                function(e) return e.weapon == "knife" end,
-                actionSpecialKnife,
+                function(e) return e.weapon == "bottle" end,
+                actionSpecialBottle,
                 AI.newCondition(
-                    function(e) return e.weapon == "bat" end,
-                    actionSpecialBat,
-                    actionSpecialWrench -- Por defecto, si el arma es "wrench"
+                    function(e) return e.weapon == "knife" end,
+                    actionSpecialKnife,
+                    AI.newCondition(
+                        function(e) return e.weapon == "bat" end,
+                        actionSpecialBat,
+                        actionSpecialWrench -- Por defecto, si el arma es "wrench"
+                    )
                 )
+            ),
+            actionCommonWeapon -- Por defecto, si no se cumple la probabilidad del especial, golpea normal
+        )
+    )
+
+    local bossWeaponAttackTree = AI.newCondition(
+        function(e) return e.weapon == "bottle" end,
+        actionSpecialBottle,
+        AI.newCondition(
+            function(e) return e.weapon == "knife" end,
+            actionSpecialKnife,
+            AI.newCondition(
+                function(e) return e.weapon == "bat" end,
+                actionSpecialBat,
+                actionSpecialWrench -- Por defecto, si el arma es "wrench"
             )
-        ),
-        -- Por defecto, si no se cumple la probabilidad del especial, golpea normal
-        actionCommonWeapon
+        )
     )
 
     -- Árbol Principal (Evaluador de Tiers y Eventos)
     return AI.newCondition(
         function(e) return e.tier == 5 end, -- Rama exclusiva para el Boss (Tier 5)
         AI.newCondition(
-            function(e) return e.HP < 20 end,
+            function(e) return e.isHealing or e.HP < e.maxHP * 0.20 end,
             actionFlee,
             AI.newCondition(
-                function(e) return e:getDistanceToPlayer() < 300 end,
-                actionBossSpecial,
+                function(e) return e:getDistanceToPlayer(player) <= 350 end,
+                AI.newCondition(
+                    function(e) return math.random() < 1 end,
+                    actionBossSpecial,
+                    bossWeaponAttackTree
+                ),
                 actionWalk
             )
         ),

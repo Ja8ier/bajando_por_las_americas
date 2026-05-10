@@ -10,34 +10,40 @@ entityStateSystem.statusDictionary = {
     none = function(entity, dt) end,
 
     -- Estado de retroceso (Knockback)
-    knockback = function(entity, dt, attacker)
+    knockback = function(entity, dt, attacker, obstacles)
 
         local dx = entity.x - attacker.x
         local dy = entity.y - attacker.y
         local distance = math.sqrt(dx^2 + dy^2)
 
         if distance > 0 then
-            local dirX = dx / distance
-            local dirY = dy / distance
-            
-            local force = 160
-            entity.x = entity.x + dirX * force * dt
-            entity.y = entity.y + dirY * force * dt
+            if entity.x > attacker.x then
+                entity.involuntaryMovement(dt, "x", "right", 1.5, 1, obstacles)
+            else
+                entity.involuntaryMovement(dt, "x", "left", 1.5, 1, obstacles)
+            end
+
+            if entity.y > attacker.y then
+                entity.involuntaryMovement(dt, "y", "down", 1.2, 1, obstacles)
+            else
+                entity.involuntaryMovement(dt, "y", "up", 1.2, 1, obstacles)
+            end
         
         end
     end,
 
     -- Estado de paralizar (Stun)
-    stun = function(entity, dt)
+    stun = function(entity)
         if not entity.originalSpeed then
             entity.originalSpeed = entity.speed or 150
         end
         
         entity.speed = 0
+        entity.isMoving = false
     end,
 
     -- Estado de ralentizar (Slow)  
-    slow = function(entity, dt)
+    slow = function(entity)
         if not entity.originalSpeed then
             entity.originalSpeed = entity.speed or 150
         end
@@ -46,7 +52,7 @@ entityStateSystem.statusDictionary = {
         entity.speed = entity.originalSpeed * slowFactor
     end,
 
-    bleed = function(entity, dt, attacker)
+    bleed = function(entity, dt)
 
         if not entity.bleedTimer then
             entity.bleedTimer = 0
@@ -67,7 +73,7 @@ entityStateSystem.statusDictionary = {
     end
 }
 
-function entityStateSystem.updateStatus(entity, dt, attacker)
+function entityStateSystem.updateStatus(entity, dt, attacker, obstacles)
     if entity.entityStatus.statusType ~= "none" then
 
         if entity.entityStatus.statusTimer > 0 then
@@ -77,7 +83,7 @@ function entityStateSystem.updateStatus(entity, dt, attacker)
             local effectFunction = entityStateSystem.statusDictionary[entity.entityStatus.statusType]
 
             if effectFunction then
-                effectFunction(entity, dt, attacker)
+                effectFunction(entity, dt, attacker, obstacles)
             end
 
         else
@@ -85,6 +91,7 @@ function entityStateSystem.updateStatus(entity, dt, attacker)
             if (entity.entityStatus.statusType == "stun" or entity.entityStatus.statusType == "slow") and entity.originalSpeed then
                 entity.speed = entity.originalSpeed
                 entity.originalSpeed = nil
+                entity.isMoving = true
             end
 
             if entity.entityStatus.statusType == "bleed" then

@@ -11,13 +11,12 @@ local inputs = require("src.scripts.utils.inputs")
 local tableUtils = require("src.scripts.utils.tableUtils")
 local miniGame = require("src.scripts.states.minigame")
 local cb = require("src.scripts.systems.collision_box")
+local inventory = require("src.scripts.systems.inventory")
 
 local worldWidth
 local layers = {}
 
---temporal
 local enemies = {}
-
 local collisions = {}
 local items = {}
 local triggers = {}
@@ -25,9 +24,10 @@ local triggers = {}
 local scale = love.graphics.getWidth() / 256
 
 local touchingItem
+local pickableItem
 local touchingTrigger
 local interactiveObject
-local pickableItem
+local openInventory = false
 local isMiniGamePlaying
 local spawnPoint = {x = 200, y = love.graphics.getHeight() - player.frameheight * player.scale - 300}
 
@@ -68,11 +68,6 @@ function stage1.load()
     table.insert(collisions, wheel)
 
     --Items
-   -- local item1 = item.new("disco", 120, 120)
-    --local item2 = item.new("wheel", 200, 110)
-
-    --table.insert(items, item1)
-  --  table.insert(items, item2)
 
     --Triggers
     local phoneBoothTrigger = trigger.new(nil, nil, nil, nil, true, function() isMiniGamePlaying = true end, true, phoneBooth)
@@ -86,10 +81,14 @@ function stage1.load()
     table.insert(triggers, endTrigger)
 
    -- enemies temporales
-    local enemy1 = enemy.new(4, 800, 400, 90, 125, 19, 28)
-    table.insert(enemies, enemy1)
-    local enemy2 = enemy.new(3, 600, 400, 90, 125, 19, 28)
+    local enemy1 = enemy.new(4, 800, 400)
+    local enemy2 = enemy.new(4, 600, 400)
+
     table.insert(enemies, enemy2)
+    table.insert(enemies, enemy1)
+    
+    local boss1 = enemy.new(5, 1000, 400)
+    table.insert(enemies, boss1)
 
     player.load(spawnPoint)
 end
@@ -159,27 +158,21 @@ function stage1.update(dt)
     end
 
     for i, e in ipairs(enemies) do
-        e:update(dt, player)
-
-        e.updateCollisionBox()
-        for _, obs in ipairs(collisions) do
-            if cb.check(e, obs) then
-                cb.resolveX(e, obs)
-            end
-        end
-
-        e:updateCollisionBox()
-        for _, obs in ipairs(collisions) do
-            if cb.check(e, obs) then
-                cb.resolveY(e, obs)
-            end
-        end
+        e:update(dt, player, collisions)
     end
 
     for i = #enemies, 1, -1 do
         local e = enemies[i]
+        
+        if e.isDead and e.animationDie then
+            if e.tier == 5 then
+                NextBossWeaponIndex = NextBossWeaponIndex + 1
+            end
 
-        if e.isDead then
+            if math.random() <= 0.33 then
+                e:dropItem(items)
+            end
+
             table.remove(enemies, i)
         end
     end
@@ -261,7 +254,7 @@ function stage1.draw()
         end
     end
 
-    cb.showBoxes(player, collisions, triggers, true)
+    cb.showBoxes(player, collisions, enemies, triggers, true)
     camera.ended()
 
     --frontground
@@ -275,11 +268,26 @@ function stage1.draw()
     love.graphics.setColor(1,1,1)
     love.graphics.rectangle("line", 10, 10 + 32 * scale * 0.8, 32 * scale * 0.8, 15)
     love.graphics.print("Vida:".. player.HP, 10, 25 + 32 * scale * 0.8, 0, 1.08, 0.85)
+    
+    if openInventory and not player.isDead then
+        inventory.draw()
+    end
 
     if isMiniGamePlaying then
         miniGame.draw(1)
     end
 
+end
+
+function stage1.cleanStatus()
+    enemies = {}
+    collisions = {}
+    items = {}
+    layers = {}
+
+    touchingItem = false
+    pickableItem = nil
+    openInventory = false
 end
 
 function stage1.keypressed(key)
@@ -301,23 +309,22 @@ function stage1.keypressed(key)
         end
     end
 
-    --temporal
-    if key == inputs.game.attack then
-        for i, e in ipairs(enemies) do
-            if mathUtils.getDistanceToPlayer(player, e) <= 75 and e.entityStatus.statusType ~= "stun" then
-                player.attacking = true
-
-                e.HP = e.HP - 10
-
-                if e.HP <= 0 then
-                    e.isDead = true
-                end
-
-                break
-            else
-                player.attacking = false
+    if not player.isDead then
+        if touchingItem then
+            if key == inputs.game.pickUpItem then
+                tableUtils.removeByValue(items, pickableItem)
             end
         end
+
+        if key == inputs.game.attack then
+            player.attack(enemies)
+        end
+
+        if key == inputs.game.openInventory then
+            openInventory = not openInventory
+        end
+
+        inventory.keypressed(key)
     end
 
 end
