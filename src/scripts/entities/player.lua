@@ -10,16 +10,16 @@ local scale = love.graphics.getWidth() / 256
 local animations = {
     walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false),
     run = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.15, false),
-    crouch = animation.new("assets/sprites/player/player_crouch.png", 17, 28, 0.1, true),
+    crouch = animation.new("assets/sprites/player/player_crouch.png", 22, 28, 0.1, true),
+    attack = animation.new("assets/sprites/player/player_attack.png", 31, 31, 0.080, false),
     walkWileCarry = animation.new("assets/sprites/player/player_walking_while_carring.png", 20, 29, 0.25, false),
-    attack = animation.new("assets/sprites/player/player_attack.png", 31, 31, 0.080, false)
 }
 
 local currentAnimation = animations.walk
 
 local wasAttackPressed = false
 local attackTimer = 0
-local attackDuration = 0.48
+local attackDuration = 0.40
 
 local player = {
     x = 0,
@@ -141,8 +141,8 @@ end
 function player.updateAnimationState(dt)
 
     if love.keyboard.isDown(inputs.game.crouch) then
-        player.speed = 0
         setAnimation("crouch")
+        player.speed = 0
         return
     end
 

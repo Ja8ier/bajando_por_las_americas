@@ -62,17 +62,17 @@ function stage1.load()
 
     --Objetos con textura
     local phoneBooth = obstacle.new(true, 2340, 50, 16, 42, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), 0.8)
-    local object_caucho = obstacle.new(true, 120, 100, 16, 16, "bottom", love.graphics.newImage("assets/sprites/items/caucho.png"), nil)
+    local wheel = obstacle.new(true, 120, 100, 58, 42, "full", love.graphics.newImage("assets/sprites/items/wheel.png"), 0.5)
 
     table.insert(collisions, phoneBooth)
-    table.insert(collisions, object_caucho)
+    table.insert(collisions, wheel)
 
     --Items
-    local item1 = item.new("disco", 120, 120)
-    local item2 = item.new("caucho", 200, 110)
+   -- local item1 = item.new("disco", 120, 120)
+    --local item2 = item.new("wheel", 200, 110)
 
-    table.insert(items, item1)
-    table.insert(items, item2)
+    --table.insert(items, item1)
+  --  table.insert(items, item2)
 
     --Triggers
     local phoneBoothTrigger = trigger.new(nil, nil, nil, nil, true, function() isMiniGamePlaying = true end, true, phoneBooth)
@@ -261,7 +261,7 @@ function stage1.draw()
         end
     end
 
-    cb.showBoxes(player, collisions, triggers, false)
+    cb.showBoxes(player, collisions, triggers, true)
     camera.ended()
 
     --frontground
