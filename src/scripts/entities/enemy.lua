@@ -5,6 +5,7 @@ local EnemyLogic = require("src.scripts.logic.enemy_logic")
 local mathUtils = require("src.scripts.utils.mathUtils")
 local entityStateSystem = require("src.scripts.systems.entity_state_system")
 local animation = require("src.scripts.systems.animation")
+local scale = love.graphics.getWidth() / 256
 
 NextBossWeaponIndex = 1 -- guarda el indice del boss del nivel actual
 
@@ -78,25 +79,25 @@ local function chooseTypeMovement(animations, equipment, tier)
     if tier == 5 then
         if NextBossWeaponIndex == 1 then
             animations.walk = animation.new("assets/sprites/enemies/boss1/boss1_walk.png", 41, 61, 0.25, false)
-            animations.attack = animation.new("assets/sprites/enemies/boss1/boss1_attack.png", 63, 56, 2, false)
+            animations.attack = animation.new("assets/sprites/enemies/boss1/boss1_attack.png", 63, 56, 0.15, false)
             animations.heal = animation.new("assets/sprites/enemies/boss1/boss1_healthing.png", 59, 64, 0.15, false)
             animations.die = animation.new("assets/sprites/enemies/boss1/boss1_dead.png", 59, 62, 0.4, false)
 
         elseif NextBossWeaponIndex == 2 then
             animations.walk = animation.new("assets/sprites/enemies/boss1/boss1_walk.png", 41, 61, 0.25, false)
-            animations.attack = animation.new("assets/sprites/enemies/boss1/boss1_attack.png", 63, 56, 2, false)
+            animations.attack = animation.new("assets/sprites/enemies/boss1/boss1_attack.png", 63, 56, 0.15, false)
             animations.heal = animation.new("assets/sprites/enemies/boss1/boss1_healthing.png", 59, 64, 0.15, false)
             animations.die = animation.new("assets/sprites/enemies/boss1/boss1_dead.png", 59, 62, 0.4, false)
 
         elseif NextBossWeaponIndex == 3 then
             animations.walk = animation.new("assets/sprites/enemies/boss1/boss1_walk.png", 41, 61, 0.25, false)
-            animations.attack = animation.new("assets/sprites/enemies/boss1/boss1_attack.png", 63, 56, 2, false)
+            animations.attack = animation.new("assets/sprites/enemies/boss1/boss1_attack.png", 63, 56, 0.15, false)
             animations.heal = animation.new("assets/sprites/enemies/boss1/boss1_healthing.png", 59, 64, 0.15, false)
             animations.die = animation.new("assets/sprites/enemies/boss1/boss1_dead.png", 59, 62, 0.4, false)
         
         elseif NextBossWeaponIndex == 4 then
             animations.walk = animation.new("assets/sprites/enemies/boss1/boss1_walk.png", 41, 61, 0.25, false)
-            animations.attack = animation.new("assets/sprites/enemies/boss1/boss1_attack.png", 63, 56, 2, false)
+            animations.attack = animation.new("assets/sprites/enemies/boss1/boss1_attack.png", 63, 56, 0.15, false)
             animations.heal = animation.new("assets/sprites/enemies/boss1/boss1_healthing.png", 59, 64, 0.15, false)
             animations.die = animation.new("assets/sprites/enemies/boss1/boss1_dead.png", 59, 62, 0.4, false)
         end
@@ -443,43 +444,42 @@ function Enemy:move(dt, XorY, direction, factorSpeed, setback)
 
     checkAnimation(self, "walk")
 
-    if XorY == "x" then
+    if not self.isDead then
+        if XorY == "x" then
 
-        if direction == "left" then
-            self.x = math.max(self.x - dt * self.speed * factorSpeed * setback, 0)
-        elseif direction == "right" then
-            self.x = self.x + dt * self.speed * factorSpeed * setback
-        end
+            if direction == "left" then
+                self.x = math.max(self.x - dt * self.speed * factorSpeed * setback, 0)
+            elseif direction == "right" then
+                self.x = self.x + dt * self.speed * factorSpeed * setback
+            end
 
+            self.updateCollisionBox()
 
-    self.updateCollisionBox()
+            --Resolver x
+            for _, obs in ipairs(obstacles) do
+                if cb.check(self, obs) then
+                    cb.resolveX(self, obs)
+                end
+            end
+        
+        elseif XorY == "y" then
 
-    --Resolver x
-    for _, obs in ipairs(obstacles) do
-        if cb.check(self, obs) then
-            cb.resolveX(self, obs)
+            if direction == "up" then
+                self.y = math.min(math.max(self.y - dt * self.speed * factorSpeed * setback, 0), love.graphics.getHeight() - self.scale * self.height)
+            elseif direction == "down" then
+                self.y = math.min(self.y + dt * self.speed * factorSpeed * setback, love.graphics.getHeight() - self.scale * self.height)
+            end
+
+            self.updateCollisionBox()
+
+            --Resolver y
+            for _, obs in ipairs(obstacles) do
+                if cb.check(self, obs) then
+                    cb.resolveY(self, obs)
+                end
+            end
         end
     end
-    
-    elseif XorY == "y" then
-
-        if direction == "up" then
-            self.y = math.min(math.max(self.y - dt * self.speed * factorSpeed * setback, 0), love.graphics.getHeight() - self.scale * self.height)
-        elseif direction == "down" then
-            self.y = math.min(self.y + dt * self.speed * factorSpeed * setback, love.graphics.getHeight() - self.scale * self.height)
-        end
-
-    end
-
-    self.updateCollisionBox()
-
-    --Resolver y
-    for _, obs in ipairs(obstacles) do
-        if cb.check(self, obs) then
-            cb.resolveY(self, obs)
-        end
-    end
-
 end
 
 function Enemy:stateFlee(dt, player)
@@ -498,7 +498,7 @@ function Enemy:stateFlee(dt, player)
 
         if self.x < player.x then self:move(dt, "x", "left", 0.8, 1) else self:move(dt, "x", "right", 0.8, 1) end
         if self.y < player.y then self:move(dt, "y", "up", 0.8, 1) else self:move(dt, "y", "down", 0.8, 1) end
-        
+
     else
         self.isHealing = true
         
@@ -604,6 +604,22 @@ function Enemy:handleDeathTimer(dt)
             self.deathTimer = 0
             self.animationDie = true
         end
+    end
+end
+
+function Enemy:dropItem(items)
+    local item = require("src.scripts.entities.item")
+
+    local itemY = (self.collisionBox.y + self.collisionBox.height) / scale
+
+    if itemY >= love.graphics.getHeight() / scale then
+        itemY = self.collisionBox.y / scale
+    end
+
+    local itm = item.new(self.weapon, self.x/scale, itemY)
+
+    if itm then
+        table.insert(items, itm)
     end
 end
 

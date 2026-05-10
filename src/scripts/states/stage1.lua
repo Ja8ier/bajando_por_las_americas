@@ -124,6 +124,10 @@ function stage1.update(dt)
                 NextBossWeaponIndex = NextBossWeaponIndex + 1
             end
 
+            if math.random() <= 0.33 then
+                e:dropItem(items)
+            end
+
             table.remove(enemies, i)
         end
     end
