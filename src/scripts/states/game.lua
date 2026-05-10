@@ -128,7 +128,7 @@ function game.draw()
         currentStage.draw()
     end
 
-    if isPaused then
+    if game.isPaused then
         love.graphics.setColor(0, 0, 0, 0.7)
         love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
         love.graphics.setColor(1, 1, 1)
@@ -150,7 +150,7 @@ function game.draw()
         love.graphics.print("Presiona R para Restaurar, ESC para Guardar y Salir", 10, 10)
     end
 
-    if gameOver then
+    if game.gameOver then
         love.graphics.setColor(0, 0, 0, 0.7)
         love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
         love.graphics.setColor(1, 1, 1)
@@ -164,10 +164,10 @@ function game.keypressed(key)
 
      if (type(inputs.game.pause) == "table") and (key == inputs.game.pause[1] or key == inputs.game.pause[2]) then
 
-        if not isPaused and not gameOver and isPlaying then
-            isPaused = true
+        if not game.isPaused and not game.gameOver and game.isPlaying then
+            game.isPaused = true
         else
-            isPaused = false
+            game.isPaused = false
         end
 
     end
@@ -184,10 +184,10 @@ function game.keypressed(key)
         Change_state(require("src.scripts.states.menu"))
     end
 
-    if gameOver and key == "r" then
+    if game.gameOver and key == "r" then
         game.restartStage()
 
-    elseif gameOver and key == "escape" then
+    elseif game.gameOver and key == "escape" then
 
         -- aqui va la logica para guardar datos (seguir este orden de lineas de codigo)
 
@@ -195,14 +195,14 @@ function game.keypressed(key)
         Change_state(require("src.scripts.states.menu"))
     end
 
-    if not isPaused and not gameOver and currentStage and currentStage.keypressed then
+    if not game.isPaused and not game.gameOver and currentStage and currentStage.keypressed then
         currentStage.keypressed(key)
     end
     
 end
 
 function game.mousereleased(x, y)
-    if isPaused then
+    if game.isPaused then
         if (x > exitGame.x + (exitGame.w - 250)/2 and x < exitGame.x + (exitGame.w - 250)/2 + 250) and
             (y > exitGame.y + 15 + (exitGame.h - 50)/2 and y < exitGame.y + 65 + (exitGame.h - 50)/2) then
             

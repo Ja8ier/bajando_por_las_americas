@@ -15,7 +15,7 @@ function obstacle.new(_isVisible, _x, _y, _width, _height, collisionType, _textu
         texture = _texture,
         type = "obstacle"
     }
-    
+
     if _scaleFactor ~= nil  then
         newObstacle.scale = scale * _scaleFactor
         newObstacle.width = _width * _scaleFactor
