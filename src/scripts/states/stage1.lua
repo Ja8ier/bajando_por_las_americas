@@ -40,7 +40,7 @@ local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
         count = math.random(10, 15)
     end
 
-    local currentTier = NextBossWeaponIndex or 1
+    local currentTier = math.random(1, 4)--[[ NextBossWeaponIndex or 1 ]]
 
     local spawnX, spawnY
     for i = 1, count do
@@ -270,7 +270,7 @@ function stage1.update(dt)
                     e:dropItem(items)
                 end
             else
-                if math.random() <= 0.5 then
+                if math.random() <= 1 then
                     e:dropItem(items)
                 end
             end
@@ -356,7 +356,7 @@ function stage1.draw()
         end
     end
 
-    cb.showBoxes(player, collisions, enemies, triggers, true)
+    cb.showBoxes(player, collisions, enemies, triggers, false)
     camera.ended()
 
     --frontground
@@ -407,8 +407,13 @@ function stage1.keypressed(key)
     if touchingItem then
         if key == inputs.game.pickUpItem then
             tableUtils.removeByValue(items, pickableItem)
+            inventory.insert(pickableItem)
         end
     end
+
+    -- if key == inputs.game.dropItem then
+    --     player.dropItem(items, inventory.itemPosSelected())
+    -- end
 
     if touchingTrigger then
         if key == inputs.game.interact then

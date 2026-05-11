@@ -73,7 +73,7 @@ function player.update(dt)
     end
 
     local oldMoving = player.isMoving
-    if currentAnimation == animations.punch then
+    if currentAnimation == animations.punch or currentAnimation == animations.attack then
         player.isMoving = true
     end
 
@@ -152,12 +152,11 @@ function player.updateAnimationState(dt)
 
     if isAttackPressed and not wasAttackPressed then
         attackTimer = attackDuration
-        -- if player tiene arma then
-        --     -- animation de attack
-            -- si no tiene nada:
-            -- animacion de pegar
-        -- end
-        setAnimation("punch")
+        if player.armament.isArmed then
+            setAnimation("attack")
+        else
+            setAnimation("punch")
+        end
         player.speed = 0 -- Te detienes al atacar
     end
 
@@ -196,46 +195,6 @@ function player.updateAnimationState(dt)
 
 end
 
--- function player.updateAnimationState(dt)
-
---     if love.keyboard.isDown(inputs.game.crouch) then
---         setAnimation("crouch")
---         player.speed = 0
---         return
---     end
-
---     local isAttackPressed = love.keyboard.isDown(inputs.game.attack)
-
---     if isAttackPressed and not wasAttackPressed then
---         attackTimer = attackDuration
---         setAnimation("attack")
---         player.speed = 0
---     end
-
---     wasAttackPressed = isAttackPressed
-
---     if attackTimer > 0 then
---         attackTimer = attackTimer - dt
---         return
---     end
-
---     local isShift = love.keyboard.isDown(inputs.game.sprint) and (player.entityStatus.statusType ~= "slow" and player.entityStatus.statusType ~= "stun") 
-
---     if player.isMoving then
---         if isShift then
---             player.speed = 300
---             setAnimation("run")
---         else
---             player.speed = 150
---             setAnimation("walk")
---         end
---     elseif player.entityStatus.statusType ~= "slow" and player.entityStatus.statusType ~= "stun" then
---         player.speed = 150
---         setAnimation("walk")
---     end
-
--- end
-
 --movimiento del player
 function player.move(dt, XorY)
 
@@ -263,6 +222,11 @@ function player.move(dt, XorY)
 
     end
 
+end
+
+function player.dropItem(items, itemIndex)
+
+    table.insert(items, inventory[itemIndex])
 end
 
 function player.involuntaryMovement(dt, XorY, direction, factorSpeed, setback, obstacles)

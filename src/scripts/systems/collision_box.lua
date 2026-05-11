@@ -155,12 +155,14 @@ function collisionBox.showBoxes(player, obstacles, enemies, triggers, show)
         --caja del player
         love.graphics.setColor(1, 1, 1, 0.15)
         love.graphics.rectangle("fill", player.collisionBox.x, player.collisionBox.y, player.collisionBox.width, player.collisionBox.height)
-
+        
+        love.graphics.setColor(1, 0, 0, 0.15)
         --cajas de colision
         for _, obs in ipairs(obstacles) do
             love.graphics.rectangle("fill", obs.collisionBox.x, obs.collisionBox.y, obs.collisionBox.width, obs.collisionBox.height)
         end
-
+        
+        love.graphics.setColor(0, 0, 1, 0.15)
         -- caja de los enemigos
         for i, e in ipairs(enemies) do
             love.graphics.rectangle("fill", e.collisionBox.x, e.collisionBox.y, e.collisionBox.width, e.collisionBox.height)

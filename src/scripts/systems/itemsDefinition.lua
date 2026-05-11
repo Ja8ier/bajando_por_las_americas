@@ -19,7 +19,7 @@ local itemDefinitions = {
         onUse = function()
             --atack
         end,
-        scale = scale * 0.5
+        scale = scale * 0.25
     },
 
     knife = {
@@ -33,12 +33,12 @@ local itemDefinitions = {
         onUse = function()
             --atack
         end,
-        scale = scale * 0.5
+        scale = scale * 0.25
     },
 
     bat = {
         name = "Bate de baseball",
-        texture = love.graphics.newImage("assets/sprites/items/knife.png"),
+        texture = love.graphics.newImage("assets/sprites/items/baseballBat.png"),
         type = ITEM_TYPES.WEAPON,
         isStackable = false,
         count = 1,
@@ -47,12 +47,12 @@ local itemDefinitions = {
         onUse = function()
             --atack
         end,
-        scale = scale * 0.5
+        scale = scale * 0.25
     },
 
     wrench = {
         name = "Llave inglesa",
-        texture = love.graphics.newImage("assets/sprites/items/knife.png"),
+        texture = love.graphics.newImage("assets/sprites/items/wrench.png"),
         type = ITEM_TYPES.WEAPON,
         isStackable = false,
         count = 1,
@@ -61,7 +61,7 @@ local itemDefinitions = {
         onUse = function()
             --atack
         end,
-        scale = scale * 0.5
+        scale = scale * 0.25
     },
 
     stones = {
@@ -109,11 +109,5 @@ local itemDefinitions = {
 
 }
 
--- ITEM_TYPES = {
---     WEAPON = "weapon",
---     CONSUMIBLE = "consumible",
---     CARRYABLE_OBJECT = "carryableObject",
---     KEY_EVENT = "keyEvent"
--- }
 
 return itemDefinitions
