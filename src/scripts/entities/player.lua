@@ -12,6 +12,7 @@ local animations = {
     run = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.15, false),
     crouch = animation.new("assets/sprites/player/player_crouch.png", 22, 28, 0.1, true),
     attack = animation.new("assets/sprites/player/player_attack.png", 31, 31, 0.080, false),
+    punch = animation.new("assets/sprites/player/player_punch.png", 24, 28, 0.1, false),
     walkWileCarry = animation.new("assets/sprites/player/player_walking_while_carring.png", 20, 29, 0.25, false),
 }
 
@@ -19,7 +20,7 @@ local currentAnimation = animations.walk
 
 local wasAttackPressed = false
 local attackTimer = 0
-local attackDuration = 0.40
+local attackDuration = 0.4
 
 local player = {
     x = 0,
@@ -73,10 +74,10 @@ function player.update(dt)
     end
 
     local oldMoving = player.isMoving
-    if currentAnimation == animations.attack then
+    if currentAnimation == animations.punch then
         player.isMoving = true
     end
-    
+
     animation.update(currentAnimation, player.isMoving, dt)
     player.isMoving = oldMoving
     -- animation.update(currentAnimation, player.isMoving, dt)
@@ -88,7 +89,7 @@ function player.update(dt)
         -- else
         --     sounds.sound_effects.walk:pause()
         -- end
-   
+
         -- if isRunning then
         --     sounds.sound_effects.run:play()
         -- else
@@ -152,7 +153,12 @@ function player.updateAnimationState(dt)
 
     if isAttackPressed and not wasAttackPressed then
         attackTimer = attackDuration
-        setAnimation("attack")
+        -- if player tiene arma then
+        --     -- animation de attack
+            -- si no tiene nada:
+            -- animacion de pegar
+        -- end
+        setAnimation("punch")
         player.speed = 0 -- Te detienes al atacar
     end
 
@@ -191,6 +197,7 @@ function player.updateAnimationState(dt)
         end
         setAnimation("walk")
     end
+
 end
 
 -- function player.updateAnimationState(dt)

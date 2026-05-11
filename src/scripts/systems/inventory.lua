@@ -1,6 +1,8 @@
 local inventory = {}
+
 local inputs = require("src.scripts.utils.inputs")
 local player = require("src.scripts.entities.player")
+local item = require("src.scripts.entities.item")
 
 -- El margen inicial dentro del rectángulo grande
 local INITIAL_MARGIN = 5
@@ -11,7 +13,7 @@ local keyPressed = {false, false, false, false, false, false, false, false, fals
 local previousKey = 0
 
 function inventory.load()
-    
+
 end
 
 function inventory.update(dt)
@@ -19,7 +21,7 @@ function inventory.update(dt)
 end
 
 function inventory.draw()
-    
+
     love.graphics.setColor(1, 1, 1, 0.10)
     local startX = (love.graphics.getWidth() - 770) / 2
     love.graphics.rectangle("fill", startX, 620, 770, 90, 10, 10)
@@ -27,7 +29,7 @@ function inventory.draw()
     -- Slots
     for i = 0, 8 do
         local slotX = startX + INITIAL_MARGIN + (i * SLOT_SPACING)
-        
+
         love.graphics.setColor(1, 1, 1, 0.25)
         love.graphics.rectangle("fill", slotX, 625, 80, 80, 10, 10)
 
@@ -35,6 +37,7 @@ function inventory.draw()
 
         love.graphics.rectangle("line", slotX, 625, 80, 80, 10, 10)
     end
+
 end
 
 local function checkKeySelect(index)

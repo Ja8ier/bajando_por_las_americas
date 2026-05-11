@@ -3,6 +3,7 @@ local game = {
     isPaused = false,
     gameOver = false
 }
+
 local stages = {}
 
 local inputs = require("src.scripts.utils.inputs")

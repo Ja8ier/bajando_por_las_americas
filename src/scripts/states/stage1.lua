@@ -86,7 +86,7 @@ function stage1.load()
 
     table.insert(enemies, enemy2)
     table.insert(enemies, enemy1)
-    
+
     local boss1 = enemy.new(5, 1000, 400)
     table.insert(enemies, boss1)
 
@@ -163,7 +163,7 @@ function stage1.update(dt)
 
     for i = #enemies, 1, -1 do
         local e = enemies[i]
-        
+
         if e.isDead and e.animationDie then
             if e.tier == 5 then
                 NextBossWeaponIndex = NextBossWeaponIndex + 1
