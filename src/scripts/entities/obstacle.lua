@@ -18,8 +18,8 @@ function obstacle.new(_isVisible, _x, _y, _width, _height, collisionType, _textu
 
     if _scaleFactor ~= nil  then
         newObstacle.scale = scale * _scaleFactor
-        newObstacle.width = _width * _scaleFactor
-        newObstacle.height = _height * _scaleFactor
+        newObstacle.width = _width
+        newObstacle.height = _height
     end
 
     obstacleCollisionBox.create(newObstacle, collisionType)

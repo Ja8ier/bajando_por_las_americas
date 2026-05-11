@@ -146,7 +146,6 @@ function player.updateAnimationState(dt)
         return
     end
 
-    -- 1. Lógica de Ataque (Prioridad Máxima)
     local isAttackPressed = love.keyboard.isDown(inputs.game.attack)
 
     if isAttackPressed and not wasAttackPressed then
@@ -162,14 +161,11 @@ function player.updateAnimationState(dt)
         return -- Salimos: el ataque bloquea el movimiento y el sprint
     end
 
-    -- 2. Verificación de Estados (Protección)
     local status = player.entityStatus and player.entityStatus.statusType
     local isNormal = status ~= "slow" and status ~= "stun"
     local isShift = love.keyboard.isDown(inputs.game.sprint)
 
-    -- 3. Lógica de Movimiento y Animación
     if player.isMoving then
-        -- Solo permitimos cambiar la velocidad si el estado es NORMAL
         if isNormal then
             if isShift then
                 player.speed = 300
@@ -179,12 +175,9 @@ function player.updateAnimationState(dt)
                 setAnimation("walk")
             end
         else
-            -- Si NO es normal (slow/stun), mantenemos la animación de walk
-            -- pero NO tocamos player.speed (deja que el sistema de estados lo maneje)
             setAnimation("walk")
         end
     else
-        -- Si está quieto y no tiene efectos, reseteamos a velocidad base
         if isNormal then
             player.speed = 150
         end
@@ -273,14 +266,14 @@ function player.involuntaryMovement(dt, XorY, direction, factorSpeed, setback, o
             player.x = player.x + dt * player.speed * factorSpeed * setback
         end
 
-    player.updateCollisionBox()
+        player.updateCollisionBox()
 
-    --Resolver x
-    for _, obs in ipairs(obstacles) do
-        if cb.check(player, obs) then
-            cb.resolveX(player, obs)
+        --Resolver x
+        for _, obs in ipairs(obstacles) do
+            if cb.check(player, obs) then
+                cb.resolveX(player, obs)
+            end
         end
-    end
     
     elseif XorY == "y" then
 
@@ -290,17 +283,15 @@ function player.involuntaryMovement(dt, XorY, direction, factorSpeed, setback, o
             player.y = math.min(player.y + dt * player.speed * factorSpeed * setback, love.graphics.getHeight() - player.scale * player.height)
         end
 
-    end
+        player.updateCollisionBox()
 
-    player.updateCollisionBox()
-
-    --Resolver y
-    for _, obs in ipairs(obstacles) do
-        if cb.check(player, obs) then
-            cb.resolveY(player, obs)
+        --Resolver y
+        for _, obs in ipairs(obstacles) do
+            if cb.check(player, obs) then
+                cb.resolveY(player, obs)
+            end
         end
     end
-
 end
 
 local function takeHP(e, amountOfHP)
@@ -371,7 +362,6 @@ end
 function player.checkDeath(dt)
     if player.HP <= 0 then
         player.HP = 0
-        player.isDead = true
     end
 end
 

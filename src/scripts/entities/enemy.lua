@@ -18,7 +18,7 @@ local WeaponsByTier = {
 
 local entitiesStates = {
     {state = "knockback", duration = 0.5},
-    {state = "stun", duration= 2},
+    {state = "stun", duration= 3},
     {state = "slow", duration = 4},
     {state = "bleed", duration = 3}
 }
@@ -608,6 +608,7 @@ function Enemy:handleDeathTimer(dt)
 end
 
 function Enemy:dropItem(items)
+    if not self.hasWeapon or not self.weapon then return end
     local item = require("src.scripts.entities.item")
 
     local itemY = (self.collisionBox.y + self.collisionBox.height) / scale

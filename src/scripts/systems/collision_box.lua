@@ -12,7 +12,7 @@ collisionBox.TYPES = {
     -- CUSTOM = "custom" --solo para casos especiales donde se necesite una colision particular
 }
 
---local scale = love.graphics.getWidth() / 256
+local scale = love.graphics.getWidth() / 256
 
 function collisionBox.create(entity, type)
     
@@ -139,9 +139,9 @@ end
 
 function collisionBox.getBottom(obj)
     if obj.type and obj.type == "item" then
-        return obj.y / scale
+        return obj.collisionBox.y / obj.scale
     else
-        return obj.y
+        return obj.collisionBox.y --se modifico
     end
 end
 

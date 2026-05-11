@@ -12,7 +12,7 @@ function item.new(itemId, x, y)
         x = x * globalScale,
         y = y * globalScale,
         sprite = def.texture,
-        scale = def.scale or globalScale 
+        scale = def.scale or globalScale
     }
 
     if type(newItem.sprite) == "userdata" or (type(newItem.sprite) == "table" and newItem.sprite.getWidth) then

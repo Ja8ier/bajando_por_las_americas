@@ -63,9 +63,11 @@ function stage1.load()
     --Objetos con textura
     local phoneBooth = obstacle.new(true, 2340, 50, 24, 55, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), 0.8)
     local wheel = obstacle.new(true, 120, 100, 58, 42, "full", love.graphics.newImage("assets/sprites/items/wheel.png"), 0.5)
+    local cono = obstacle.new(true, 200, 100, 24, 30, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), 0.7)
 
     table.insert(collisions, phoneBooth)
     table.insert(collisions, wheel)
+    table.insert(collisions, cono)
 
     --Items
 
@@ -169,7 +171,7 @@ function stage1.update(dt)
                 NextBossWeaponIndex = NextBossWeaponIndex + 1
             end
 
-            if math.random() <= 0.33 then
+            if math.random() <= 1 then
                 e:dropItem(items)
             end
 
@@ -190,9 +192,7 @@ local function printByOrder()
     table.insert(drawList, player)
 
     for _, e in ipairs(enemies) do
-        if not e.isDead then
-            table.insert(drawList, e)
-        end
+        table.insert(drawList, e)
     end
 
     for _, _obstacle in ipairs(collisions) do
@@ -219,10 +219,9 @@ local function printByOrder()
             end
 
         else
-            obj:draw()
-            love.graphics.setColor(1, 1, 1, 0.25)
-            love.graphics.rectangle("fill", obj.collisionBox.x, obj.collisionBox.y, obj.collisionBox.width, obj.collisionBox.height)
-            love.graphics.setColor(1, 1, 1)
+            if obj:draw() then
+                obj:draw()
+            end
         end
 
     end
@@ -254,7 +253,7 @@ function stage1.draw()
         end
     end
 
-    cb.showBoxes(player, collisions, enemies, triggers, true)
+    cb.showBoxes(player, collisions, enemies, triggers, false)
     camera.ended()
 
     --frontground
@@ -326,17 +325,6 @@ function stage1.keypressed(key)
 
         inventory.keypressed(key)
     end
-
-    if key == inputs.game.attack then
-        player.attack(enemies)
-    end
-
-    if key == inputs.game.openInventory then
-        openInventory = not openInventory
-    end
-
-    inventory.keypressed(key)
-
 end
 
 return stage1

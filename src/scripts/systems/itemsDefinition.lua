@@ -10,7 +10,7 @@ local itemDefinitions = {
 
     bottle = {
         name = "Pico de botella",
-        texture = "",
+        texture = love.graphics.newImage("assets/sprites/items/knife.png"),
         type = ITEM_TYPES.WEAPON,
         isStackable = false,
         count = 1,
@@ -38,7 +38,7 @@ local itemDefinitions = {
 
     bat = {
         name = "Bate de baseball",
-        texture = "",
+        texture = love.graphics.newImage("assets/sprites/items/knife.png"),
         type = ITEM_TYPES.WEAPON,
         isStackable = false,
         count = 1,
@@ -52,7 +52,7 @@ local itemDefinitions = {
 
     wrench = {
         name = "Llave inglesa",
-        texture = "",
+        texture = love.graphics.newImage("assets/sprites/items/knife.png"),
         type = ITEM_TYPES.WEAPON,
         isStackable = false,
         count = 1,
@@ -66,7 +66,7 @@ local itemDefinitions = {
 
     stones = {
         name = "Piedras",
-        texture = "",
+        texture = love.graphics.newImage("assets/sprites/items/knife.png"),
         type = ITEM_TYPES.WEAPON,
         isStackable = true,
         count = 5,
@@ -80,7 +80,7 @@ local itemDefinitions = {
 
     heavyStone = {
         name = "Piedra",
-        texture = "",
+        texture = love.graphics.newImage("assets/sprites/items/knife.png"),
         type = ITEM_TYPES.CARRYABLE_OBJECT,
         isStackable = false,
         count = 1,
@@ -94,7 +94,7 @@ local itemDefinitions = {
 
     paperKey = {
         name = "Código",
-        texture = "",
+        texture = love.graphics.newImage("assets/sprites/items/knife.png"),
         type = ITEM_TYPES.KEY_EVENT,
         isStackable = false,
         count = 1,
