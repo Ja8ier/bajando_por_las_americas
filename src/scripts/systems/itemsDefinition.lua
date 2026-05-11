@@ -10,7 +10,7 @@ local itemDefinitions = {
 
     bottle = {
         name = "Pico de botella",
-        texture = love.graphics.newImage("assets/sprites/items/knife.png"),
+        texture = love.graphics.newImage("assets/sprites/items/bottle.png"),
         type = ITEM_TYPES.WEAPON,
         isStackable = false,
         count = 1,
@@ -19,7 +19,7 @@ local itemDefinitions = {
         onUse = function()
             --atack
         end,
-        scale = scale * 1
+        scale = scale * 0.5
     },
 
     knife = {
@@ -47,7 +47,7 @@ local itemDefinitions = {
         onUse = function()
             --atack
         end,
-        scale = scale * 1
+        scale = scale * 0.5
     },
 
     wrench = {
@@ -61,7 +61,7 @@ local itemDefinitions = {
         onUse = function()
             --atack
         end,
-        scale = scale * 1
+        scale = scale * 0.5
     },
 
     stones = {

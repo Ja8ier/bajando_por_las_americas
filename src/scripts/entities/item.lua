@@ -9,10 +9,11 @@ function item.new(itemId, x, y)
     
     local newItem = {
         id = itemId,
-        x = x * globalScale,
-        y = y * globalScale,
+        x = x, -- se quito el factor de escala
+        y = y,
         sprite = def.texture,
-        scale = def.scale or globalScale
+        scale = def.scale or globalScale,
+        type = "item" --se añadio
     }
 
     if type(newItem.sprite) == "userdata" or (type(newItem.sprite) == "table" and newItem.sprite.getWidth) then

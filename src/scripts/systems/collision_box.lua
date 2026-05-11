@@ -139,9 +139,9 @@ end
 
 function collisionBox.getBottom(obj)
     if obj.type and obj.type == "item" then
-        return obj.collisionBox.y / obj.scale
+        return obj.y
     else
-        return obj.collisionBox.y --se modifico
+        return obj.collisionBox.y -- se modifico
     end
 end
 

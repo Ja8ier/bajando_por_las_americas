@@ -2,11 +2,11 @@ local mathUtils = {}
 local scale = love.graphics.getWidth() / 256
 
 local tierLifeValues = {
-    [1] = 100,  -- Tier 1
-    [2] = 250,  -- Tier 2
-    [3] = 450,  -- Tier 3
+    [1] = 200,  -- Tier 1
+    [2] = 350,  -- Tier 2
+    [3] = 550,  -- Tier 3
     [4] = 750,  -- Tier 4
-    [5] = {2000, 3000, 4000, 5000}  -- Tier 5 (Bosse)
+    [5] = {1500, 3000, 4500, 6000}  -- Tier 5 (Bosse)
 }
 
 function mathUtils.calculateLife(tier)

@@ -143,6 +143,7 @@ function player.updateAnimationState(dt)
     if love.keyboard.isDown(inputs.game.crouch) then
         setAnimation("crouch")
         player.speed = 0
+        player.isCrouching = true
         return
     end
 
@@ -166,6 +167,8 @@ function player.updateAnimationState(dt)
     local isShift = love.keyboard.isDown(inputs.game.sprint)
 
     if player.isMoving then
+        player.isCrouching = false
+
         if isNormal then
             if isShift then
                 player.speed = 300
@@ -178,6 +181,7 @@ function player.updateAnimationState(dt)
             setAnimation("walk")
         end
     else
+        player.isCrouching = false
         if isNormal then
             player.speed = 150
         end
@@ -308,6 +312,7 @@ function player.attack(enemies)
     for i, e in ipairs(enemies) do
         if mathUtils.getDistanceToPlayer(player, e) <= 75 and e.entityStatus.statusType ~= "stun" then
             player.attacking = true
+            player.isCrouching = false
 
             if player.armament.isArmed then
                     
