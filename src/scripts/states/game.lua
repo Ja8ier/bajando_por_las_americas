@@ -62,9 +62,9 @@ function game.restoreStage()
     player.HP = player.maxHP/2
     player.entityStatus = {statusType = "none", statusTimer = 0}
 
-    -- esta logica deberia cambiar para aparecer en el ultimo checkpoint
-    player.y = love.graphics.getHeight() - player.frameheight * player.scale - 100
-    player.x = 100
+    if currentStage and currentStage.updateCheckPoint then
+        currentStage.updateCheckPoint()
+    end
 
     game.isPlaying = true
     game.gameOver = false

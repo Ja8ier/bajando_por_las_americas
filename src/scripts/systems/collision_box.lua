@@ -95,7 +95,7 @@ function collisionBox.updatePosition(entity)
     if entity.collisionBox.type == collisionBox.TYPES.FULL or entity.collisionBox.type  == collisionBox.TYPES.TOP then
         entity.collisionBox.y = entity.y
     elseif entity.collisionBox.type == collisionBox.TYPES.BOTTOM then
-        entity.collisionBox.y = entity.y + ((2 * entity.height * scale) / 3)
+        entity.collisionBox.y = entity.y + ((2 * entity.height * entity.scale) / 3)
     end
     
 end
@@ -139,9 +139,9 @@ end
 
 function collisionBox.getBottom(obj)
     if obj.type and obj.type == "item" then
-        return obj.y / scale
-    else
         return obj.y
+    else
+        return obj.collisionBox.y -- se modifico
     end
 end
 
@@ -153,14 +153,19 @@ function collisionBox.showBoxes(player, obstacles, enemies, triggers, show)
 
     if show then
         --caja del player
-        love.graphics.setColor(1, 1, 1, 0.25)
+        love.graphics.setColor(1, 1, 1, 0.15)
         love.graphics.rectangle("fill", player.collisionBox.x, player.collisionBox.y, player.collisionBox.width, player.collisionBox.height)
 
         --cajas de colision
-        love.graphics.setColor(1, 0.1, 0.1, 0.25)
         for _, obs in ipairs(obstacles) do
             love.graphics.rectangle("fill", obs.collisionBox.x, obs.collisionBox.y, obs.collisionBox.width, obs.collisionBox.height)
         end
+
+        -- caja de los enemigos
+        for i, e in ipairs(enemies) do
+            love.graphics.rectangle("fill", e.collisionBox.x, e.collisionBox.y, e.collisionBox.width, e.collisionBox.height)
+        end
+
         love.graphics.setColor(1, 1, 1)
 
         love.graphics.setColor(1, 0.8, 0.4, 0.25)

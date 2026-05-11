@@ -18,7 +18,7 @@ local WeaponsByTier = {
 
 local entitiesStates = {
     {state = "knockback", duration = 0.5},
-    {state = "stun", duration= 2},
+    {state = "stun", duration= 3},
     {state = "slow", duration = 4},
     {state = "bleed", duration = 3}
 }
@@ -105,43 +105,43 @@ local function chooseTypeMovement(animations, equipment, tier)
         if equipment.hasWeapon then
             if equipment.weapon == "bottle" then
                 animations.walk = animation.new("assets/sprites/enemies/oldman/oldman_walk_40x60-250.png", 40, 60, 0.25, false)
-                animations.attack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_weapon_60x59-100.png", 60, 59, 0.33, false)
-                animations.sweepKick = animation.new("assets/sprites/enemies/oldman/attacks/oldman_sweepKick_48x59-150.png", 48, 59, 0.33, false)
+                animations.attack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_weapon_60x59-100.png", 60, 59, 0.1, false)
+                animations.sweepKick = animation.new("assets/sprites/enemies/oldman/attacks/oldman_sweepKick_48x59-150.png", 48, 59, 0.15, false)
                 animations.heal = animation.new("assets/sprites/enemies/oldman/oldman_healthing_53x59-200.png", 53, 59, 0.2, false)
                 animations.die = animation.new("assets/sprites/enemies/oldman/oldman_dead_62x59-250.png", 62, 59, 0.25, false)
 
             elseif equipment.weapon == "knife" then
                 animations.walk = animation.new("assets/sprites/enemies/oldman/oldman_walk_40x60-250.png", 40, 60, 0.25, false)
-                animations.attack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_weapon_60x59-100.png", 60, 59, 0.3, false)
-                animations.sweepKick = animation.new("assets/sprites/enemies/oldman/attacks/oldman_sweepKick_48x59-150.png", 48, 59, 0.3, false)
+                animations.attack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_weapon_60x59-100.png", 60, 59, 0.1, false)
+                animations.sweepKick = animation.new("assets/sprites/enemies/oldman/attacks/oldman_sweepKick_48x59-150.png", 48, 59, 0.15, false)
                 animations.heal = animation.new("assets/sprites/enemies/oldman/oldman_healthing_53x59-200.png", 53, 59, 0.2, false)
                 animations.die = animation.new("assets/sprites/enemies/oldman/oldman_dead_62x59-250.png", 62, 59, 0.25, false)
 
             elseif equipment.weapon == "bat" then
                 animations.walk = animation.new("assets/sprites/enemies/oldman/oldman_walk_40x60-250.png", 40, 60, 0.25, false)
-                animations.attack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_weapon_60x59-100.png", 60, 59, 0.3, false)
-                animations.sweepKick = animation.new("assets/sprites/enemies/oldman/attacks/oldman_sweepKick_48x59-150.png", 48, 59, 0.33, false)
+                animations.attack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_weapon_60x59-100.png", 60, 59, 0.1, false)
+                animations.sweepKick = animation.new("assets/sprites/enemies/oldman/attacks/oldman_sweepKick_48x59-150.png", 48, 59, 0.15, false)
                 animations.heal = animation.new("assets/sprites/enemies/oldman/oldman_healthing_53x59-200.png", 53, 59, 0.2, false)
                 animations.die = animation.new("assets/sprites/enemies/oldman/oldman_dead_62x59-250.png", 62, 59, 0.25, false)
 
             elseif equipment.weapon == "wrench" then
                 animations.walk = animation.new("assets/sprites/enemies/oldman/oldman_walk_40x60-250.png", 40, 60, 0.25, false)
-                animations.attack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_weapon_60x59-100.png", 60, 59, 0.33, false)
-                animations.sweepKick = animation.new("assets/sprites/enemies/oldman/attacks/oldman_sweepKick_48x59-150.png", 48, 59, 0.33, false)
+                animations.attack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_weapon_60x59-100.png", 60, 59, 0.1, false)
+                animations.sweepKick = animation.new("assets/sprites/enemies/oldman/attacks/oldman_sweepKick_48x59-150.png", 48, 59, 0.15, false)
                 animations.heal = animation.new("assets/sprites/enemies/oldman/oldman_healthing_53x59-200.png", 53, 59, 0.2, false)
                 animations.die = animation.new("assets/sprites/enemies/oldman/oldman_dead_62x59-250.png", 62, 59, 0.25, false)
             end
 
-            animations.commonWeaponAttack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_weapon_60x59-100.png", 60, 59, 0.33, false)
+            animations.commonWeaponAttack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_weapon_60x59-100.png", 60, 59, 0.1, false)
         else
             animations.walk = animation.new("assets/sprites/enemies/oldman/oldman_walk_40x60-250.png", 40, 60, 0.25, false)
             animations.heal = animation.new("assets/sprites/enemies/oldman/oldman_healthing_53x59-200.png", 53, 59, 0.2, false)
             animations.die = animation.new("assets/sprites/enemies/oldman/oldman_dead_62x59-250.png", 62, 59, 0.25, false)
-            animations.jabAttack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_jab_64x59-150.png", 64, 59, 0.5, false)
-            animations.comboAttack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_combo_64x58-150.png", 64, 58, 0.4, false)
-            animations.sweepKick = animation.new("assets/sprites/enemies/oldman/attacks/oldman_sweepKick_48x59-150.png", 48, 59, 0.33, false)
-            animations.groundSlam = animation.new("assets/sprites/enemies/oldman/attacks/oldman_groundSlam_61x63-150.png", 61, 63, 0.4, false)
-            animations.heavySmash = animation.new("assets/sprites/enemies/oldman/attacks/oldman_heavySmash_49x64-150.png", 49, 64, 0.33, false)
+            animations.jabAttack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_jab_64x59-150.png", 64, 59, 0.15, false)
+            animations.comboAttack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_combo_64x58-150.png", 64, 58, 0.15, false)
+            animations.sweepKick = animation.new("assets/sprites/enemies/oldman/attacks/oldman_sweepKick_48x59-150.png", 48, 59, 0.15, false)
+            animations.groundSlam = animation.new("assets/sprites/enemies/oldman/attacks/oldman_groundSlam_61x63-150.png", 61, 63, 0.15, false)
+            animations.heavySmash = animation.new("assets/sprites/enemies/oldman/attacks/oldman_heavySmash_49x64-150.png", 49, 64, 0.15, false)
         end
     end
 
@@ -608,15 +608,17 @@ function Enemy:handleDeathTimer(dt)
 end
 
 function Enemy:dropItem(items)
+    if not self.hasWeapon or not self.weapon then return end
+
     local item = require("src.scripts.entities.item")
 
-    local itemY = (self.collisionBox.y + self.collisionBox.height) / scale
+    local itemY = (self.collisionBox.y + self.collisionBox.height)
 
     if itemY >= love.graphics.getHeight() / scale then
-        itemY = self.collisionBox.y / scale
+        itemY = self.collisionBox.y
     end
 
-    local itm = item.new(self.weapon, self.x/scale, itemY)
+    local itm = item.new(self.weapon, self.x + self.frameWidth/2, itemY)
 
     if itm then
         table.insert(items, itm)

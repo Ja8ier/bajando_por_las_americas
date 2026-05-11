@@ -29,7 +29,86 @@ local touchingTrigger
 local interactiveObject
 local openInventory = false
 local isMiniGamePlaying
-local spawnPoint = {x = 200, y = love.graphics.getHeight() - player.frameheight * player.scale - 300}
+local spawnPoint = {x = 300, y = love.graphics.getHeight() - player.frameheight * player.scale - 250}
+
+local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
+
+    local count
+    if MapEnd then
+        count = math.random(4, 8)
+    else
+        count = math.random(10, 15)
+    end
+
+    local currentTier = NextBossWeaponIndex or 1
+
+    local spawnX, spawnY
+    for i = 1, count do
+        spawnX = math.random(xStart, xEnd)
+        spawnY = math.random(yMin, yMax)
+        
+        local newEnemy = enemy.new(currentTier, spawnX, spawnY)
+        
+        table.insert(enemies, newEnemy)
+    end
+
+    if MapEnd then
+        spawnX = math.random(xStart, xEnd)
+        spawnY = math.random(yMin, yMax)
+        local boss = enemy.new(5, spawnX, spawnY)
+        table.insert(enemies, boss)
+    end
+
+    print("Invasión generada: " .. count .. " enemigos de Tier " .. currentTier)
+end
+
+local function spawnWorldObjects(xStart, xEnd, yMin, yMax, isFinal)
+    local enemyCount = isFinal and math.random(5, 8) or math.random(10, 15)
+    local obstacleCount = isFinal and math.random(5, 10) or math.random(15, 20)
+
+    local imgWheel = love.graphics.newImage("assets/sprites/items/wheel.png")
+    local imgCone = love.graphics.newImage("assets/sprites/items/cono.png")
+    local minDistance = 80
+
+    for i = 1, obstacleCount do
+        local placed = false
+        local attempts = 0
+        
+        while not placed and attempts < 10 do
+            local randX = math.random(xStart, xEnd)
+            local randY = math.random(yMin, yMax)
+            
+            local tooClose = false
+            for _, obs in ipairs(collisions) do
+                local dx = randX - (obs.x / scale)
+                local dy = randY - (obs.y / scale)
+                if math.sqrt(dx*dx + dy*dy) < minDistance then
+                    tooClose = true
+                    break
+                end
+            end
+
+            if not tooClose then
+                local newObs
+                if i % 2 == 0 then
+                    newObs = obstacle.new(true, randX, randY, 58, 42, "full", imgWheel, 0.5)
+                else
+                    newObs = obstacle.new(true, randX, randY, 24, 30, "bottom", imgCone, 0.7)
+                end
+                table.insert(collisions, newObs)
+                placed = true
+            end
+            attempts = attempts + 1
+        end
+    end
+    print("Zona generada: " .. enemyCount .. " enemigos y " .. obstacleCount .. " obstáculos.")
+end
+
+local function setCheckpoint()
+    spawnPoint.x = player.x
+    spawnPoint.y = player.y
+    print("Punto de control guardado en: " .. spawnPoint.x .. ", " .. spawnPoint.y)
+end
 
 function stage1.load()
 
@@ -63,17 +142,36 @@ function stage1.load()
     --Objetos con textura
     local phoneBooth = obstacle.new(true, 2340, 50, 24, 55, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), 0.8)
     local wheel = obstacle.new(true, 120, 100, 58, 42, "full", love.graphics.newImage("assets/sprites/items/wheel.png"), 0.5)
+    local cono = obstacle.new(true, 200, 100, 24, 30, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), 0.7)
 
     table.insert(collisions, phoneBooth)
     table.insert(collisions, wheel)
+    table.insert(collisions, cono)
 
     --Items
 
     --Triggers
     local phoneBoothTrigger = trigger.new(nil, nil, nil, nil, true, function() isMiniGamePlaying = true end, true, phoneBooth)
-    local spawnTrigger = trigger.new(90, 84, 6, 80, true, function () spawnPoint.x = player.x spawnPoint.y = player.y end, true, nil)
-    local middleTrigger = trigger.new(1180, 84, 6, 80, true, function () end, true, nil)
-    local endTrigger = trigger.new(2100, 84, 6, 80, true, function () end, true, nil)
+
+    local minY, maxY = 330, love.graphics.getHeight() - 170
+
+    local spawnTrigger = trigger.new(70, 84, 6, 80, true, function()
+        setCheckpoint()
+        spawnWorldObjects(300, 5500, minY, maxY, false)
+        spawnEnemyWave(300, 5500, minY, maxY, false)
+    end, true, nil)
+
+    local middleTrigger = trigger.new(1180, 84, 6, 80, true, function()
+        setCheckpoint()
+        spawnWorldObjects(6000, 10000, minY, maxY, false)
+        spawnEnemyWave(6000, 10000, minY, maxY, false)
+    end, true, nil)
+
+    local endTrigger = trigger.new(2100, 84, 6, 80, true, function()
+        setCheckpoint()
+        spawnWorldObjects(10500, 13000, minY, maxY, true)
+        spawnEnemyWave(10500, 13000, minY, maxY, true)
+    end, true, nil)
 
     table.insert(triggers, phoneBoothTrigger)
     table.insert(triggers, spawnTrigger)
@@ -81,20 +179,20 @@ function stage1.load()
     table.insert(triggers, endTrigger)
 
    -- enemies temporales
-    local enemy1 = enemy.new(4, 800, 400)
-    local enemy2 = enemy.new(4, 600, 400)
+--[[      local enemy1 = enemy.new(4, 800, 400)
+    local enemy2 = enemy.new(1, 700, love.graphics.getHeight() -170)
 
     table.insert(enemies, enemy2)
     table.insert(enemies, enemy1)
 
     local boss1 = enemy.new(5, 1000, 400)
-    table.insert(enemies, boss1)
+    table.insert(enemies, boss1) ]]
 
     player.load(spawnPoint)
 end
 
 function stage1.update(dt)
-
+    
     if isMiniGamePlaying then
         miniGame.update(dt, 1)
 
@@ -167,10 +265,14 @@ function stage1.update(dt)
         if e.isDead and e.animationDie then
             if e.tier == 5 then
                 NextBossWeaponIndex = NextBossWeaponIndex + 1
-            end
 
-            if math.random() <= 0.33 then
-                e:dropItem(items)
+                if math.random() <= 1 then
+                    e:dropItem(items)
+                end
+            else
+                if math.random() <= 0.5 then
+                    e:dropItem(items)
+                end
             end
 
             table.remove(enemies, i)
@@ -183,6 +285,11 @@ function stage1.update(dt)
     camera.update(player.x, worldWidth * scale)
 end
 
+function stage1.updateCheckPoint()
+    player.x = spawnPoint.x
+    player.y = spawnPoint.y
+end
+
 local function printByOrder()
 
     local drawList = {}
@@ -190,9 +297,7 @@ local function printByOrder()
     table.insert(drawList, player)
 
     for _, e in ipairs(enemies) do
-        if not e.isDead then
-            table.insert(drawList, e)
-        end
+        table.insert(drawList, e)
     end
 
     for _, _obstacle in ipairs(collisions) do
@@ -220,9 +325,6 @@ local function printByOrder()
 
         else
             obj:draw()
-            love.graphics.setColor(1, 1, 1, 0.25)
-            love.graphics.rectangle("fill", obj.collisionBox.x, obj.collisionBox.y, obj.collisionBox.width, obj.collisionBox.height)
-            love.graphics.setColor(1, 1, 1)
         end
 
     end
@@ -280,14 +382,19 @@ function stage1.draw()
 end
 
 function stage1.cleanStatus()
+    layers = {}
     enemies = {}
     collisions = {}
     items = {}
-    layers = {}
+    triggers = {}
 
+    touchingTrigger = false
+    interactiveObject = nil
+    isMiniGamePlaying = false
     touchingItem = false
     pickableItem = nil
     openInventory = false
+    spawnPoint = {x = 500, y = love.graphics.getHeight() - player.frameheight * player.scale - 300}
 end
 
 function stage1.keypressed(key)
@@ -326,7 +433,6 @@ function stage1.keypressed(key)
 
         inventory.keypressed(key)
     end
-
 end
 
 return stage1
