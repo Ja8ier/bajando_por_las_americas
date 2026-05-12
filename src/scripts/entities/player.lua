@@ -7,26 +7,8 @@ local animation = require("src.scripts.systems.animation")
 
 local scale = love.graphics.getWidth() / 256
 
-local animations = {
-    walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false),
-    run = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.15, false),
-    crouch = animation.new("assets/sprites/player/player_crouch.png", 22, 28, 0.1, true),
-    attack = animation.new("assets/sprites/player/player_attack.png", 31, 31, 0.1, false),
-    punch = animation.new("assets/sprites/player/player_punch.png", 24, 28, 0.1, false),
-    walkWileCarry = animation.new("assets/sprites/player/player_walking_while_carring.png", 20, 29, 0.25, false),
-}
-
-local currentAnimation = animations.walk
-
 local wasAttackPressed = false
 local attackTimer = 0
-
-local attackDuration = {
-    bottle = 0.2,
-    knife = 0.3,
-    bat = 0.4,
-    wrench = 0.5
-}
 
 local player = {
     x = 0,
@@ -45,7 +27,7 @@ local player = {
 
     isDead = false,
     isCrouching = false,
-    armament = {isArmed = false, weaponSelect = "wrench"},
+    armament = {isArmed = true, weaponSelect = "wrench"},
     HP = 1000,
     maxHP = 1000,
     numberAttempts = 3,
@@ -55,6 +37,24 @@ local player = {
     attackCooldownTimer = 0,
     entityStatus = {statusType = "none", statusTimer = 0}
 }
+
+local attackDuration = {
+    bottle = 0.2,
+    knife = 0.3,
+    bat = 0.4,
+    wrench = 0.5
+}
+
+local animations = {
+    walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false),
+    run = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.15, false),
+    crouch = animation.new("assets/sprites/player/player_crouch.png", 22, 28, 0.1, true),
+    attack = animation.new("assets/sprites/player/player_attack.png", 31, 31, attackDuration[player.armament.weaponSelect]/4, false),
+    punch = animation.new("assets/sprites/player/player_punch.png", 24, 28, 0.1, false),
+    walkWileCarry = animation.new("assets/sprites/player/player_walking_while_carring.png", 20, 29, 0.25, false),
+}
+
+local currentAnimation = animations.walk
 
 --#region Load, update y draw
 
