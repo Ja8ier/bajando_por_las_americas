@@ -12,6 +12,7 @@ local tableUtils = require("src.scripts.utils.tableUtils")
 local miniGame = require("src.scripts.states.minigame")
 local cb = require("src.scripts.systems.collision_box")
 local inventory = require("src.scripts.systems.inventory")
+local GameState = require("src.scripts.data.game_state")
 
 local worldWidth
 local layers = {}
@@ -111,6 +112,11 @@ local function setCheckpoint()
 end
 
 function stage1.load()
+    enemies = {}  --esto es para que el stage quede limpio, no su dupliquen cajas de colision, no queden triggers invisibles etc
+    collisions = {}
+    triggers = {}
+    items = {}
+
 
     isMiniGamePlaying = false
 
@@ -188,7 +194,20 @@ function stage1.load()
     local boss1 = enemy.new(5, 1000, 400)
     table.insert(enemies, boss1) ]]
 
-    player.load(spawnPoint)
+    if GameState.player.x ~= 0 and GameState.player.y ~= 0 then --si existe una posicion guardada usa esa
+        player.load({                                           -- si no, usa spawn normal
+            x = GameState.player.x,
+            y = GameState.player.y
+        })
+    else
+        player.load(spawnPoint)
+    end
+
+    player.HP = GameState.player.health
+    player.maxHP = GameState.player.maxHealth
+    player.numberAttempts = GameState.player.attempts
+
+    
 end
 
 function stage1.update(dt)

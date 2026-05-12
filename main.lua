@@ -5,6 +5,8 @@ if os.getenv("LOCAL_LUA_DEBUGGER_VSCODE") == "1" then
 end
 
 local menu = require("src.scripts.states.menu")
+local SaveManager = require("src.scripts.systems.save_manager")
+local GameState = require("src.scripts.data.game_state")
 
 Current_state = nil
 MAX_GAMES = 3
@@ -24,6 +26,23 @@ end
 function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
     math.randomseed(os.time()) -- para generar de forma aleatoria la probabilidad de que el enemigo tenga arma o no
+
+    local data = SaveManager.load()
+
+    if data then
+
+        GameState.currentStage = data.currentStage
+
+        GameState.player.name = data.player.name
+        GameState.player.health = data.player.health
+        GameState.player.maxHealth = data.player.maxHealth
+        GameState.player.attempts = data.player.attempts
+        GameState.player.x = data.player.x
+        GameState.player.y = data.player.y
+
+        table.insert(Games_created, data.player.name)
+
+    end
 
     Change_state(menu)
 end

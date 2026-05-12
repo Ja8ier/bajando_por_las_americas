@@ -10,12 +10,29 @@ local inputs = require("src.scripts.utils.inputs")
 local gui = require("src.scripts.gui.gui")
 local panel = require("src.scripts.gui.panel")
 local player = require("src.scripts.entities.player")
+local GameState = require("src.scripts.data.game_state")
+local SaveManager = require("src.scripts.systems.save_manager")
 
 local exitGame = panel.new((love.graphics.getWidth() - 350)/2, (love.graphics.getHeight() - 150)/2, 400, 200, "PAUSA", 30)
 
 local currentStageIndex = 1
 local currentStage = nil
 local oneTime = true
+
+local function saveCurrentGame() --funcion que convierte el gameplay actual en datos persistentes
+
+    GameState.currentStage = currentStageIndex
+
+    GameState.player.health = player.HP
+    GameState.player.maxHealth = player.maxHP
+    GameState.player.attempts = player.numberAttempts
+
+    GameState.player.x = player.x
+    GameState.player.y = player.y
+
+    SaveManager.save(GameState)
+
+end
 
 function game.load()
 
@@ -180,6 +197,7 @@ function game.keypressed(key)
         game.restoreStage()
         
         -- aqui va la logica para guardar datos (seguir este orden de lineas de codigo)
+        saveCurrentGame()
 
         game.restartStage()
         Change_state(require("src.scripts.states.menu"))
@@ -191,6 +209,7 @@ function game.keypressed(key)
     elseif game.gameOver and key == "escape" then
 
         -- aqui va la logica para guardar datos (seguir este orden de lineas de codigo)
+        saveCurrentGame()
 
         game.restartStage()
         Change_state(require("src.scripts.states.menu"))
@@ -208,6 +227,7 @@ function game.mousereleased(x, y)
             (y > exitGame.y + 15 + (exitGame.h - 50)/2 and y < exitGame.y + 65 + (exitGame.h - 50)/2) then
             
             -- aqui va la logica para guardar datos (seguir este orden de lineas de codigo)
+            saveCurrentGame()
             game.restartStage()
             Change_state(require("src.scripts.states.menu"))
         end
