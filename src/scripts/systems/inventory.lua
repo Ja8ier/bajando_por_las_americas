@@ -1,36 +1,34 @@
-local inventory = {
-    [1] = nil,
-    [2] = nil,
-    [3] = nil,
-    [4] = nil,
-    [5] = nil,
-    [6] = nil,
-    [7] = nil,
-    [8] = nil,
-    [9] = nil,
-}
-
 local inputs = require("src.scripts.utils.inputs")
-local player = require("src.scripts.entities.player")
 local item = require("src.scripts.entities.item")
-local tableUtils = require("src.scripts.utils.tableUtils")
+local scale = (love.graphics.getWidth() / 256) * 0.18
 
-local scale = (love.graphics.getWidth() / 256) * 0.25
+local MARGIN = 5 --el margen entre slots
+local SLOT_WIDTH = 65 --el ancho de cada slot
+local BORDER_RADIUS = 3
+local WIDTH = SLOT_WIDTH * 9 + MARGIN * 10
+local HEIGHT = SLOT_WIDTH + MARGIN * 2
+local POS_X = (love.graphics.getWidth() - WIDTH) / 2
+local POS_Y = (love.graphics.getHeight() - HEIGHT - MARGIN)
 
--- El margen inicial dentro del rectángulo grande
-local INITIAL_MARGIN = 5
--- El ancho de cada slot + el espacio entre ellos
-local SLOT_SPACING = 85
+local previousSlotIndex = 1
 
-local keyPressed = {true, false, false, false, false, false, false, false, false}
-local previousKey = 1
-
+local inventory = {
+    [1] = {item = nil, isSelected = true},
+    [2] = {item = nil, isSelected = false},
+    [3] = {item = nil, isSelected = false},
+    [4] = {item = nil, isSelected = false},
+    [5] = {item = nil, isSelected = false},
+    [6] = {item = nil, isSelected = false},
+    [7] = {item = nil, isSelected = false},
+    [8] = {item = nil, isSelected = false},
+    [9] = {item = nil, isSelected = false},
+}
 
 function inventory.insert(_item)
 
-    for i = 1,9 , 1 do
-        if inventory[i] == nil then
-            table.insert(inventory, i, _item)
+    for i = 1, 9 do
+        if inventory[i].item == nil then
+            inventory[i].item = _item
             return
         end
     end
@@ -39,9 +37,9 @@ end
 
 function inventory.remove(_item)
 
-    for _, slot in ipairs(inventory) do
-        if slot == _item then
-            slot = nil
+    for i = 1, 9 do
+        if inventory[i].item == _item then
+            inventory[i].item = nil
             return _item
         end
     end
@@ -58,53 +56,67 @@ end
 
 function inventory.draw()
 
-    love.graphics.setColor(1, 1, 1, 0.10)
-    local startX = (love.graphics.getWidth() - 770) / 2
-    love.graphics.rectangle("fill", startX, 620, 770, 90, 10, 10)
+    love.graphics.setColor(1, 1, 1, 0.09)
+    love.graphics.rectangle("fill", POS_X, POS_Y, WIDTH, HEIGHT, BORDER_RADIUS, BORDER_RADIUS)
 
     -- Slots
     for i = 0, 8 do
-        local slotX = startX + INITIAL_MARGIN + (i * SLOT_SPACING)
 
-        love.graphics.setColor(1, 1, 1, 0.15)
-        love.graphics.rectangle("fill", slotX, 625, 80, 80, 10, 10)
+        local slotX = POS_X + MARGIN + (i * (SLOT_WIDTH + MARGIN))
+
         love.graphics.setColor(1, 1, 1)
-        love.graphics.print(i + 1, slotX +  5, 625, 0)
-        love.graphics.setColor(1, 1, 1, 0.15)
+        love.graphics.print(i + 1, slotX + MARGIN, POS_Y + MARGIN, 0, 0.8, 0.8)
 
-        if inventory[i + 1] ~= nil then
-            love.graphics.setColor(1, 1, 1)
-            love.graphics.draw(inventory[i + 1].sprite, slotX + 5, 640, 0, scale, scale)
+        if inventory[i + 1].item ~= nil then
+            local itemPosY = POS_Y + MARGIN + ((SLOT_WIDTH - inventory[i + 1].item.sprite:getHeight() * scale) / 2)
+
+            love.graphics.draw(inventory[i + 1].item.sprite, slotX + MARGIN, itemPosY, 0, scale, scale)
             love.graphics.setColor(1, 1, 1, 0.15)
         end
 
-        if keyPressed[i + 1] then love.graphics.setColor(0, 1, 0) else love.graphics.setColor(0, 0, 0, 0.8) end
+        if inventory[i + 1].isSelected then
+            -- love.graphics.setColor(0.12, 0.24, 0.44)
+            love.graphics.setColor(0.0, 0.27, 0.67)
+        else
+            love.graphics.setColor(0, 0, 0, 0.7)
+        end
 
-        love.graphics.rectangle("line", slotX, 625, 80, 80, 10, 10)
+        love.graphics.rectangle("line", slotX, POS_Y + MARGIN, SLOT_WIDTH, SLOT_WIDTH, BORDER_RADIUS, BORDER_RADIUS)
 
     end
 
+end
+
+function inventory.hasSpace(table)
+
+    for _, i in ipairs(table) do
+        if i.item == nil then
+            return true
+        end
+    end
+
+    return false
 end
 
 local function checkKeySelect(index)
-    keyPressed[index] = true
-    if previousKey ~= 0 and index ~= previousKey then keyPressed[previousKey] = false end
-    previousKey = index
+
+    inventory[index].isSelected = true
+
+    if previousSlotIndex ~= 0 and index ~= previousSlotIndex then
+        inventory[previousSlotIndex].isSelected = false
+    end
+
+    previousSlotIndex = index
 end
 
 function inventory.keypressed(key)
-    if not player.isDead then
-        if key ==  inputs.game.slot1 then checkKeySelect(1)
-        elseif key ==  inputs.game.slot2 then checkKeySelect(2)
-        elseif key ==  inputs.game.slot3 then checkKeySelect(3)
-        elseif key ==  inputs.game.slot4 then checkKeySelect(4)
-        elseif key ==  inputs.game.slot5 then checkKeySelect(5)
-        elseif key ==  inputs.game.slot6 then checkKeySelect(6)
-        elseif key ==  inputs.game.slot7 then checkKeySelect(7)
-        elseif key ==  inputs.game.slot8 then checkKeySelect(8)
-        elseif key ==  inputs.game.slot9 then checkKeySelect(9)
+
+    for i = 1, 9 do
+        if key == inputs.game.slots[i] then
+            checkKeySelect(i)
         end
     end
+
 end
 
 return inventory

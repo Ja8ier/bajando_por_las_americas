@@ -2,8 +2,8 @@ local sounds = require("src.scripts.sounds.sounds")
 local inputs = require("src.scripts.utils.inputs")
 local playerCollisionBox = require("src.scripts.systems.collision_box")
 local mathUtils = require("src.scripts.utils.mathUtils")
-
 local animation = require("src.scripts.systems.animation")
+local inventory = require("src.scripts.systems.inventory")
 
 local scale = love.graphics.getWidth() / 256
 
@@ -30,6 +30,8 @@ local player = {
     width = 19,
     height = 28,
     type = "player",
+
+    inventory = inventory,
 
     --sprideSheet base (de pie)
     frameWidth = 19,
@@ -226,7 +228,7 @@ end
 
 function player.dropItem(items, itemIndex)
 
-    table.insert(items, inventory[itemIndex])
+    --table.insert(items, inventory[itemIndex])
 end
 
 function player.involuntaryMovement(dt, XorY, direction, factorSpeed, setback, obstacles)
@@ -286,7 +288,7 @@ function player.attack(enemies)
             player.isCrouching = false
 
             if player.armament.isArmed then
-                    
+
                 if player.armament.weaponSelect == "bottle" then
                     takeHP(e, 40)
                     --setAnimation("bottleAttack")

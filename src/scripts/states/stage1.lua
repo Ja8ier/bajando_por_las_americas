@@ -27,7 +27,6 @@ local touchingItem
 local pickableItem
 local touchingTrigger
 local interactiveObject
-local openInventory = false
 local isMiniGamePlaying
 local spawnPoint = {x = 300, y = love.graphics.getHeight() - player.frameheight * player.scale - 250}
 
@@ -142,11 +141,13 @@ function stage1.load()
     --Objetos con textura
     local phoneBooth = obstacle.new(true, 2340, 50, 24, 55, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), 0.8)
     local wheel = obstacle.new(true, 120, 100, 58, 42, "full", love.graphics.newImage("assets/sprites/items/wheel.png"), 0.5)
-    local cono = obstacle.new(true, 200, 100, 24, 30, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), 0.7)
-
+    local cono = obstacle.new(true, 200, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), 0.4)
+    local heavyStone = obstacle.new(true, 380, 108, 64, 53, "bottom", love.graphics.newImage("assets/sprites/items/heavyStone.png"), 0.5)
+    
     table.insert(collisions, phoneBooth)
     table.insert(collisions, wheel)
     table.insert(collisions, cono)
+    table.insert(collisions, heavyStone)
 
     --Items
 
@@ -331,6 +332,17 @@ local function printByOrder()
 
 end
 
+local function drawPlayerHealthPoints()
+    love.graphics.draw(love.graphics.newImage("assets/sprites/player_life.png"), 10, 10, 0, scale * 0.8, scale * 0.8)
+    love.graphics.setColor(0.13, 0.55, 0.13) --verde
+    love.graphics.rectangle("fill", 10, 10 + 32 * scale * 0.8, mathUtils.calculateHealthBarWidth(player.HP, player.maxHP, 32 * scale * 0.8), 15)
+    love.graphics.setColor(0.1, 0.1, 0.1) --gris oscuro (casi negro)
+    love.graphics.rectangle("line", 10, 10 + 32 * scale * 0.8, 32 * scale * 0.8, 15)
+    love.graphics.setColor(0.75, 0.75, 0.75)--gris claro (casi blanco)
+    love.graphics.print("Salud:".. player.HP, 10, 25 + 32 * scale * 0.8, 0, 1, 0.9)
+    love.graphics.setColor(1, 1, 1)
+end
+
 function stage1.draw()
 
     love.graphics.setColor(1, 1, 1)
@@ -364,16 +376,9 @@ function stage1.draw()
     love.graphics.draw(layers[#layers].img, frontgroundOffsetX, 0, 0, scale, love.graphics.getHeight() / 144)
 
     --Barra de vida del player
-    love.graphics.draw(love.graphics.newImage("assets/sprites/player_life.png"), 10, 10, 0, scale * 0.8, scale * 0.8)
-    love.graphics.setColor(0,1,0.1)
-    love.graphics.rectangle("fill", 10, 10 + 32 * scale * 0.8, mathUtils.calculateHealthBarWidth(player.HP, player.maxHP, 32 * scale * 0.8), 15)
-    love.graphics.setColor(1,1,1)
-    love.graphics.rectangle("line", 10, 10 + 32 * scale * 0.8, 32 * scale * 0.8, 15)
-    love.graphics.print("Vida:".. player.HP, 10, 25 + 32 * scale * 0.8, 0, 1.08, 0.85)
-    
-    if openInventory and not player.isDead then
-        inventory.draw()
-    end
+    drawPlayerHealthPoints()
+
+    player.inventory.draw()
 
     if isMiniGamePlaying then
         miniGame.draw(1)
@@ -393,51 +398,55 @@ function stage1.cleanStatus()
     isMiniGamePlaying = false
     touchingItem = false
     pickableItem = nil
-    openInventory = false
     spawnPoint = {x = 500, y = love.graphics.getHeight() - player.frameheight * player.scale - 300}
 end
 
 function stage1.keypressed(key)
 
-    if isMiniGamePlaying then
-        miniGame.keypressed(key)
-        return
-    end
-
-    if touchingItem then
-        if key == inputs.game.pickUpItem then
-            tableUtils.removeByValue(items, pickableItem)
-            inventory.insert(pickableItem)
-        end
-    end
-
-    -- if key == inputs.game.dropItem then
-    --     player.dropItem(items, inventory.itemPosSelected())
-    -- end
-
-    if touchingTrigger then
-        if key == inputs.game.interact then
-            interactiveObject.onTrigger()
-        end
-    end
-
     if not player.isDead then
+
+        if isMiniGamePlaying then
+            miniGame.keypressed(key)
+            return
+        end
+
         if touchingItem then
+
             if key == inputs.game.pickUpItem then
-                tableUtils.removeByValue(items, pickableItem)
+
+                if player.inventory.hasSpace(player.inventory) then
+                    tableUtils.removeByValue(items, pickableItem)
+                    player.inventory.insert(pickableItem)
+                end
+
             end
+
+        end
+
+        -- if key == inputs.game.dropItem then
+        --     player.dropItem(items, inventory.itemPosSelected())
+        -- end
+
+        if touchingTrigger then
+
+            if key == inputs.game.interact then
+
+                if interactiveObject ~= nil then
+                    interactiveObject.onTrigger()
+                end
+
+            end
+
         end
 
         if key == inputs.game.attack then
             player.attack(enemies)
         end
 
-        if key == inputs.game.openInventory then
-            openInventory = not openInventory
-        end
+        player.inventory.keypressed(key)
 
-        inventory.keypressed(key)
     end
+
 end
 
 return stage1

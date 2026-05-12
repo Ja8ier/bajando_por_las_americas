@@ -29,21 +29,23 @@ local inputs = {
         crouch = "c", --agacharse
         attack = "k",
         kick = "j",
-        -- slide = "l",
         interact = "tab",
         openInventory = "e",
         useItem = "i",
         dropItem = "r",
         pickUpItem = "f",
-        slot1 = "1",
-        slot2 = "2",
-        slot3 = "3",
-        slot4 = "4",
-        slot5 = "5",
-        slot6 = "6",
-        slot7 = "7",
-        slot8 = "8",
-        slot9 = "9"
+        slots = {
+            [1] = "1",
+            [2] = "2",
+            [3] = "3",
+            [4] = "4",
+            [5] = "5",
+            [6] = "6",
+            [7] = "7",
+            [8] = "8",
+            [9] = "9",
+        },
+
     },
 
     minigames = {
