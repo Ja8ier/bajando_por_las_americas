@@ -26,11 +26,11 @@ Pasos para ejecutar el juego según tu sistema operativo:
   <div style="flex: 1; padding-left: 20px;">
     <strong>LINUX:</strong><br><br>
       <p><strong>Instalación:</strong></p>
-      <ul>
+      <!-- <ul>
         <li>Utiliza el gestor de paquetes de tu distribución:</li>
         <li><code>sudo apt install love</code> (Debian/Ubuntu)</li>
         <li><code>sudo pacman -S love</code> (Arch)</li>
-      </ul>
+      </ul> -->
   </div>
 
 </div>
