@@ -40,7 +40,7 @@ local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
         count = math.random(10, 15)
     end
 
-    local currentTier = math.random(1, 4)--[[ NextBossWeaponIndex or 1 ]]
+    local currentTier = math.random(1, 4) --[[ NextBossWeaponIndex or 1 ]] --
 
     local spawnX, spawnY
     for i = 1, count do
@@ -62,51 +62,9 @@ local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
     print("Invasión generada: " .. count .. " enemigos de Tier " .. currentTier)
 end
 
-local function spawnWorldObjects(xStart, xEnd, yMin, yMax, isFinal)
-    local enemyCount = isFinal and math.random(5, 8) or math.random(10, 15)
-    local obstacleCount = isFinal and math.random(5, 10) or math.random(15, 20)
-
-    local imgWheel = love.graphics.newImage("assets/sprites/items/wheel.png")
-    local imgCone = love.graphics.newImage("assets/sprites/items/cono.png")
-    local minDistance = 80
-
-    for i = 1, obstacleCount do
-        local placed = false
-        local attempts = 0
-        
-        while not placed and attempts < 10 do
-            local randX = math.random(xStart, xEnd)
-            local randY = math.random(yMin, yMax)
-            
-            local tooClose = false
-            for _, obs in ipairs(collisions) do
-                local dx = randX - (obs.x / scale)
-                local dy = randY - (obs.y / scale)
-                if math.sqrt(dx*dx + dy*dy) < minDistance then
-                    tooClose = true
-                    break
-                end
-            end
-
-            if not tooClose then
-                local newObs
-                if i % 2 == 0 then
-                    newObs = obstacle.new(true, randX, randY, 58, 42, "full", imgWheel, 0.5)
-                else
-                    newObs = obstacle.new(true, randX, randY, 24, 30, "bottom", imgCone, 0.7)
-                end
-                table.insert(collisions, newObs)
-                placed = true
-            end
-            attempts = attempts + 1
-        end
-    end
-    print("Zona generada: " .. enemyCount .. " enemigos y " .. obstacleCount .. " obstáculos.")
-end
-
 local function setCheckpoint()
     spawnPoint.x = player.x
-    spawnPoint.y = player.y
+    spawnPoint.y = player.y -- no funciona 
     print("Punto de control guardado en: " .. spawnPoint.x .. ", " .. spawnPoint.y)
 end
 
@@ -157,20 +115,17 @@ function stage1.load()
 
     local spawnTrigger = trigger.new(70, 84, 6, 80, true, function()
         setCheckpoint()
-        spawnWorldObjects(300, 5500, minY, maxY, false)
         spawnEnemyWave(300, 5500, minY, maxY, false)
     end, true, nil)
 
     local middleTrigger = trigger.new(1180, 84, 6, 80, true, function()
         setCheckpoint()
-        spawnWorldObjects(6000, 10000, minY, maxY, false)
         spawnEnemyWave(6000, 10000, minY, maxY, false)
     end, true, nil)
 
     local endTrigger = trigger.new(2100, 84, 6, 80, true, function()
         setCheckpoint()
-        spawnWorldObjects(10500, 13000, minY, maxY, true)
-        spawnEnemyWave(10500, 13000, minY, maxY, true)
+        spawnEnemyWave(10500, 12000, minY, maxY, true)
     end, true, nil)
 
     table.insert(triggers, phoneBoothTrigger)
@@ -287,7 +242,7 @@ end
 
 function stage1.updateCheckPoint()
     player.x = spawnPoint.x
-    player.y = spawnPoint.y
+    player.y = spawnPoint.y -- no funciona
 end
 
 local function printByOrder()
@@ -412,7 +367,7 @@ function stage1.keypressed(key)
     end
 
     -- if key == inputs.game.dropItem then
-    --     player.dropItem(items, inventory.itemPosSelected())
+    --     player.dropItem(items, inventory.itemPosSelected(), inventory)
     -- end
 
     if touchingTrigger then

@@ -15,7 +15,7 @@ local player = require("src.scripts.entities.player")
 local item = require("src.scripts.entities.item")
 local tableUtils = require("src.scripts.utils.tableUtils")
 
-local scale = (love.graphics.getWidth() / 256) * 0.25
+local scale = (love.graphics.getWidth() / 256) * 0.23
 
 -- El margen inicial dentro del rectángulo grande
 local INITIAL_MARGIN = 5
@@ -68,15 +68,16 @@ function inventory.draw()
 
         love.graphics.setColor(1, 1, 1, 0.15)
         love.graphics.rectangle("fill", slotX, 625, 80, 80, 10, 10)
-        love.graphics.setColor(1, 1, 1)
-        love.graphics.print(i + 1, slotX +  5, 625, 0)
-        love.graphics.setColor(1, 1, 1, 0.15)
 
         if inventory[i + 1] ~= nil then
             love.graphics.setColor(1, 1, 1)
             love.graphics.draw(inventory[i + 1].sprite, slotX + 5, 640, 0, scale, scale)
             love.graphics.setColor(1, 1, 1, 0.15)
         end
+
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.print(i + 1, slotX +  5, 625, 0)
+        love.graphics.setColor(1, 1, 1, 0.15)
 
         if keyPressed[i + 1] then love.graphics.setColor(0, 1, 0) else love.graphics.setColor(0, 0, 0, 0.8) end
 
