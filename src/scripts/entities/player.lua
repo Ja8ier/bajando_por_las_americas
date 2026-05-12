@@ -159,6 +159,8 @@ function player.updateAnimationState(dt)
         player.speed = 0
         player.isCrouching = true
         return
+    else
+        player.isCrouching = false
     end
 
     local isAttackPressed = love.keyboard.isDown(inputs.game.attack)
@@ -294,42 +296,43 @@ end
 function player.attack(enemies)
 
     for i, e in ipairs(enemies) do
-        if mathUtils.getDistanceToPlayer(player, e) <= 75 and e.entityStatus.statusType ~= "stun" then
+        if mathUtils.getDistanceToPlayer(player, e) <= 75 and player.entityStatus.statusType ~= "stun" then
             player.attacking = true
-            player.isCrouching = false
 
-            if player.attackCooldownTimer <= 0 then
-                if player.armament.isArmed then
-                        
-                    if player.armament.weaponSelect == "bottle" then
-                        takeHP(e, 40)
-                        player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
-                        --setAnimation("bottleAttack")
-                        break
+            if not player.isCrouching then
+                if player.attackCooldownTimer <= 0 then
+                    if player.armament.isArmed then
+                            
+                        if player.armament.weaponSelect == "bottle" then
+                            takeHP(e, 40)
+                            player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
+                            --setAnimation("bottleAttack")
+                            break
 
-                    elseif player.armament.weaponSelect == "knife" then
-                        takeHP(e, 50)
-                        player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
-                        --setAnimation("knifeAttack")
-                        break
+                        elseif player.armament.weaponSelect == "knife" then
+                            takeHP(e, 50)
+                            player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
+                            --setAnimation("knifeAttack")
+                            break
 
-                    elseif player.armament.weaponSelect == "bat" then
-                        takeHP(e, 70)
-                        player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
-                        --setAnimation("batAttack")
-                        break
+                        elseif player.armament.weaponSelect == "bat" then
+                            takeHP(e, 70)
+                            player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
+                            --setAnimation("batAttack")
+                            break
 
-                    elseif player.armament.weaponSelect == "wrench" then
-                        takeHP(e, 85)
-                        player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
-                        --setAnimation("wrenchAttack")
+                        elseif player.armament.weaponSelect == "wrench" then
+                            takeHP(e, 85)
+                            player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
+                            --setAnimation("wrenchAttack")
+                            break
+                        end
+                    else
+                        takeHP(e, 30)
+                        player.attackCooldownTimer = attackDuration["bottle"]
+                        --player.updateAnimationState()
                         break
                     end
-                else
-                    takeHP(e, 30)
-                    player.attackCooldownTimer = attackDuration["bottle"]
-                    --player.updateAnimationState()
-                    break
                 end
             end
 

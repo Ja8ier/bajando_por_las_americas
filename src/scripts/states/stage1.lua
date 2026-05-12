@@ -40,10 +40,10 @@ local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
         count = math.random(10, 15)
     end
 
-    local currentTier = math.random(1, 4) --[[ NextBossWeaponIndex or 1 ]] --
-
     local spawnX, spawnY
     for i = 1, count do
+        local currentTier = math.random(1, 4) --[[ NextBossWeaponIndex or 1 ]] --
+
         spawnX = math.random(xStart, xEnd)
         spawnY = math.random(yMin, yMax)
         
@@ -59,7 +59,7 @@ local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
         table.insert(enemies, boss)
     end
 
-    print("Invasión generada: " .. count .. " enemigos de Tier " .. currentTier)
+    print("Invasión generada: " .. count .. " enemigos de Tier variado")
 end
 
 local function setCheckpoint()

@@ -147,15 +147,15 @@ function game.draw()
         love.graphics.setColor(0, 0, 0, 0.7)
         love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
         love.graphics.setColor(1, 1, 1)
-        love.graphics.print("Te quedan " .. player.numberAttempts .. " intentos", (love.graphics.getWidth() - 500)/2, love.graphics.getHeight()/2, 0, 2, 2)
-        love.graphics.print("Presiona R para Restaurar, ESC para Guardar y Salir", 10, 10)
+        love.graphics.print("Moriste. Te quedan " .. player.numberAttempts .. " intentos", (love.graphics.getWidth() - 600)/2, love.graphics.getHeight()/2, 0, 2, 2)
+        love.graphics.print("Presiona R para Restaurar, ESC para Salir (Sin Guardar)", 10, 10)
     end
 
     if game.gameOver then
         love.graphics.setColor(0, 0, 0, 0.7)
         love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
         love.graphics.setColor(1, 1, 1)
-        love.graphics.print("GAME OVER", (love.graphics.getWidth() - 300)/2, love.graphics.getHeight()/2, 0, 2, 2)
+        love.graphics.print("GAME OVER", (love.graphics.getWidth() - 200)/2, love.graphics.getHeight()/2, 0, 2, 2)
         love.graphics.print("Presiona R para reiniciar, ESC para salir", 10, 10)
     end
 end
@@ -177,7 +177,6 @@ function game.keypressed(key)
         game.restoreStage()
 
     elseif player.isDead and key == "escape" then
-        game.restoreStage()
         
         -- aqui va la logica para guardar datos (seguir este orden de lineas de codigo)
 

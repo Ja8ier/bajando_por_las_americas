@@ -17,9 +17,9 @@ local WeaponsByTier = {
 }
 
 local entitiesStates = {
-    {state = "knockback", duration = 0.5},
-    {state = "stun", duration= 3},
-    {state = "slow", duration = 4},
+    {state = "knockback", duration = 0.7},
+    {state = "stun", duration = 9},
+    {state = "slow", duration = 12},
     {state = "bleed", duration = 3}
 }
 
