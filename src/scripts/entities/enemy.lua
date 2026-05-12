@@ -17,9 +17,9 @@ local WeaponsByTier = {
 }
 
 local entitiesStates = {
-    {state = "knockback", duration = 0.5},
-    {state = "stun", duration= 3},
-    {state = "slow", duration = 4},
+    {state = "knockback", duration = 0.7},
+    {state = "stun", duration = 9},
+    {state = "slow", duration = 12},
     {state = "bleed", duration = 3}
 }
 
@@ -225,13 +225,11 @@ end
 
 function Enemy:draw()
     
-    love.graphics.setColor(0.13, 0.55, 0.13)
+    love.graphics.setColor(0,1,0)
     love.graphics.rectangle("fill", self.x, self.y - 50, mathUtils.calculateHealthBarWidth(self.HP, self.maxHP, 100), 15)
-    love.graphics.setColor(0.1, 0.1, 0.1)
+    love.graphics.setColor(1,1,1)
     love.graphics.rectangle("line", self.x, self.y - 50, 100, 15)
-    love.graphics.setColor(0.75, 0.75, 0.75)
-    love.graphics.print(self.HP, self.x, self.y - 73, 0, 0.8)
-    love.graphics.setColor(1, 1, 1)
+    love.graphics.print(self.HP, self.x, self.y - 73, 0, 0.7)
 
     local quad = animation.getQuad(self.currentAnimation)
 

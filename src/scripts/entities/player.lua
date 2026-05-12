@@ -4,6 +4,7 @@ local playerCollisionBox = require("src.scripts.systems.collision_box")
 local mathUtils = require("src.scripts.utils.mathUtils")
 local animation = require("src.scripts.systems.animation")
 local inventory = require("src.scripts.systems.inventory")
+local tableUtils = require("src.scripts.utils.tableUtils")
 
 local scale = love.graphics.getWidth() / 256
 
@@ -115,7 +116,7 @@ function player.draw()
     if not quad then
         return
     end
-    
+
     local sheet = animation.getSheet(currentAnimation)
 
     if player.facingLeft then
@@ -125,7 +126,7 @@ function player.draw()
         love.graphics.draw(sheet, quad, player.x, player.y, 0,
         player.scale, player.scale)
     end
-    
+
     love.graphics.setColor(1,1,1)
 
 end
@@ -343,5 +344,8 @@ function player.checkDeath(dt)
     end
 end
 
+function player.pickItem()
+    
+end
 
 return player

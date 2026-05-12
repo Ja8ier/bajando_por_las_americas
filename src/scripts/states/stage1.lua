@@ -11,7 +11,6 @@ local inputs = require("src.scripts.utils.inputs")
 local tableUtils = require("src.scripts.utils.tableUtils")
 local miniGame = require("src.scripts.states.minigame")
 local cb = require("src.scripts.systems.collision_box")
-local inventory = require("src.scripts.systems.inventory")
 
 local worldWidth
 local layers = {}
@@ -140,10 +139,10 @@ function stage1.load()
 
     --Objetos con textura
     local phoneBooth = obstacle.new(true, 2340, 50, 24, 55, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), 0.8)
-    local wheel = obstacle.new(true, 120, 100, 58, 42, "full", love.graphics.newImage("assets/sprites/items/wheel.png"), 0.5)
-    local cono = obstacle.new(true, 200, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), 0.4)
-    local heavyStone = obstacle.new(true, 380, 108, 64, 53, "bottom", love.graphics.newImage("assets/sprites/items/heavyStone.png"), 0.5)
-    
+    local wheel = obstacle.new(true, 200, 100, 58, 42, "bottom", love.graphics.newImage("assets/sprites/items/wheel.png"), 0.4)
+    local cono = obstacle.new(true, 120, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), 0.5)
+    local heavyStone = obstacle.new(true, 380, 108, 64, 53, "full", love.graphics.newImage("assets/sprites/items/heavyStone.png"), 0.5)
+
     table.insert(collisions, phoneBooth)
     table.insert(collisions, wheel)
     table.insert(collisions, cono)
@@ -193,7 +192,7 @@ function stage1.load()
 end
 
 function stage1.update(dt)
-    
+
     if isMiniGamePlaying then
         miniGame.update(dt, 1)
 
