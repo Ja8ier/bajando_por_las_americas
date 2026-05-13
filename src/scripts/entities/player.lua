@@ -227,11 +227,6 @@ function player.move(dt, XorY)
 
 end
 
-function player.dropItem(items, itemIndex)
-
-    --table.insert(items, inventory[itemIndex])
-end
-
 function player.involuntaryMovement(dt, XorY, direction, factorSpeed, setback, obstacles)
 
     local cb = require("src.scripts.systems.collision_box")
@@ -344,8 +339,39 @@ function player.checkDeath(dt)
     end
 end
 
-function player.pickItem()
-    
+function player.pickItem(_items, _pickableItem, _inventory)
+    if player.inventory.hasSpace(_inventory) then
+        tableUtils.removeByValue(_items, _pickableItem)
+        _inventory.insert(_pickableItem)
+    end
+end
+
+function player.dropItem(_items, _inventory)
+
+    for i = 1,9 do
+        if _inventory[i].isSelected and _inventory[i].item ~= nil then
+
+            local item = inventory[i].item
+            local itemX = player.x + player.collisionBox.width
+            local itemY = player.collisionBox.y + player.collisionBox.height - _inventory[i].item.sprite:getHeight()
+
+            if player.facingLeft then
+                itemX = player.x - player.collisionBox.width
+            end
+
+            if (not player.facingLeft and itemX >= love.graphics.getWidth()) or (player.facingLeft and itemX <= 0) then
+                itemX = player.x
+            end
+
+            item.x = itemX
+            item.y = itemY
+
+            table.insert(_items, item)
+            player.inventory.remove(item)
+            return
+        end
+    end
+
 end
 
 return player

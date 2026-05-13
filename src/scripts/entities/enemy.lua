@@ -224,19 +224,21 @@ function Enemy:update(dt, player, obs)
 end
 
 function Enemy:draw()
-    
-    love.graphics.setColor(0,1,0)
+
+    love.graphics.setColor(0.13, 0.55, 0.13) --verde
     love.graphics.rectangle("fill", self.x, self.y - 50, mathUtils.calculateHealthBarWidth(self.HP, self.maxHP, 100), 15)
-    love.graphics.setColor(1,1,1)
+    love.graphics.setColor(0.1, 0.1, 0.1) --gris oscuro (casi negro)
     love.graphics.rectangle("line", self.x, self.y - 50, 100, 15)
+    love.graphics.setColor(0.75, 0.75, 0.75)--gris claro (casi blanco)
     love.graphics.print(self.HP, self.x, self.y - 73, 0, 0.7)
+    love.graphics.setColor(1, 1, 1)
 
     local quad = animation.getQuad(self.currentAnimation)
 
     if not quad then
         return
     end
-    
+
     local sheet = animation.getSheet(self.currentAnimation)
 
     if self.facingLeft then

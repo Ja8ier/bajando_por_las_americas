@@ -412,19 +412,14 @@ function stage1.keypressed(key)
         if touchingItem then
 
             if key == inputs.game.pickUpItem then
-
-                if player.inventory.hasSpace(player.inventory) then
-                    tableUtils.removeByValue(items, pickableItem)
-                    player.inventory.insert(pickableItem)
-                end
-
+                player.pickItem(items, pickableItem, player.inventory)
             end
 
         end
 
-        -- if key == inputs.game.dropItem then
-        --     player.dropItem(items, inventory.itemPosSelected())
-        -- end
+        if key == inputs.game.dropItem then
+            player.dropItem(items, player.inventory)
+        end
 
         if touchingTrigger then
 
