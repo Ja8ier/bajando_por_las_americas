@@ -73,11 +73,13 @@ function inventory.wearWeapon(wear)
         if inventory[i].item ~= nil and inventory[i].item.itemType == ITEM_TYPES.WEAPON and
             inventory[i].item.hasWear and inventory[i].isSelected then
 
-                if inventory[i].item.levelOfWear ~= 0 then
+                if inventory[i].item.levelOfWear > 0 then
                     inventory[i].item.levelOfWear = inventory[i].item.levelOfWear - wear
                     return
-                else
+                elseif inventory[i].item.levelOfWear < 1 then
                     inventory.remove(inventory[i].item)
+                else
+                    error("error en desgaste de armas")
                 end
 
         end
@@ -134,28 +136,31 @@ function inventory.draw()
         if inventory[i + 1].item ~= nil then
 
             if inventory[i + 1].item.itemType == ITEM_TYPES.WEAPON and inventory[i + 1].item.hasWear then
-    
+
+                local maxWear = itemsDefinition[inventory[i + 1].item.id].levelOfWear
+                local percent = inventory[i + 1].item.levelOfWear / maxWear
                 wearBar.wear = inventory[i + 1].item.levelOfWear
-    
-                if inventory[i + 1].item.levelOfWear <= inventory[i + 1].item.levelOfWear * 0.75 then
-                    wearBar.width = wearBar.width * 0.75
-                    love.graphics.setColor(0.75, 0.7, 0.2)
-                elseif inventory[i + 1].item.levelOfWear <= inventory[i + 1].item.levelOfWear * 0.5 then
-                    wearBar.width = wearBar.width * 0.5
-                    love.graphics.setColor(0.8, 0.5, 0.15)
-                elseif inventory[i + 1].item.levelOfWear <= inventory[i + 1].item.levelOfWear * 0.25 then
-                    wearBar.width = wearBar.width * 0.25
-                    love.graphics.setColor(0.65, 0.25, 0.2)
-                else
-                    love.graphics.setColor(0.55, 0.75, 0.45)
+
+                if percent >= 0.85 then
+                    love.graphics.setColor(0.45, 0.85, 0.35) --verde
+                elseif percent >= 0.6 then
+                    love.graphics.setColor(0.9, 0.8, 0.2) --amarillo
+                elseif percent >= 0.35 then
+                    love.graphics.setColor(0.95, 0.55, 0.1) --naranja
+                elseif percent >= 0.1 then
+                    love.graphics.setColor(0.85, 0.25, 0.2) --rojo
+                elseif percent == 0 then
+                    love.graphics.setColor(0.85, 0.25, 0.2) --rojo
+                    percent = 1
+                    wearBar.width = MARGIN
                 end
-    
-                love.graphics.rectangle("fill", slotX + MARGIN, wearBar.y, wearBar.width, wearBar.height, BORDER_RADIUS, BORDER_RADIUS)
-                love.graphics.setColor(1, 1, 1)
+
+                love.graphics.rectangle("fill", slotX + MARGIN, wearBar.y, wearBar.width * percent, wearBar.height, BORDER_RADIUS)
+                wearBar.width = SLOT_WIDTH - 2 * MARGIN
             end
             
         end
-
+        love.graphics.setColor(1, 1, 1)
 
         --Pone de distinto color el slot seleccionado:
         if inventory[i + 1].isSelected then

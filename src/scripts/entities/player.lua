@@ -294,7 +294,7 @@ end
 local function takeHP(e, amountOfHP)
 
     if amountOfHP > 20 then
-        wearLosen = amountOfHP
+        wearLosen = amountOfHP / 2
     end
 
     e.HP = e.HP - amountOfHP
