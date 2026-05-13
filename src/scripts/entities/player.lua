@@ -24,6 +24,8 @@ local wasAttackPressed = false
 local attackTimer = 0
 local attackDuration = 0.4
 
+local wearLosen = 0
+
 local player = {
     x = 0,
     y = 0,
@@ -67,10 +69,10 @@ end
 
 function player.update(dt)
 
-    -- Recorre el inventario y evalua si en la casilla selected hay un arma y la coloca al player
+    --recorre el inventario y evalua si en la casilla selected hay un arma y la coloca al player
     for i = 1, 9 do
         if player.inventory[i].item ~= nil and player.inventory[i].isSelected then
-            if itemsDefinition[player.inventory[i].item.id].itemType == ITEM_TYPES.WEAPON then
+            if player.inventory[i].item.itemType == ITEM_TYPES.WEAPON and player.inventory[i].item.hasWear then
                 player.armament.isArmed = true
                 player.armament.weaponSelect = player.inventory[i].item.id
             end
@@ -283,8 +285,18 @@ function player.involuntaryMovement(dt, XorY, direction, factorSpeed, setback, o
     end
 end
 
+function player.getWearLosen()
+    return wearLosen
+end
+
 local function takeHP(e, amountOfHP)
+
+    local enemyInitialHP = e.HP
     e.HP = e.HP - amountOfHP
+
+    if e.HP < enemyInitialHP then
+        wearLosen = amountOfHP
+    end
 
     if e.HP <= 0 then
         e.isDead = true

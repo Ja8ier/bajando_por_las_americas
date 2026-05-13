@@ -435,6 +435,7 @@ function stage1.keypressed(key)
 
         if key == inputs.game.attack then
             player.attack(enemies)
+            player.inventory.wearWeapon(player.getWearLosen())
         end
 
         player.inventory.keypressed(key)
