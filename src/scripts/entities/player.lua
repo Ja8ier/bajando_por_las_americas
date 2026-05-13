@@ -286,17 +286,18 @@ function player.involuntaryMovement(dt, XorY, direction, factorSpeed, setback, o
 end
 
 function player.getWearLosen()
-    return wearLosen
+    local aux = wearLosen
+    wearLosen = 0
+    return aux
 end
 
 local function takeHP(e, amountOfHP)
 
-    local enemyInitialHP = e.HP
-    e.HP = e.HP - amountOfHP
-
-    if e.HP < enemyInitialHP then
+    if amountOfHP > 20 then
         wearLosen = amountOfHP
     end
+
+    e.HP = e.HP - amountOfHP
 
     if e.HP <= 0 then
         e.isDead = true
