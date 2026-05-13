@@ -205,10 +205,6 @@ function continue_game.textinput(t)
     gui.utils.textinput(t)
 end
 
--- function continue_game.keypressed(key)
---     gui.utils.keypressed(key)
--- end
-
 function continue_game.keypressed(key)
 
     if Current_state == require("src.scripts.states.continue_the_game") then
@@ -217,6 +213,9 @@ function continue_game.keypressed(key)
         end
     end
     
+    if key == "backspace" then
+        gui.utils.keypressed(key)
+    end
 end
 
 return continue_game

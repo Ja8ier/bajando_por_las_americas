@@ -35,9 +35,9 @@ local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
 
     local count
     if MapEnd then
-        count = math.random(4, 8)
+        count = math.random(4, 6)
     else
-        count = math.random(10, 15)
+        count = math.random(7, 10)
     end
 
     local spawnX, spawnY
@@ -140,7 +140,7 @@ function stage1.load()
     table.insert(enemies, enemy2)
     table.insert(enemies, enemy1)
 
-    local boss1 = enemy.new(5, 1000, 400)
+    local boss1 = enemy.new(5, 900, 400)
     table.insert(enemies, boss1) ]]
 
     player.load(spawnPoint)
@@ -211,7 +211,7 @@ function stage1.update(dt)
     end
 
     for i, e in ipairs(enemies) do
-        e:update(dt, player, collisions)
+        e:update(dt, player, collisions, enemies)
     end
 
     for i = #enemies, 1, -1 do

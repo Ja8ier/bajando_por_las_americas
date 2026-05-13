@@ -103,10 +103,6 @@ function new_game.textinput(t)
     gui.utils.textinput(t)
 end
 
--- function new_game.keypressed(key)
---     gui.utils.keypressed(key)
--- end
-
 function new_game.keypressed(key)
 
     if Current_state == require("src.scripts.states.create_new_game") then
@@ -115,6 +111,9 @@ function new_game.keypressed(key)
         end
     end
 
+    if key == "backspace" then
+        gui.utils.keypressed(key)
+    end
 end
 
 return new_game
