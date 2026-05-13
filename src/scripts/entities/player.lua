@@ -5,7 +5,7 @@ local mathUtils = require("src.scripts.utils.mathUtils")
 local animation = require("src.scripts.systems.animation")
 local inventory = require("src.scripts.systems.inventory")
 local tableUtils = require("src.scripts.utils.tableUtils")
-local itemDefinitions = require("src.scripts.systems.itemsDefinition")
+local itemsDefinition = require("src.scripts.systems.itemsDefinition")
 
 local scale = love.graphics.getWidth() / 256
 
@@ -67,9 +67,10 @@ end
 
 function player.update(dt)
 
+    -- Recorre el inventario y evalua si en la casilla selected hay un arma y la coloca al player
     for i = 1, 9 do
         if player.inventory[i].item ~= nil and player.inventory[i].isSelected then
-            if itemDefinitions[player.inventory[i].item.id].itemType == ITEM_TYPES.WEAPON then
+            if itemsDefinition[player.inventory[i].item.id].itemType == ITEM_TYPES.WEAPON then
                 player.armament.isArmed = true
                 player.armament.weaponSelect = player.inventory[i].item.id
             end
@@ -78,6 +79,8 @@ function player.update(dt)
             player.armament.isArmed = false
         end
     end
+
+    player.inventory.update(dt)
 
     if player.isHurt then
         player.hurtTimer = player.hurtTimer - dt

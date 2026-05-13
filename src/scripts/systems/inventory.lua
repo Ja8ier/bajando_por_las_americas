@@ -1,5 +1,7 @@
 local inputs = require("src.scripts.utils.inputs")
 local item = require("src.scripts.entities.item")
+local itemsDefinition = require("src.scripts.systems.itemsDefinition")
+
 local scale = (love.graphics.getWidth() / 256) * 0.18
 
 local MARGIN = 5 --el margen entre slots
@@ -12,12 +14,29 @@ local POS_Y = (love.graphics.getHeight() - HEIGHT - MARGIN)
 
 local previousSlotIndex = 1
 
+local wearBar = {
+    wear = 0,
+    x = 0,
+    y = 0,
+    isVisible = false
+}
+
+--Texto que muestra el nombre de los items
+local message = {
+    text = "",
+    x = POS_X + MARGIN,
+    y = POS_Y - 7 * MARGIN,
+    opacity = 1,
+    fadeSpeed = 2,
+    active = true
+}
+
 local inventory = {
-    [1] = {nil, isSelected = true},
-    [2] = {item = item.new("wrench", 0, 0), isSelected = false},
-    [3] = {item = item.new("knife", 0, 0), isSelected = false},
+    [1] = {item = nil, isSelected = true},
+    [2] = {item = nil, isSelected = false},
+    [3] = {item = nil, isSelected = false},
     [4] = {item = nil, isSelected = false},
-    [5] = {item = nil, isSelected = false},
+    [5] = {item = item.new("knife", 0, 0), isSelected = false},
     [6] = {item = nil, isSelected = false},
     [7] = {item = nil, isSelected = false},
     [8] = {item = nil, isSelected = false},
@@ -52,6 +71,14 @@ end
 
 function inventory.update(dt)
 
+    if message.active then
+        message.opacity = message.opacity - dt / message.fadeSpeed
+        if message.opacity <= 0 then
+            message.opacity = 0
+            message.active = false
+        end
+    end
+
 end
 
 function inventory.draw()
@@ -64,9 +91,11 @@ function inventory.draw()
 
         local slotX = POS_X + MARGIN + (i * (SLOT_WIDTH + MARGIN))
 
+        --Imprime el numero del slot:
         love.graphics.setColor(1, 1, 1)
         love.graphics.print(i + 1, slotX + MARGIN, POS_Y + MARGIN, 0, 0.8, 0.8)
 
+        --Imprime el item en el slot:
         if inventory[i + 1].item ~= nil then
             local itemPosY = POS_Y + MARGIN + ((SLOT_WIDTH - inventory[i + 1].item.sprite:getHeight() * scale) / 2)
 
@@ -74,14 +103,24 @@ function inventory.draw()
             love.graphics.setColor(1, 1, 1, 0.15)
         end
 
+        --Pone de distinto color el slot seleccionado:
         if inventory[i + 1].isSelected then
-            -- love.graphics.setColor(0.12, 0.24, 0.44)
-            love.graphics.setColor(0.0, 0.27, 0.67)
+            love.graphics.setColor(0, 0.27, 0.67)
         else
             love.graphics.setColor(0, 0, 0, 0.7)
         end
 
         love.graphics.rectangle("line", slotX, POS_Y + MARGIN, SLOT_WIDTH, SLOT_WIDTH, BORDER_RADIUS, BORDER_RADIUS)
+
+        --Muestra por unos segundos el nombre del item seleccionado
+        if inventory[i + 1].isSelected and inventory[i + 1].item ~= nil then
+            if message.active or message.opacity > 0 then
+                message.text = itemsDefinition[inventory[i + 1].item.id].name
+                love.graphics.setColor(1, 1, 1, message.opacity)
+                love.graphics.print(message.text, message.x, message.y, 0, 1.2, 1)
+                love.graphics.setColor(1, 1, 1, 1)
+            end
+        end
 
     end
 
@@ -107,6 +146,9 @@ local function checkKeySelect(index)
     end
 
     previousSlotIndex = index
+
+    message.active = true
+    message.opacity = 1
 end
 
 function inventory.keypressed(key)

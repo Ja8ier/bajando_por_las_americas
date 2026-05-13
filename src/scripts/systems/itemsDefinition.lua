@@ -15,7 +15,7 @@ local itemDefinitions = {
         itemType = ITEM_TYPES.WEAPON,
         isStackable = false,
         count = 1,
-        haswear = true,
+        hasWear = true,
         levelOfWear = 280,
         onUse = function()
             --atack
@@ -30,7 +30,7 @@ local itemDefinitions = {
         itemType = "weapon",
         isStackable = false,
         count = 1,
-        haswear = true,
+        hasWear = true,
         levelOfWear = 360,
         onUse = function()
             --atack
@@ -45,7 +45,7 @@ local itemDefinitions = {
         itemType = ITEM_TYPES.WEAPON,
         isStackable = false,
         count = 1,
-        haswear = true,
+        hasWear = true,
         levelOfWear = 400,
         onUse = function()
             --atack
@@ -60,7 +60,7 @@ local itemDefinitions = {
         itemType = ITEM_TYPES.WEAPON,
         isStackable = false,
         count = 1,
-        haswear = true,
+        hasWear = true,
         levelOfWear = 400,
         onUse = function()
             --atack
@@ -75,7 +75,7 @@ local itemDefinitions = {
         itemType = ITEM_TYPES.WEAPON,
         isStackable = true,
         count = 5,
-        haswear = false,
+        hasWear = false,
         levelOfWear = 0,
         onUse = function()
             --throw
@@ -90,7 +90,7 @@ local itemDefinitions = {
         itemType = ITEM_TYPES.CARRYABLE_OBJECT,
         isStackable = false,
         count = 1,
-        haswear = false,
+        hasWear = false,
         levelOfWear = 0,
         onUse = function()
             --pick up
@@ -105,7 +105,7 @@ local itemDefinitions = {
         itemType = ITEM_TYPES.KEY_EVENT,
         isStackable = false,
         count = 1,
-        haswear = false,
+        hasWear = false,
         levelOfWear = 0,
         onUse = function()
             --ver codigo
