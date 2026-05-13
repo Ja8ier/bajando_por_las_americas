@@ -9,13 +9,14 @@ local scale = love.graphics.getWidth() / 256
 local itemDefinitions = {
 
     bottle = {
+        id = "bottle",
         name = "Pico de botella",
         texture = love.graphics.newImage("assets/sprites/items/bottle.png"),
-        type = ITEM_TYPES.WEAPON,
+        itemType = ITEM_TYPES.WEAPON,
         isStackable = false,
         count = 1,
         haswear = true,
-        levelOfWear = 10,
+        levelOfWear = 280,
         onUse = function()
             --atack
         end,
@@ -23,13 +24,14 @@ local itemDefinitions = {
     },
 
     knife = {
+        id = "knife",
         name = "Cuchillo",
         texture = love.graphics.newImage("assets/sprites/items/knife.png"),
-        type = ITEM_TYPES.WEAPON,
+        itemType = "weapon",
         isStackable = false,
         count = 1,
         haswear = true,
-        levelOfWear = 10,
+        levelOfWear = 360,
         onUse = function()
             --atack
         end,
@@ -37,13 +39,14 @@ local itemDefinitions = {
     },
 
     bat = {
-        name = "Bate de baseball",
+        id = "bat",
+        name = "Bate de beisbol",
         texture = love.graphics.newImage("assets/sprites/items/baseballBat.png"),
-        type = ITEM_TYPES.WEAPON,
+        itemType = ITEM_TYPES.WEAPON,
         isStackable = false,
         count = 1,
         haswear = true,
-        levelOfWear = 10,
+        levelOfWear = 400,
         onUse = function()
             --atack
         end,
@@ -51,13 +54,14 @@ local itemDefinitions = {
     },
 
     wrench = {
+        id = "wrench",
         name = "Llave inglesa",
         texture = love.graphics.newImage("assets/sprites/items/wrench.png"),
-        type = ITEM_TYPES.WEAPON,
+        itemType = ITEM_TYPES.WEAPON,
         isStackable = false,
         count = 1,
         haswear = true,
-        levelOfWear = 10,
+        levelOfWear = 400,
         onUse = function()
             --atack
         end,
@@ -65,9 +69,10 @@ local itemDefinitions = {
     },
 
     stones = {
+        id = "stones",
         name = "Piedras",
         texture = love.graphics.newImage("assets/sprites/items/knife.png"),
-        type = ITEM_TYPES.WEAPON,
+        itemType = ITEM_TYPES.WEAPON,
         isStackable = true,
         count = 5,
         haswear = false,
@@ -79,9 +84,10 @@ local itemDefinitions = {
     },
 
     heavyStone = {
+        id = "heavyStone",
         name = "Piedra",
         texture = love.graphics.newImage("assets/sprites/items/knife.png"),
-        type = ITEM_TYPES.CARRYABLE_OBJECT,
+        itemType = ITEM_TYPES.CARRYABLE_OBJECT,
         isStackable = false,
         count = 1,
         haswear = false,
@@ -93,9 +99,10 @@ local itemDefinitions = {
     },
 
     paperKey = {
+        id = "paperKey",
         name = "Código",
         texture = love.graphics.newImage("assets/sprites/items/knife.png"),
-        type = ITEM_TYPES.KEY_EVENT,
+        itemType = ITEM_TYPES.KEY_EVENT,
         isStackable = false,
         count = 1,
         haswear = false,
@@ -105,7 +112,6 @@ local itemDefinitions = {
         end,
         scale = scale * 1
     },
-
 
 }
 

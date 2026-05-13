@@ -5,6 +5,7 @@ local mathUtils = require("src.scripts.utils.mathUtils")
 local animation = require("src.scripts.systems.animation")
 local inventory = require("src.scripts.systems.inventory")
 local tableUtils = require("src.scripts.utils.tableUtils")
+local itemDefinitions = require("src.scripts.systems.itemsDefinition")
 
 local scale = love.graphics.getWidth() / 256
 
@@ -42,7 +43,7 @@ local player = {
 
     isDead = false,
     isCrouching = false,
-    armament = {isArmed = true, weaponSelect = "bottle"},
+    armament = {isArmed = false, weaponSelect = "bottle"},
     HP = 1000,
     maxHP = 1000,
     numberAttempts = 3,
@@ -66,9 +67,21 @@ end
 
 function player.update(dt)
 
+    for i = 1, 9 do
+        if player.inventory[i].item ~= nil and player.inventory[i].isSelected then
+            if itemDefinitions[player.inventory[i].item.id].itemType == ITEM_TYPES.WEAPON then
+                player.armament.isArmed = true
+                player.armament.weaponSelect = player.inventory[i].item.id
+            end
+            break
+        else
+            player.armament.isArmed = false
+        end
+    end
+
     if player.isHurt then
         player.hurtTimer = player.hurtTimer - dt
-        
+
         if player.hurtTimer <= 0 then
             player.isHurt = false
             player.hurtTimer = 0

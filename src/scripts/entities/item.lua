@@ -6,7 +6,7 @@ local globalScale = love.graphics.getWidth() / 256
 function item.new(itemId, x, y)
     local def = itemsDefinition[itemId]
     if not def then error("Item desconocido: " .. itemId) end
-    
+
     local newItem = {
         id = itemId,
         x = x, -- se quito el factor de escala
