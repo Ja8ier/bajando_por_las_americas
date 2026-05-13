@@ -16,7 +16,7 @@ local itemDefinitions = {
         isStackable = false,
         count = 1,
         hasWear = true,
-        levelOfWear = 280,
+        levelOfWear = 320,
         onUse = function()
             --atack
         end,
@@ -31,7 +31,7 @@ local itemDefinitions = {
         isStackable = false,
         count = 1,
         hasWear = true,
-        levelOfWear = 360,
+        levelOfWear = 420,
         onUse = function()
             --atack
         end,
@@ -46,7 +46,7 @@ local itemDefinitions = {
         isStackable = false,
         count = 1,
         hasWear = true,
-        levelOfWear = 400,
+        levelOfWear = 480,
         onUse = function()
             --atack
         end,
@@ -61,7 +61,7 @@ local itemDefinitions = {
         isStackable = false,
         count = 1,
         hasWear = true,
-        levelOfWear = 400,
+        levelOfWear = 500,
         onUse = function()
             --atack
         end,

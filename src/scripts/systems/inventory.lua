@@ -69,12 +69,16 @@ end
 
 --funcion que desgasta el arma con cada golpe
 function inventory.wearWeapon(wear)
+
     for i = 1, 9 do
         if inventory[i].item ~= nil and inventory[i].item.itemType == ITEM_TYPES.WEAPON and
             inventory[i].item.hasWear and inventory[i].isSelected then
 
                 if inventory[i].item.levelOfWear > 0 then
                     inventory[i].item.levelOfWear = inventory[i].item.levelOfWear - wear
+                    if inventory[i].item.levelOfWear <= 0 then
+                        inventory.remove(inventory[i].item)
+                    end
                     return
                 elseif inventory[i].item.levelOfWear < 1 then
                     inventory.remove(inventory[i].item)
@@ -105,11 +109,21 @@ end
 
 function inventory.draw()
 
-    for i=1,9 do
+    for i = 1, 9 do
         if inventory[i].item ~= nil  and inventory[i].isSelected then
-            -- body
             print(inventory[i].item.name .. "=" .. inventory[i].item.levelOfWear)
             break
+        end
+    end
+
+    for i = 1, 9 do
+        if inventory[i].item ~= nil and inventory[i].isSelected and inventory[i].item.itemType == ITEM_TYPES.WEAPON then
+            if not message.active then
+                love.graphics.setColor(1, 1, 1)
+                love.graphics.print("Durabilidad: ".. inventory[i].item.levelOfWear .. "/" ..
+                itemsDefinition[inventory[i].item.id].levelOfWear, message.x, message.y, 0, 1.2, 1)
+                break
+            end
         end
     end
 
@@ -133,6 +147,7 @@ function inventory.draw()
             love.graphics.setColor(1, 1, 1, 0.15)
         end
 
+        --Barra de durabilidad de las armas
         if inventory[i + 1].item ~= nil then
 
             if inventory[i + 1].item.itemType == ITEM_TYPES.WEAPON and inventory[i + 1].item.hasWear then
@@ -143,11 +158,11 @@ function inventory.draw()
 
                 if percent >= 0.85 then
                     love.graphics.setColor(0.45, 0.85, 0.35) --verde
-                elseif percent >= 0.6 then
+                elseif percent < 0.85 and percent >= 0.6 then
                     love.graphics.setColor(0.9, 0.8, 0.2) --amarillo
-                elseif percent >= 0.35 then
+                elseif percent < 0.6 and percent >= 0.35 then
                     love.graphics.setColor(0.95, 0.55, 0.1) --naranja
-                elseif percent >= 0.1 then
+                elseif percent < 0.35 and percent > 0 then
                     love.graphics.setColor(0.85, 0.25, 0.2) --rojo
                 elseif percent == 0 then
                     love.graphics.setColor(0.85, 0.25, 0.2) --rojo
@@ -157,9 +172,10 @@ function inventory.draw()
 
                 love.graphics.rectangle("fill", slotX + MARGIN, wearBar.y, wearBar.width * percent, wearBar.height, BORDER_RADIUS)
                 wearBar.width = SLOT_WIDTH - 2 * MARGIN
+
             end
-            
         end
+
         love.graphics.setColor(1, 1, 1)
 
         --Pone de distinto color el slot seleccionado:
@@ -179,6 +195,7 @@ function inventory.draw()
                 love.graphics.print(message.text, message.x, message.y, 0, 1.2, 1)
                 love.graphics.setColor(1, 1, 1, 1)
             end
+
         end
 
     end
