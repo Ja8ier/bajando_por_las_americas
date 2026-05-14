@@ -30,6 +30,9 @@ local carryableObject
 local isMiniGamePlaying
 local spawnPoint = {x = 300, y = love.graphics.getHeight() - player.frameheight * player.scale - 250}
 
+local GRAVITY = 10
+local ORIGIN_VELOCITY = 5
+
 local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
 
     local count

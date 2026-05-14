@@ -465,4 +465,8 @@ function player.leaveObject()
     return objectToSave
 end
 
+function player.throw(dt)
+    
+end
+
 return player
