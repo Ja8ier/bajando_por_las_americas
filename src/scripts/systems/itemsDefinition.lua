@@ -2,7 +2,8 @@ ITEM_TYPES = {
     WEAPON = "weapon",
     CONSUMIBLE = "consumible",
     CARRYABLE_OBJECT = "carryableObject",
-    KEY_EVENT = "keyEvent"
+    KEY_EVENT = "keyEvent",
+    PROJECTILE = "projectile"
 }
 local scale = love.graphics.getWidth() / 256
 
@@ -72,7 +73,7 @@ local itemDefinitions = {
         id = "stones",
         name = "Piedras",
         texture = love.graphics.newImage("assets/sprites/items/knife.png"),
-        itemType = ITEM_TYPES.WEAPON,
+        itemType = ITEM_TYPES.PROJECTILE,
         isStackable = true,
         count = 5,
         hasWear = false,

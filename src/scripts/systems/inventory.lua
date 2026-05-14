@@ -67,6 +67,18 @@ function inventory.remove(_item)
 
 end
 
+function inventory.getItemSelectSlot()
+    for i = 1, 9 do
+        if inventory[i].isSelected then
+            if inventory[i].item ~= nil then
+                return inventory[i].item
+            else
+                return nil
+            end
+        end
+    end
+end
+
 --funcion que desgasta el arma con cada golpe
 function inventory.wearWeapon(wear)
 

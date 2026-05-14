@@ -434,12 +434,14 @@ function stage1.keypressed(key)
 
             if key == inputs.game.pickUpItem then
                 player.pickItem(items, pickableItem, player.inventory)
+                return
             end
 
         end
 
         if key == inputs.game.dropItem then
             player.dropItem(items, player.inventory)
+            return
         end
 
         if key == inputs.game.carryObject then
@@ -465,7 +467,6 @@ function stage1.keypressed(key)
             end
 
             if key == inputs.game.carryObject then
-                print("elweso")
                 if not player.isCarringObject then
                     if carryableObject ~= nil and carryableObject.item ~= nil and
                     carryableObject.item.isCarryable then
@@ -473,7 +474,7 @@ function stage1.keypressed(key)
                         carryableObject = nil
                     end
                 end
-               
+
             end
 
         end

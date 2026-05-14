@@ -6,6 +6,7 @@ local animation = require("src.scripts.systems.animation")
 local inventory = require("src.scripts.systems.inventory")
 local tableUtils = require("src.scripts.utils.tableUtils")
 local obstacle = require("src.scripts.entities.obstacle")
+local projectile = require("src.scripts.systems.projectile")
 local trigger = require("src.scripts.systems.trigger")
 local itemsDefinition = require("src.scripts.systems.itemsDefinition")
 
@@ -125,8 +126,24 @@ function player.update(dt)
 
     end
 
+    if projectile.isActive then
+        projectile.update(dt)
+    end
+
     player.checkDeath(dt)
 
+end
+
+local function drawCarryableObject()
+    if objectCarried.width > player.collisionBox.width then
+        objectCarried.x = player.x - ((objectCarried.width  - player.collisionBox.width))
+    elseif objectCarried.width < player.collisionBox.width then
+        objectCarried.x = player.x + (player.collisionBox.width) - objectCarried.width * objectCarried.scale
+    end
+
+    objectCarried.y = player.y - objectCarried.height * objectCarried.scale
+
+    love.graphics.draw(objectCarried.image, objectCarried.x, objectCarried.y + 20, 0, objectCarried.scale, objectCarried.scale)
 end
 
 function player.draw()
@@ -155,18 +172,25 @@ function player.draw()
 
     if player.isCarringObject then
 
-        if objectCarried.width > player.collisionBox.width then
-            objectCarried.x = player.x - ((objectCarried.width  - player.collisionBox.width))
-        elseif objectCarried.width < player.collisionBox.width then
-            objectCarried.x = player.x + (player.collisionBox.width) - objectCarried.width * objectCarried.scale
-        end
+        drawCarryableObject()
+        -- if objectCarried.width > player.collisionBox.width then
+        --     objectCarried.x = player.x - ((objectCarried.width  - player.collisionBox.width))
+        -- elseif objectCarried.width < player.collisionBox.width then
+        --     objectCarried.x = player.x + (player.collisionBox.width) - objectCarried.width * objectCarried.scale
+        -- end
 
-        objectCarried.y = player.y - objectCarried.height * objectCarried.scale
+        -- objectCarried.y = player.y - objectCarried.height * objectCarried.scale
 
-        love.graphics.draw(objectCarried.image, objectCarried.x, objectCarried.y + 20, 0, objectCarried.scale, objectCarried.scale)
+        -- love.graphics.draw(objectCarried.image, objectCarried.x, objectCarried.y + 20, 0, objectCarried.scale, objectCarried.scale)
+    end
+
+    if projectile.isActive then
+        projectile.draw()
     end
 
     love.graphics.setColor(1,1,1)
+
+
 
 end
 
@@ -334,6 +358,18 @@ end
 
 function player.attack(enemies)
 
+    if player.isCarringObject and objectCarried ~= nil then
+        player.throw(objectCarried)
+        return
+    end
+
+    if player.inventory.getItemSelectSlot() ~= nil then
+        if player.inventory.getItemSelectSlot().itemType == ITEM_TYPES.PROJECTILE then
+            player.throw(player.inventory.getItemSelectSlot())
+            return
+        end
+    end
+
     for i, e in ipairs(enemies) do
         if mathUtils.getDistanceToPlayer(player, e) <= 75 and e.entityStatus.statusType ~= "stun" then
             if not player.isCarringObject then
@@ -465,8 +501,15 @@ function player.leaveObject()
     return objectToSave
 end
 
-function player.throw(dt)
-    
+function player.throw(item)
+    if item.itemType == ITEM_TYPES.PROJECTILE then
+    else
+        player.isCarringObject = false
+        projectile.new(450, 30, player.x, player.y, player.y + player.height, false, objectToSave.texture, objectToSave.scale, 2560)
+        projectile.isActive = true
+        projectile.throw()
+        objectCarried = nil
+    end
 end
 
 return player

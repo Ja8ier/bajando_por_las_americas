@@ -126,7 +126,7 @@ local function chooseTypeMovement(animations, equipment, tier)
 
             elseif equipment.weapon == "wrench" then
                 animations.walk = animation.new("assets/sprites/enemies/oldman/oldman_walk_wrench_42x60-250.png", 42, 60, 0.25, false)
-                animations.attack = animation.new("assets/sprites/enemies/oldman/attacks/ooldman_wrenchAttack_64x61-100.png", 64, 61, 0.1, false)
+                animations.attack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_wrenchAttack_64x61-100.png", 64, 61, 0.1, false)
                 animations.sweepKick = animation.new("assets/sprites/enemies/oldman/attacks/oldman_sweepKick_48x59-150.png", 48, 59, 0.15, false)
                 animations.heal = animation.new("assets/sprites/enemies/oldman/oldman_healthing_53x59-200.png", 53, 59, 0.2, false)
                 animations.die = animation.new("assets/sprites/enemies/oldman/oldman_dead_62x59-250.png", 62, 59, 0.25, false)
