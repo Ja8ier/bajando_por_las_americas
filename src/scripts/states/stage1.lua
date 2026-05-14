@@ -109,6 +109,11 @@ local function setCheckpoint()
     print("Punto de control guardado en: " .. spawnPoint.x .. ", " .. spawnPoint.y)
 end
 
+local function carryObjectOnTrigger()
+    player.carryObject(collisions, carryableObject.item)
+    tableUtils.removeByValue(triggers, carryableObject)
+end
+
 function stage1.load()
 
     isMiniGamePlaying = false
@@ -153,10 +158,7 @@ function stage1.load()
 
     --Triggers
     local phoneBoothTrigger = trigger.new(nil, nil, nil, nil, true, function() isMiniGamePlaying = true end, true, phoneBooth)
-    local coneTrigger = trigger.new(nil, nil, nil, nil, true, function ()
-        player.carryObject(collisions, carryableObject.item)
-        tableUtils.removeByValue(triggers, carryableObject)
-        end, true, cone)
+    local coneTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, cone)
 
     local minY, maxY = 330, love.graphics.getHeight() - 170
 
@@ -437,6 +439,17 @@ function stage1.keypressed(key)
             player.dropItem(items, player.inventory)
         end
 
+        if key == inputs.game.carryObject then
+             if player.isCarringObject then
+                    local newObject = player.leaveObject()
+                    local newTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, newObject)
+                    table.insert(collisions, newObject)
+                    table.insert(triggers, newTrigger)
+                    player.isCarringObject = false
+                    return
+             end
+        end
+
         if touchingTrigger then
 
             if key == inputs.game.interact then
@@ -449,12 +462,15 @@ function stage1.keypressed(key)
             end
 
             if key == inputs.game.carryObject then
-
-                if carryableObject.item ~= nil and carryableObject.item.isCarryable then
-                    carryableObject.onTrigger()
-                    carryableObject = nil
+                print("elweso")
+                if not player.isCarringObject then
+                    if carryableObject ~= nil and carryableObject.item ~= nil and
+                    carryableObject.item.isCarryable then
+                        carryableObject.onTrigger()
+                        carryableObject = nil
+                    end
                 end
-
+               
             end
 
         end

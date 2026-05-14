@@ -5,6 +5,8 @@ local mathUtils = require("src.scripts.utils.mathUtils")
 local animation = require("src.scripts.systems.animation")
 local inventory = require("src.scripts.systems.inventory")
 local tableUtils = require("src.scripts.utils.tableUtils")
+local obstacle = require("src.scripts.entities.obstacle")
+local trigger = require("src.scripts.systems.trigger")
 local itemsDefinition = require("src.scripts.systems.itemsDefinition")
 
 local scale = love.graphics.getWidth() / 256
@@ -27,12 +29,8 @@ local attackDuration = 0.4
 
 local wearLosen = 0
 
-local objectCarried = {image = nil,
-                        scale = 1,
-                        width = 0,
-                        height = 0,
-                        x = 0,
-                        y = 0}
+local objectCarried = {image = nil, scale = 1, width = 0, height = 0, x = 0, y = 0, collisionType = ""}
+local objectToSave
 
 local player = {
     x = 0,
@@ -338,37 +336,38 @@ function player.attack(enemies)
 
     for i, e in ipairs(enemies) do
         if mathUtils.getDistanceToPlayer(player, e) <= 75 and e.entityStatus.statusType ~= "stun" then
-            player.attacking = true
-            player.isCrouching = false
+            if not player.isCarringObject then
+                player.attacking = true
+                player.isCrouching = false
 
-            if player.armament.isArmed then
+                if player.armament.isArmed then
 
-                if player.armament.weaponSelect == "bottle" then
-                    takeHP(e, 40)
-                    --setAnimation("bottleAttack")
-                    break
+                    if player.armament.weaponSelect == "bottle" then
+                        takeHP(e, 40)
+                        --setAnimation("bottleAttack")
+                        break
 
-                elseif player.armament.weaponSelect == "knife" then
-                    takeHP(e, 60)
-                    --setAnimation("knifeAttack")
-                    break
+                    elseif player.armament.weaponSelect == "knife" then
+                        takeHP(e, 60)
+                        --setAnimation("knifeAttack")
+                        break
 
-                elseif player.armament.weaponSelect == "bat" then
-                    takeHP(e, 80)
-                    --setAnimation("batAttack")
-                    break
+                    elseif player.armament.weaponSelect == "bat" then
+                        takeHP(e, 80)
+                        --setAnimation("batAttack")
+                        break
 
-                elseif player.armament.weaponSelect == "wrench" then
-                    takeHP(e, 100)
-                    --setAnimation("wrenchAttack")
+                    elseif player.armament.weaponSelect == "wrench" then
+                        takeHP(e, 100)
+                        --setAnimation("wrenchAttack")
+                        break
+                    end
+                else
+                    takeHP(e, 20)
+                    --player.updateAnimationState()
                     break
                 end
-            else
-                takeHP(e, 20)
-                --player.updateAnimationState()
-                break
-            end
-
+        end
         else
             player.attacking = false
         end
@@ -409,6 +408,8 @@ function player.dropItem(_items, _inventory)
     for i = 1,9 do
         if _inventory[i].isSelected and _inventory[i].item ~= nil then
 
+            --Mejorar las restricciones de los bordes del mundo
+
             local item = inventory[i].item
             local itemX = player.x + player.collisionBox.width
             local itemY = player.collisionBox.y + player.collisionBox.height - _inventory[i].item.sprite:getHeight()
@@ -440,9 +441,28 @@ function player.carryObject(objects, object)
         objectCarried.scale = object.scale
         objectCarried.width = object.width
         objectCarried.height = object.height
+        objectCarried.collisionType = object.collisionBox.type
+        objectToSave = obstacle.new(true, object.x / scale, object.y / scale,
+        object.width, object.height, object.collisionBox.type, object.texture, true, object.scale / scale)
     else
         return
     end
+end
+
+function player.leaveObject()
+    player.isCarringObject = false
+
+    if player.facingLeft then
+        objectToSave.x = player.x - player.collisionBox.width
+    else
+        objectToSave.x = player.x + player.collisionBox.width
+    end
+
+    --Agregar las restricciones de los bordes del mundo
+    objectToSave.y = player.y + player.height - objectToSave.collisionBox.height
+
+    require("src.scripts.systems.collision_box").updatePosition(objectToSave)
+    return objectToSave
 end
 
 return player
