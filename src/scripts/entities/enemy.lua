@@ -412,7 +412,7 @@ function Enemy:specialBatAttack(dt, player)
         if self.tier == 5 then
             player.HP = player.HP - baseDamage.specialBatAttack * multipliers[self.tier][NextBossWeaponIndex]
             print("special bat: ".. baseDamage.specialBatAttack * multipliers[self.tier][NextBossWeaponIndex])
-            entityStateSystem.applyStatusToTarget(player, entitiesStates[1].state, entitiesStates[1].duration / 1.5s)
+            entityStateSystem.applyStatusToTarget(player, entitiesStates[1].state, entitiesStates[1].duration / 1.5)
         else
             player.HP = player.HP - baseDamage.specialBatAttack * multipliers[self.tier]
             print("special bat: ".. baseDamage.specialBatAttack * multipliers[self.tier])

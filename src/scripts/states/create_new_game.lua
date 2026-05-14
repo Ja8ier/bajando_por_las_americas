@@ -114,6 +114,21 @@ function new_game.keypressed(key)
     if key == "backspace" then
         gui.utils.keypressed(key)
     end
+
+    if key == inputs.createNewGame.create and gui.utils.text_input ~= "" then
+        if #Games_created < MAX_GAMES then
+
+            table.insert(Games_created, gui.utils.text_input)
+            gui.utils.text_input = ""
+
+            textbox_active = false
+            
+            Change_state(require("src.scripts.states.game"))
+
+        else
+            textbox_active = false
+        end
+    end
 end
 
 return new_game

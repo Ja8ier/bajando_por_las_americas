@@ -8,7 +8,8 @@ local inputs = {
     },
 
     createNewGame = {
-        back = "escape"
+        back = "escape",
+        create = "return"
     },
 
     continueGame = {
