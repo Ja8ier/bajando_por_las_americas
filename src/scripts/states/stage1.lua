@@ -26,6 +26,7 @@ local touchingItem
 local pickableItem
 local touchingTrigger
 local interactiveObject
+local carryableObject
 local isMiniGamePlaying
 local spawnPoint = {x = 300, y = love.graphics.getHeight() - player.frameheight * player.scale - 250}
 
@@ -138,20 +139,24 @@ function stage1.load()
     table.insert(collisions, collisionWall1)
 
     --Objetos con textura
-    local phoneBooth = obstacle.new(true, 2340, 50, 24, 55, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), 0.8)
-    local wheel = obstacle.new(true, 200, 100, 58, 42, "bottom", love.graphics.newImage("assets/sprites/items/wheel.png"), 0.4)
-    local cono = obstacle.new(true, 120, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), 0.5)
-    local heavyStone = obstacle.new(true, 380, 108, 64, 53, "full", love.graphics.newImage("assets/sprites/items/heavyStone.png"), 0.5)
+    local phoneBooth = obstacle.new(true, 2340, 50, 24, 55, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), false, 0.8)
+    local wheel = obstacle.new(true, 200, 100, 58, 42, "bottom", love.graphics.newImage("assets/sprites/items/wheel.png"), false, 0.5)
+    local cone = obstacle.new(true, 120, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), true, 0.4)
+    local heavyStone = obstacle.new(true, 380, 108, 64, 53, "full", love.graphics.newImage("assets/sprites/items/heavyStone.png"), false, 0.5)
 
     table.insert(collisions, phoneBooth)
     table.insert(collisions, wheel)
-    table.insert(collisions, cono)
+    table.insert(collisions, cone)
     table.insert(collisions, heavyStone)
 
     --Items
 
     --Triggers
     local phoneBoothTrigger = trigger.new(nil, nil, nil, nil, true, function() isMiniGamePlaying = true end, true, phoneBooth)
+    local coneTrigger = trigger.new(nil, nil, nil, nil, true, function ()
+        player.carryObject(collisions, carryableObject.item)
+        tableUtils.removeByValue(triggers, carryableObject)
+        end, true, cone)
 
     local minY, maxY = 330, love.graphics.getHeight() - 170
 
@@ -174,6 +179,7 @@ function stage1.load()
     end, true, nil)
 
     table.insert(triggers, phoneBoothTrigger)
+    table.insert(triggers, coneTrigger)
     table.insert(triggers, spawnTrigger)
     table.insert(triggers, middleTrigger)
     table.insert(triggers, endTrigger)
@@ -240,11 +246,16 @@ function stage1.update(dt)
     --detección del contacto de un player con un trigger
     touchingTrigger = false
     for _, _trigger in ipairs(triggers) do
+
         if cb.checkInteractionCollision(player, _trigger) then
 
             touchingTrigger = true
             if _trigger.isActive then
                 if _trigger.item and _trigger.item ~= nil then
+                    if _trigger.item.isCarryable then
+                        carryableObject = _trigger
+                        break
+                    end
                     interactiveObject = _trigger
                 else
                     _trigger.onTrigger()
@@ -253,6 +264,7 @@ function stage1.update(dt)
             end
 
         end
+
     end
 
     for i, e in ipairs(enemies) do
@@ -362,12 +374,16 @@ function stage1.draw()
         if cb.checkInteractionCollision(player, _trigger) then
 
             if _trigger.item then
+                if _trigger.item.isCarryable then
+                    love.graphics.print("Presiona ".. string.upper(inputs.game.carryObject) .. " para recoger", _trigger.item.x - 80 , _trigger.item.y - 30, 0, 1, 1)
+                    break
+                end
                 love.graphics.print("Presiona ".. inputs.game.interact .. " para interactuar", _trigger.item.x - 100 , _trigger.item.y - 30, 0, 1, 1)
             end
         end
     end
 
-    cb.showBoxes(player, collisions, enemies, triggers, false)
+    cb.showBoxes(player, collisions, enemies, triggers, true)
     camera.ended()
 
     --frontground
@@ -425,8 +441,18 @@ function stage1.keypressed(key)
 
             if key == inputs.game.interact then
 
-                if interactiveObject ~= nil then
+                if interactiveObject ~= nil and not interactiveObject.isCarryable then
                     interactiveObject.onTrigger()
+                    interactiveObject = nil
+                end
+
+            end
+
+            if key == inputs.game.carryObject then
+
+                if carryableObject.item ~= nil and carryableObject.item.isCarryable then
+                    carryableObject.onTrigger()
+                    carryableObject = nil
                 end
 
             end

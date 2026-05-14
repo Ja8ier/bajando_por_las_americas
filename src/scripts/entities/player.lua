@@ -16,6 +16,7 @@ local animations = {
     attack = animation.new("assets/sprites/player/player_attack.png", 31, 31, 0.080, false),
     punch = animation.new("assets/sprites/player/player_punch.png", 24, 28, 0.1, false),
     walkWileCarry = animation.new("assets/sprites/player/player_walking_while_carring.png", 20, 29, 0.25, false),
+    carry = animation.new("assets/sprites/player/player_carry.png", 17, 28, 0.1, true)
 }
 
 local currentAnimation = animations.walk
@@ -25,6 +26,13 @@ local attackTimer = 0
 local attackDuration = 0.4
 
 local wearLosen = 0
+
+local objectCarried = {image = nil,
+                        scale = 1,
+                        width = 0,
+                        height = 0,
+                        x = 0,
+                        y = 0}
 
 local player = {
     x = 0,
@@ -52,7 +60,8 @@ local player = {
     isHurt = false,
     hurtTimer = 0,
     attacking = false,
-    entityStatus = {statusType = "none", statusTimer = 0}
+    entityStatus = {statusType = "none", statusTimer = 0},
+    isCarringObject = false
 }
 
 --#region Load, update y draw
@@ -125,7 +134,6 @@ end
 function player.draw()
 
     if player.isHurt then
-        --cambiar por animacion de damage
         love.graphics.setColor(1,0,0)
     end
 
@@ -143,6 +151,21 @@ function player.draw()
     else
         love.graphics.draw(sheet, quad, player.x, player.y, 0,
         player.scale, player.scale)
+    end
+
+    love.graphics.setColor(1,1,1)
+
+    if player.isCarringObject then
+
+        if objectCarried.width > player.collisionBox.width then
+            objectCarried.x = player.x - ((objectCarried.width  - player.collisionBox.width))
+        elseif objectCarried.width < player.collisionBox.width then
+            objectCarried.x = player.x + (player.collisionBox.width) - objectCarried.width * objectCarried.scale
+        end
+
+        objectCarried.y = player.y - objectCarried.height * objectCarried.scale
+
+        love.graphics.draw(objectCarried.image, objectCarried.x, objectCarried.y + 20, 0, objectCarried.scale, objectCarried.scale)
     end
 
     love.graphics.setColor(1,1,1)
@@ -166,6 +189,12 @@ function player.updateAnimationState(dt)
         setAnimation("crouch")
         player.speed = 0
         player.isCrouching = true
+        return
+    end
+
+    if player.isCarringObject then
+        setAnimation("walkWileCarry")
+        player.speed = 150
         return
     end
 
@@ -401,6 +430,19 @@ function player.dropItem(_items, _inventory)
         end
     end
 
+end
+
+function player.carryObject(objects, object)
+    if object ~= nil then
+        tableUtils.removeByValue(objects, object)
+        player.isCarringObject = true
+        objectCarried.image = object.texture
+        objectCarried.scale = object.scale
+        objectCarried.width = object.width
+        objectCarried.height = object.height
+    else
+        return
+    end
 end
 
 return player
