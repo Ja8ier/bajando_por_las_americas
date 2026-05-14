@@ -15,8 +15,13 @@ local GameState = {
     stats = {
         enemiesDefeated = 0,
         deaths = 0
-    }
+    },
 
+    world = {
+        usedTriggers = {},
+
+        savedEnemies = {}
+    }
 }
 
 return GameState

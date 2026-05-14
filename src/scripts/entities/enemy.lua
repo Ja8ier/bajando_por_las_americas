@@ -199,6 +199,10 @@ function Enemy.new(tier, _x, _y)
         instance.weapon = equipment.weapon
     end
 
+    instance.id = tostring(os.time()) .. tostring(math.random(1000,9999))
+
+    instance.enemyType = tier
+
     EnemyCollisionBox.create(instance, "bottom")
 
     setmetatable(instance, Enemy)

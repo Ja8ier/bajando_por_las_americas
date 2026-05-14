@@ -38,7 +38,7 @@ local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
     if MapEnd then
         count = math.random(4, 8)
     else
-        count = math.random(10, 15)
+        count = math.random(7, 10)
     end
 
     local currentTier = math.random(1, 4)--[[ NextBossWeaponIndex or 1 ]]
@@ -63,47 +63,6 @@ local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
     print("Invasión generada: " .. count .. " enemigos de Tier " .. currentTier)
 end
 
-local function spawnWorldObjects(xStart, xEnd, yMin, yMax, isFinal)
-    local enemyCount = isFinal and math.random(5, 8) or math.random(10, 15)
-    local obstacleCount = isFinal and math.random(5, 10) or math.random(15, 20)
-
-    local imgWheel = love.graphics.newImage("assets/sprites/items/wheel.png")
-    local imgCone = love.graphics.newImage("assets/sprites/items/cono.png")
-    local minDistance = 80
-
-    for i = 1, obstacleCount do
-        local placed = false
-        local attempts = 0
-        
-        while not placed and attempts < 10 do
-            local randX = math.random(xStart, xEnd)
-            local randY = math.random(yMin, yMax)
-            
-            local tooClose = false
-            for _, obs in ipairs(collisions) do
-                local dx = randX - (obs.x / scale)
-                local dy = randY - (obs.y / scale)
-                if math.sqrt(dx*dx + dy*dy) < minDistance then
-                    tooClose = true
-                    break
-                end
-            end
-
-            if not tooClose then
-                local newObs
-                if i % 2 == 0 then
-                    newObs = obstacle.new(true, randX, randY, 58, 42, "full", imgWheel, 0.5)
-                else
-                    newObs = obstacle.new(true, randX, randY, 24, 30, "bottom", imgCone, 0.7)
-                end
-                table.insert(collisions, newObs)
-                placed = true
-            end
-            attempts = attempts + 1
-        end
-    end
-    print("Zona generada: " .. enemyCount .. " enemigos y " .. obstacleCount .. " obstáculos.")
-end
 
 local function setCheckpoint()
     spawnPoint.x = player.x
@@ -113,6 +72,8 @@ end
 
 function stage1.load()
     enemies = {}  --esto es para que el stage quede limpio, no su dupliquen cajas de colision, no queden triggers invisibles etc
+    stage1.enemies = enemies
+    local hasSavedEnemies = #GameState.world.savedEnemies > 0
     collisions = {}
     triggers = {}
     items = {}
@@ -158,34 +119,72 @@ function stage1.load()
 
     --Triggers
     local phoneBoothTrigger = trigger.new(nil, nil, nil, nil, true, function() isMiniGamePlaying = true end, true, phoneBooth)
+    phoneBoothTrigger.id = "stage1_phoneBoothTrigger"
 
     local minY, maxY = 330, love.graphics.getHeight() - 170
 
     local spawnTrigger = trigger.new(70, 84, 6, 80, true, function()
         setCheckpoint()
-        spawnWorldObjects(300, 5500, minY, maxY, false)
+       
         spawnEnemyWave(300, 5500, minY, maxY, false)
     end, true, nil)
+    spawnTrigger.id = "stage1_spawnTrigger"
 
     local middleTrigger = trigger.new(1180, 84, 6, 80, true, function()
         setCheckpoint()
-        spawnWorldObjects(6000, 10000, minY, maxY, false)
+        
         spawnEnemyWave(6000, 10000, minY, maxY, false)
     end, true, nil)
+    middleTrigger.id = "stage1_middleTrigger"
 
     local endTrigger = trigger.new(2100, 84, 6, 80, true, function()
         setCheckpoint()
-        spawnWorldObjects(10500, 13000, minY, maxY, true)
+       
         spawnEnemyWave(10500, 13000, minY, maxY, true)
     end, true, nil)
+    endTrigger.id = "stage1_endTrigger"
 
     table.insert(triggers, phoneBoothTrigger)
     table.insert(triggers, spawnTrigger)
     table.insert(triggers, middleTrigger)
     table.insert(triggers, endTrigger)
+    
+    if hasSavedEnemies then --reconstruye enemigos desde el json
+
+        for _, savedEnemy in ipairs(GameState.world.savedEnemies) do
+
+            local restoredEnemy = enemy.new(
+                savedEnemy.type,
+                savedEnemy.x,
+                savedEnemy.y
+            )
+
+            restoredEnemy.HP = savedEnemy.hp
+            restoredEnemy.id = savedEnemy.id
+
+            table.insert(enemies, restoredEnemy)
+
+        end
+
+    end
+
+    for _, t in ipairs(triggers) do
+
+        if t.id and GameState.world.usedTriggers[t.id] then
+            t.isActive = false
+        end
+
+    end
+
+
+    for _, t in ipairs(triggers) do
+        if t.id and GameState.world.usedTriggers[t.id] then
+            t.isActive = false
+        end
+    end
 
    -- enemies temporales
---[[      local enemy1 = enemy.new(4, 800, 400)
+   --[[      local enemy1 = enemy.new(4, 800, 400)
     local enemy2 = enemy.new(1, 700, love.graphics.getHeight() -170)
 
     table.insert(enemies, enemy2)
@@ -268,6 +267,15 @@ function stage1.update(dt)
                 else
                     _trigger.onTrigger()
                     _trigger.isActive = false
+
+                    if _trigger.id then
+                        GameState.world.usedTriggers[_trigger.id] = true
+                    end
+
+                    if _trigger.id then
+                        GameState.world.usedTriggers[_trigger.id] = true
+                    end
+
                 end
             end
 
@@ -458,5 +466,8 @@ function stage1.keypressed(key)
         inventory.keypressed(key)
     end
 end
+
+stage1.enemies = enemies
+
 
 return stage1

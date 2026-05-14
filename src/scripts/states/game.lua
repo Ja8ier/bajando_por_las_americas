@@ -30,6 +30,29 @@ local function saveCurrentGame() --funcion que convierte el gameplay actual en d
     GameState.player.x = player.x
     GameState.player.y = player.y
 
+    GameState.world.savedEnemies = {}
+
+    for _, enemy in ipairs(currentStage.enemies) do --cuando se guarda recorre enemigos vivos, guarda solo datos esenciales e ignora enemigos muertos
+
+        if not enemy.isDead then
+
+            table.insert(GameState.world.savedEnemies, {
+
+                id = enemy.id,
+
+                type = enemy.enemyType,
+
+                x = enemy.x,
+                y = enemy.y,
+
+                hp = enemy.HP
+
+            })
+
+        end
+
+    end
+
     SaveManager.save(GameState)
 
 end
