@@ -55,8 +55,9 @@ function projectile.update(dt, facingLeft)
         projectile.vy = projectile.vy + GRAVITY * time
         if facingLeft then
             projectile.x = projectile.x - projectile.vx * time
+        else
+            projectile.x = projectile.x + projectile.vx * time
         end
-        projectile.x = projectile.x + projectile.vx * time
         projectile.y = projectile.y + projectile.vy * time
 
         -- condiciones de rebote y destrucción

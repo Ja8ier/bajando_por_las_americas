@@ -298,7 +298,7 @@ function stage1.update(dt)
 
     --actualizar animaciones y sonidos:
     player.updateAnimationState(dt)
-    player.update(dt)
+    player.update(dt, enemies)
     camera.update(player.x, worldWidth * scale)
 end
 

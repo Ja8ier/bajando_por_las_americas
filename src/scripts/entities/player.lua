@@ -30,6 +30,8 @@ local attackTimer = 0
 local attackDuration = 0.4
 
 local wearLosen = 0
+local finallY = nil
+local attackTrigger = nil
 
 local objectCarried = {image = nil, scale = 1, width = 0, height = 0, x = 0, y = 0, collisionType = ""}
 local objectToSave
@@ -76,7 +78,7 @@ function player.load(spawnPoint)
 
 end
 
-function player.update(dt)
+function player.update(dt, enemies)
 
     --recorre el inventario y evalua si en la casilla selected hay un arma y la coloca al player
     for i = 1, 9 do
@@ -131,10 +133,25 @@ function player.update(dt)
         projectile.update(dt, player.facingLeft)
     end
 
+    if projectile.getGroundY() == finallY and finallY ~= nil and objectToSave ~= nil then
+        if attackTrigger ~= nil then
+            attackTrigger.x = projectile.getGroundX()
+            equi = attackTrigger.x
+            ye = attackTrigger.y
+            acho = attackTrigger.width
+            altho = attackTrigger.height
+            -- body
+        end
+        player.hurtEnemiesByDistance(enemies, attackTrigger)
+    end
+
     player.checkDeath(dt)
 
 end
-
+equi = 0
+ye = 0
+acho = 0
+altho = 0
 local function drawCarryableObject()
     if objectCarried.width > player.collisionBox.width then
         objectCarried.x = player.x - ((objectCarried.width  - player.collisionBox.width))
@@ -171,6 +188,7 @@ function player.draw()
 
     love.graphics.setColor(1,1,1)
 
+    love.graphics.print(player.x .."--".. player.y, 100, 220)
     if player.isCarringObject then
 
         drawCarryableObject()
@@ -191,6 +209,15 @@ function player.draw()
 
     love.graphics.setColor(1,1,1)
 
+      if not projectile.isActive then
+        love.graphics.print(math.floor(equi) .. "---".. math.floor(ye) .."/"
+        .. math.floor(acho) .. "---".. math.floor(altho), 100, 200)
+    love.graphics.setColor(1,0.88,0.23, 0.7)
+
+        love.graphics.rectangle("fill", equi, ye, acho, altho)
+    love.graphics.setColor(1,1,1)
+
+    end
 
 
 end
@@ -504,6 +531,9 @@ function player.leaveObject()
 end
 
 function player.hurtEnemiesByDistance(enemies, tr)
+    if tr == nil then
+        return
+    end
     for _, e in ipairs(enemies) do
         if cb.checkInteractionCollision(e, tr) then
             takeHP(e, 150)
@@ -511,17 +541,16 @@ function player.hurtEnemiesByDistance(enemies, tr)
     end
 end
 
-function player.throw(item, enemies)
+function player.throw(item)
     if item.itemType == ITEM_TYPES.PROJECTILE then
     else
         player.isCarringObject = false
-        projectile.new(350, 45, objectCarried.x, objectCarried.y, player.y + player.height, true, objectToSave.texture, objectToSave.scale, 2560)
+        projectile.new(350, 45, objectCarried.x, objectCarried.y, player.y + player.height, true, objectToSave.texture, objectToSave.scale, 2560 * scale)
         projectile.isActive = true
         projectile.throw()
-        local newTrigger = trigger.new(projectile.getGroundX(), projectile.getGroundY(), objectToSave.width,
-            objectToSave.height, true, nil, true, nil)
-        player.hurtEnemiesByDistance(enemies, newTrigger)
-        objectToSave = nil
+        attackTrigger = trigger.new(projectile.getGroundX() / scale, projectile.getGroundY() / scale, objectToSave.width / scale,
+            objectToSave.height / scale, true, nil, true, nil)
+        finallY = projectile.getGroundY()
         objectCarried = nil
     end
 end
