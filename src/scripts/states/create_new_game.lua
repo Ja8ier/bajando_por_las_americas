@@ -96,7 +96,7 @@ function new_game.mousereleased(x, y, button)
         elseif y > gui.utils.Resize_scale(2, 300) and y < gui.utils.Resize_scale(2, 300) + gui.utils.button_height then
             textbox_active = true
 
-        else 
+        else
             textbox_active = false
         end  
     else
