@@ -86,7 +86,6 @@ function new_game.mousereleased(x, y, button)
                 gui.utils.text_input = ""
 
                 textbox_active = false
-                
                 Change_state(require("src.scripts.states.game"))
 
             else
