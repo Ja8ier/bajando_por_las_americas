@@ -165,10 +165,27 @@ function stage1.load()
 
     local minY, maxY = 330, love.graphics.getHeight() - 170
 
-    local spawnTrigger = trigger.new(70, 84, 6, 80, true, function()
+    local spawnTrigger = trigger.new(80, 84, 6, 80, true, function()
         setCheckpoint()
-        spawnWorldObjects(300, 5500, minY, maxY, false)
-        spawnEnemyWave(300, 5500, minY, maxY, false)
+        --spawnWorldObjects(300, 5500, minY, maxY, false)
+        --spawnEnemyWave(300, 5500, minY, maxY, false)
+        local sdsad = item.new("arepa", 0, 0)
+        sdsad.count = 3
+        player.inventory.insert(sdsad, 1)
+    end, true, nil)
+
+    local spawnTrigger2 = trigger.new(90, 84, 6, 80, true, function()
+        setCheckpoint()
+        local sdsad = item.new("arepa", 0, 0)
+        sdsad.count = 4
+        player.inventory.insert(sdsad, 1)
+    end, true, nil)
+
+    local spawnTrigger3 = trigger.new(100, 84, 6, 80, true, function()
+        setCheckpoint()
+        local sdsad = item.new("arepa", 0, 0)
+        sdsad.count = 4
+        player.inventory.insert(sdsad, 1)
     end, true, nil)
 
     local middleTrigger = trigger.new(1180, 84, 6, 80, true, function()
@@ -186,8 +203,12 @@ function stage1.load()
     table.insert(triggers, phoneBoothTrigger)
     table.insert(triggers, coneTrigger)
     table.insert(triggers, spawnTrigger)
+    table.insert(triggers, spawnTrigger2)
+    table.insert(triggers, spawnTrigger3)
     table.insert(triggers, middleTrigger)
     table.insert(triggers, endTrigger)
+
+    table.insert(items, item.new("bat", spawnPoint.x, spawnPoint.y))
 
    -- enemies temporales
 --[[      local enemy1 = enemy.new(4, 800, 400)
@@ -358,7 +379,7 @@ local function drawPlayerHealthPoints()
     love.graphics.setColor(0.05, 0.05, 0.05, 0.7) --gris oscuro
     love.graphics.rectangle("fill", 10, 25 + 32 * scale * 0.8, 32 * scale * 0.8, 30, 2, 2)
     love.graphics.setColor(0.75, 0.75, 0.75)--gris claro (casi blanco)
-    love.graphics.print("Salud:".. player.HP, 15, 25 + 32 * scale * 0.8, 0, 1, 0.9)
+    love.graphics.print("Salud:".. player.HP, 20, 25 + 32 * scale * 0.8, 0, 1, 0.9)
     love.graphics.setColor(1, 1, 1)
 end
 

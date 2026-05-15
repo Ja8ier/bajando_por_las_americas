@@ -99,6 +99,22 @@ local itemDefinitions = {
         scale = scale * 1
     },
 
+    arepa = {
+        id = "arepa",
+        name = "Arepa",
+        texture = love.graphics.newImage("assets/sprites/items/arepa.png"),
+        itemType = ITEM_TYPES.CONSUMIBLE,
+        isStackable = true,
+        count = 1,
+        maxCount = 5,
+        hasWear = false,
+        levelOfWear = 0,
+        onUse = function ()
+            return 50
+        end,
+        scale = scale * 0.25
+    },
+
     paperKey = {
         id = "paperKey",
         name = "Código",

@@ -34,25 +34,57 @@ local message = {
 }
 
 local inventory = {
-    [1] = {item = nil, isSelected = true},
+    [1] = {item = item.new("bat", 0, 0), isSelected = true},
     [2] = {item = item.new("bat", 0, 0), isSelected = false},
-    [3] = {item = nil, isSelected = false},
-    [4] = {item = nil, isSelected = false},
+    [3] = {item = item.new("bat", 0, 0), isSelected = false},
+    [4] = {item = item.new("bat", 0, 0), isSelected = false},
     [5] = {item = item.new("knife", 0, 0), isSelected = false},
     [6] = {item = item.new("wrench", 0, 0), isSelected = false},
-    [7] = {item = nil, isSelected = false},
+    [7] = {item = item.new("bat", 0, 0), isSelected = false},
     [8] = {item = nil, isSelected = false},
     [9] = {item = item.new("bottle", 0, 0), isSelected = false},
 }
 
-function inventory.insert(_item)
+function inventory.insert(_item, j)
 
-    for i = 1, 9 do
-        if inventory[i].item == nil then
-            inventory[i].item = _item
-            return
-        end
+    -- 3 + 4 = 7
+    -- 5 - 7 = 2
+
+    -- loquehayquemeterle = abso(loqueacepta - (loquetiene + loqlequierometer))
+    if not inventory.hasSpace(inventory) then
+        return
     end
+    local i = j
+
+    if inventory[i].item == nil then
+        inventory[i].item = _item
+        return
+    else
+        if inventory[i].item.isStackable and inventory[i].item.id == _item.id then
+    
+            if inventory[i].item.count == itemsDefinition[inventory[i].item.id].maxCount then
+                inventory.insert(_item, i + 1)
+                return
+            elseif _item.count == itemsDefinition[inventory[i].item.id].maxCount then
+                inventory[i].count, _item.count = _item.count, inventory[i].count
+                inventory.insert(_item, i + 1)
+                return
+            elseif _item.count < itemsDefinition[inventory[i].item.id].maxCount then
+    
+                local countToAdd = math.abs(itemsDefinition[inventory[i].item.id].maxCount - (inventory[i].item.count + _item.count))
+                inventory[i].item.count = inventory[i].item.count + _item.count - countToAdd
+                _item.count = countToAdd
+                inventory.insert(_item, i + 1)
+                return
+            end
+        end
+        inventory.insert(_item, i + 1)
+    end
+
+    -- 3 + 4 = 7
+    -- 5 - (3 + 4) = 2
+    -- for i = 1, 9 do
+    -- end
 
 end
 
@@ -141,8 +173,9 @@ function inventory.draw()
         local slotX = POS_X + MARGIN + (i * (SLOT_WIDTH + MARGIN))
 
         --Imprime el numero del slot:
-        love.graphics.setColor(1, 1, 1)
+        love.graphics.setColor(0.65, 0.65, 0.65)
         love.graphics.print(i + 1, slotX + MARGIN, POS_Y + MARGIN, 0, 0.8, 0.8)
+        love.graphics.setColor(1, 1, 1)
 
         --Imprime el item en el slot:
         if inventory[i + 1].item ~= nil then
@@ -150,6 +183,11 @@ function inventory.draw()
 
             love.graphics.draw(inventory[i + 1].item.sprite, slotX + MARGIN, itemPosY, 0, scale, scale)
             love.graphics.setColor(1, 1, 1, 0.15)
+            if inventory[i + 1].item.isStackable then
+                love.graphics.setColor(1, 1, 1)
+                love.graphics.print(tostring(inventory[i + 1].item.count), slotX + SLOT_WIDTH - MARGIN * 3, POS_Y - 4 * MARGIN + SLOT_WIDTH, 0, 0.8, 0.8)
+                love.graphics.setColor(1, 1, 1, 0.15)
+            end
         end
 
         --Barra de durabilidad de las armas

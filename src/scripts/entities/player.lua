@@ -435,7 +435,7 @@ end
 function player.pickItem(_items, _pickableItem, _inventory)
     if player.inventory.hasSpace(_inventory) then
         tableUtils.removeByValue(_items, _pickableItem)
-        _inventory.insert(_pickableItem)
+        _inventory.insert(_pickableItem, 1)
     end
 end
 
