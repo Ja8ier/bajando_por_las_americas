@@ -17,9 +17,9 @@ local WeaponsByTier = {
 }
 
 local entitiesStates = {
-    {state = "knockback", duration = 0.5},
-    {state = "stun", duration= 3},
-    {state = "slow", duration = 4},
+    {state = "knockback", duration = 0.7},
+    {state = "stun", duration = 9},
+    {state = "slow", duration = 12},
     {state = "bleed", duration = 3}
 }
 
@@ -104,35 +104,35 @@ local function chooseTypeMovement(animations, equipment, tier)
     else
         if equipment.hasWeapon then
             if equipment.weapon == "bottle" then
-                animations.walk = animation.new("assets/sprites/enemies/oldman/oldman_walk_40x60-250.png", 40, 60, 0.25, false)
-                animations.attack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_weapon_60x59-100.png", 60, 59, 0.1, false)
+                animations.walk = animation.new("assets/sprites/enemies/oldman/oldman_walk_bottle_42x60-250.png", 42, 60, 0.25, false)
+                animations.attack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_specialBottleAttack_62x61-100.png", 62, 61, 0.1, false)
                 animations.sweepKick = animation.new("assets/sprites/enemies/oldman/attacks/oldman_sweepKick_48x59-150.png", 48, 59, 0.15, false)
                 animations.heal = animation.new("assets/sprites/enemies/oldman/oldman_healthing_53x59-200.png", 53, 59, 0.2, false)
                 animations.die = animation.new("assets/sprites/enemies/oldman/oldman_dead_62x59-250.png", 62, 59, 0.25, false)
 
             elseif equipment.weapon == "knife" then
-                animations.walk = animation.new("assets/sprites/enemies/oldman/oldman_walk_40x60-250.png", 40, 60, 0.25, false)
-                animations.attack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_weapon_60x59-100.png", 60, 59, 0.1, false)
+                animations.walk = animation.new("assets/sprites/enemies/oldman/oldman_walk_knife_42x60-250.png", 42, 60, 0.25, false)
+                animations.attack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_knifeAttack_64x60-100.png", 64, 60, 0.1, false)
                 animations.sweepKick = animation.new("assets/sprites/enemies/oldman/attacks/oldman_sweepKick_48x59-150.png", 48, 59, 0.15, false)
                 animations.heal = animation.new("assets/sprites/enemies/oldman/oldman_healthing_53x59-200.png", 53, 59, 0.2, false)
                 animations.die = animation.new("assets/sprites/enemies/oldman/oldman_dead_62x59-250.png", 62, 59, 0.25, false)
 
             elseif equipment.weapon == "bat" then
-                animations.walk = animation.new("assets/sprites/enemies/oldman/oldman_walk_40x60-250.png", 40, 60, 0.25, false)
-                animations.attack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_weapon_60x59-100.png", 60, 59, 0.1, false)
+                animations.walk = animation.new("assets/sprites/enemies/oldman/oldman_walk_bat_48x60-250.png", 48, 60, 0.25, false)
+                animations.attack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_batAttack_80x62-100.png", 80, 62, 0.1, false)
                 animations.sweepKick = animation.new("assets/sprites/enemies/oldman/attacks/oldman_sweepKick_48x59-150.png", 48, 59, 0.15, false)
                 animations.heal = animation.new("assets/sprites/enemies/oldman/oldman_healthing_53x59-200.png", 53, 59, 0.2, false)
                 animations.die = animation.new("assets/sprites/enemies/oldman/oldman_dead_62x59-250.png", 62, 59, 0.25, false)
 
             elseif equipment.weapon == "wrench" then
-                animations.walk = animation.new("assets/sprites/enemies/oldman/oldman_walk_40x60-250.png", 40, 60, 0.25, false)
-                animations.attack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_weapon_60x59-100.png", 60, 59, 0.1, false)
+                animations.walk = animation.new("assets/sprites/enemies/oldman/oldman_walk_wrench_42x60-250.png", 42, 60, 0.25, false)
+                animations.attack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_wrenchAttack_64x61-100.png", 64, 61, 0.1, false)
                 animations.sweepKick = animation.new("assets/sprites/enemies/oldman/attacks/oldman_sweepKick_48x59-150.png", 48, 59, 0.15, false)
                 animations.heal = animation.new("assets/sprites/enemies/oldman/oldman_healthing_53x59-200.png", 53, 59, 0.2, false)
                 animations.die = animation.new("assets/sprites/enemies/oldman/oldman_dead_62x59-250.png", 62, 59, 0.25, false)
             end
 
-            animations.commonWeaponAttack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_weapon_60x59-100.png", 60, 59, 0.1, false)
+        --    animations.commonWeaponAttack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_weapon_60x59-100.png", 60, 59, 0.1, false)
         else
             animations.walk = animation.new("assets/sprites/enemies/oldman/oldman_walk_40x60-250.png", 40, 60, 0.25, false)
             animations.heal = animation.new("assets/sprites/enemies/oldman/oldman_healthing_53x59-200.png", 53, 59, 0.2, false)
@@ -224,13 +224,13 @@ function Enemy:update(dt, player, obs)
 end
 
 function Enemy:draw()
-    
-    love.graphics.setColor(0.13, 0.55, 0.13)
+
+    love.graphics.setColor(0.13, 0.55, 0.13) --verde
     love.graphics.rectangle("fill", self.x, self.y - 50, mathUtils.calculateHealthBarWidth(self.HP, self.maxHP, 100), 15)
-    love.graphics.setColor(0.1, 0.1, 0.1)
+    love.graphics.setColor(0.1, 0.1, 0.1) --gris oscuro (casi negro)
     love.graphics.rectangle("line", self.x, self.y - 50, 100, 15)
-    love.graphics.setColor(0.75, 0.75, 0.75)
-    love.graphics.print(self.HP, self.x, self.y - 73, 0, 0.8)
+    love.graphics.setColor(0.75, 0.75, 0.75)--gris claro (casi blanco)
+    love.graphics.print(self.HP, self.x, self.y - 73, 0, 0.7)
     love.graphics.setColor(1, 1, 1)
 
     local quad = animation.getQuad(self.currentAnimation)
@@ -238,7 +238,7 @@ function Enemy:draw()
     if not quad then
         return
     end
-    
+
     local sheet = animation.getSheet(self.currentAnimation)
 
     if self.facingLeft then

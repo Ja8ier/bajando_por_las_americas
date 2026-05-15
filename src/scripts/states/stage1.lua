@@ -11,7 +11,6 @@ local inputs = require("src.scripts.utils.inputs")
 local tableUtils = require("src.scripts.utils.tableUtils")
 local miniGame = require("src.scripts.states.minigame")
 local cb = require("src.scripts.systems.collision_box")
-local inventory = require("src.scripts.systems.inventory")
 
 local worldWidth
 local layers = {}
@@ -27,6 +26,7 @@ local touchingItem
 local pickableItem
 local touchingTrigger
 local interactiveObject
+local carryableObject
 local isMiniGamePlaying
 local spawnPoint = {x = 300, y = love.graphics.getHeight() - player.frameheight * player.scale - 250}
 
@@ -109,6 +109,11 @@ local function setCheckpoint()
     print("Punto de control guardado en: " .. spawnPoint.x .. ", " .. spawnPoint.y)
 end
 
+local function carryObjectOnTrigger()
+    player.carryObject(collisions, carryableObject.item)
+    tableUtils.removeByValue(triggers, carryableObject)
+end
+
 function stage1.load()
 
     isMiniGamePlaying = false
@@ -139,27 +144,35 @@ function stage1.load()
     table.insert(collisions, collisionWall1)
 
     --Objetos con textura
-    local phoneBooth = obstacle.new(true, 2340, 50, 24, 55, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), 0.8)
-    local wheel = obstacle.new(true, 120, 100, 58, 42, "full", love.graphics.newImage("assets/sprites/items/wheel.png"), 0.5)
-    local cono = obstacle.new(true, 200, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), 0.4)
-    local heavyStone = obstacle.new(true, 380, 108, 64, 53, "bottom", love.graphics.newImage("assets/sprites/items/heavyStone.png"), 0.5)
-    
+    local phoneBooth = obstacle.new(true, 2340, 50, 24, 55, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), false, 0.8)
+    local wheel = obstacle.new(true, 200, 100, 58, 42, "bottom", love.graphics.newImage("assets/sprites/items/wheel.png"), false, 0.5)
+    local cone = obstacle.new(true, 120, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), true, 0.4)
+    local heavyStone = obstacle.new(true, 380, 108, 64, 53, "full", love.graphics.newImage("assets/sprites/items/heavyStone.png"), false, 0.5)
+
     table.insert(collisions, phoneBooth)
     table.insert(collisions, wheel)
-    table.insert(collisions, cono)
+    table.insert(collisions, cone)
     table.insert(collisions, heavyStone)
 
     --Items
 
     --Triggers
     local phoneBoothTrigger = trigger.new(nil, nil, nil, nil, true, function() isMiniGamePlaying = true end, true, phoneBooth)
+    local coneTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, cone)
 
     local minY, maxY = 330, love.graphics.getHeight() - 170
 
-    local spawnTrigger = trigger.new(70, 84, 6, 80, true, function()
+    local spawnTrigger = trigger.new(80, 84, 6, 80, true, function()
         setCheckpoint()
         spawnWorldObjects(300, 5500, minY, maxY, false)
         spawnEnemyWave(300, 5500, minY, maxY, false)
+    end, true, nil)
+
+    local spawnTrigger3 = trigger.new(100, 84, 6, 80, true, function()
+        setCheckpoint()
+        local sdsad = item.new("arepa", 0, 0)
+        sdsad.count = 4
+        player.inventory.insert(sdsad, 1)
     end, true, nil)
 
     local middleTrigger = trigger.new(1180, 84, 6, 80, true, function()
@@ -175,25 +188,21 @@ function stage1.load()
     end, true, nil)
 
     table.insert(triggers, phoneBoothTrigger)
+    table.insert(triggers, coneTrigger)
     table.insert(triggers, spawnTrigger)
+    table.insert(triggers, spawnTrigger3)
     table.insert(triggers, middleTrigger)
     table.insert(triggers, endTrigger)
 
+    table.insert(items, item.new("bat", spawnPoint.x, spawnPoint.y))
+
    -- enemies temporales
---[[      local enemy1 = enemy.new(4, 800, 400)
-    local enemy2 = enemy.new(1, 700, love.graphics.getHeight() -170)
-
-    table.insert(enemies, enemy2)
-    table.insert(enemies, enemy1)
-
-    local boss1 = enemy.new(5, 1000, 400)
-    table.insert(enemies, boss1) ]]
 
     player.load(spawnPoint)
 end
 
 function stage1.update(dt)
-    
+
     if isMiniGamePlaying then
         miniGame.update(dt, 1)
 
@@ -241,11 +250,16 @@ function stage1.update(dt)
     --detección del contacto de un player con un trigger
     touchingTrigger = false
     for _, _trigger in ipairs(triggers) do
+
         if cb.checkInteractionCollision(player, _trigger) then
 
             touchingTrigger = true
             if _trigger.isActive then
                 if _trigger.item and _trigger.item ~= nil then
+                    if _trigger.item.isCarryable then
+                        carryableObject = _trigger
+                        break
+                    end
                     interactiveObject = _trigger
                 else
                     _trigger.onTrigger()
@@ -254,6 +268,7 @@ function stage1.update(dt)
             end
 
         end
+
     end
 
     for i, e in ipairs(enemies) do
@@ -282,7 +297,7 @@ function stage1.update(dt)
 
     --actualizar animaciones y sonidos:
     player.updateAnimationState(dt)
-    player.update(dt)
+    player.update(dt, enemies)
     camera.update(player.x, worldWidth * scale)
 end
 
@@ -335,11 +350,14 @@ end
 local function drawPlayerHealthPoints()
     love.graphics.draw(love.graphics.newImage("assets/sprites/player_life.png"), 10, 10, 0, scale * 0.8, scale * 0.8)
     love.graphics.setColor(0.13, 0.55, 0.13) --verde
-    love.graphics.rectangle("fill", 10, 10 + 32 * scale * 0.8, mathUtils.calculateHealthBarWidth(player.HP, player.maxHP, 32 * scale * 0.8), 15)
+    love.graphics.rectangle("fill", 10, 10 + 32 * scale * 0.8,
+    mathUtils.calculateHealthBarWidth(player.HP, player.maxHP, 32 * scale * 0.8), 15, 4, 4)
     love.graphics.setColor(0.1, 0.1, 0.1) --gris oscuro (casi negro)
-    love.graphics.rectangle("line", 10, 10 + 32 * scale * 0.8, 32 * scale * 0.8, 15)
+    love.graphics.rectangle("line", 10, 10 + 32 * scale * 0.8, 32 * scale * 0.8, 15, 4, 4)
+    love.graphics.setColor(0.05, 0.05, 0.05, 0.7) --gris oscuro
+    love.graphics.rectangle("fill", 10, 25 + 32 * scale * 0.8, 32 * scale * 0.8, 30, 2, 2)
     love.graphics.setColor(0.75, 0.75, 0.75)--gris claro (casi blanco)
-    love.graphics.print("Salud:".. player.HP, 10, 25 + 32 * scale * 0.8, 0, 1, 0.9)
+    love.graphics.print("Salud:".. player.HP, 20, 25 + 32 * scale * 0.8, 0, 1, 0.9)
     love.graphics.setColor(1, 1, 1)
 end
 
@@ -363,6 +381,10 @@ function stage1.draw()
         if cb.checkInteractionCollision(player, _trigger) then
 
             if _trigger.item then
+                if _trigger.item.isCarryable then
+                    love.graphics.print("Presiona ".. string.upper(inputs.game.carryObject) .. " para recoger", _trigger.item.x - 80 , _trigger.item.y - 30, 0, 1, 1)
+                    break
+                end
                 love.graphics.print("Presiona ".. inputs.game.interact .. " para interactuar", _trigger.item.x - 100 , _trigger.item.y - 30, 0, 1, 1)
             end
         end
@@ -377,6 +399,12 @@ function stage1.draw()
 
     --Barra de vida del player
     drawPlayerHealthPoints()
+
+    if player.isCarringObject then
+        love.graphics.setColor(1,1,1)
+        love.graphics.print("Presiona ".. string.upper(inputs.game.attack) .. " para lanzar", love.graphics.getWidth() - 250, 0, 0, 1, 1)
+        love.graphics.setColor(1,1,1)
+    end
 
     player.inventory.draw()
 
@@ -413,26 +441,65 @@ function stage1.keypressed(key)
         if touchingItem then
 
             if key == inputs.game.pickUpItem then
+                player.pickItem(items, pickableItem, player.inventory)
+                return
+            end
 
-                if player.inventory.hasSpace(player.inventory) then
-                    tableUtils.removeByValue(items, pickableItem)
-                    player.inventory.insert(pickableItem)
+        end
+
+        if key == inputs.game.useItem then
+
+            if player.inventory.getItemSelectSlot() ~= nil and 
+                player.inventory.getItemSelectSlot().itemType == ITEM_TYPES.CONSUMIBLE then
+
+                player.inventory.remove(player.inventory.getItemSelectSlot())
+
+                if player.HP ~= 1000 then
+                    if player.HP + 300 > 1000 then
+                        player.HP = 1000
+                    else
+                        player.HP = player.HP + 300
+                    end
                 end
 
             end
 
         end
 
-        -- if key == inputs.game.dropItem then
-        --     player.dropItem(items, inventory.itemPosSelected())
-        -- end
+        if key == inputs.game.dropItem then
+            player.dropItem(items, player.inventory)
+            return
+        end
+
+        if key == inputs.game.carryObject then
+             if player.isCarringObject then
+                    local newObject = player.leaveObject()
+                    local newTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, newObject)
+                    table.insert(collisions, newObject)
+                    table.insert(triggers, newTrigger)
+                    player.isCarringObject = false
+                    return
+             end
+        end
 
         if touchingTrigger then
 
             if key == inputs.game.interact then
 
-                if interactiveObject ~= nil then
+                if interactiveObject ~= nil and not interactiveObject.isCarryable then
                     interactiveObject.onTrigger()
+                    interactiveObject = nil
+                end
+
+            end
+
+            if key == inputs.game.carryObject then
+                if not player.isCarringObject then
+                    if carryableObject ~= nil and carryableObject.item ~= nil and
+                    carryableObject.item.isCarryable then
+                        carryableObject.onTrigger()
+                        carryableObject = nil
+                    end
                 end
 
             end
@@ -441,6 +508,7 @@ function stage1.keypressed(key)
 
         if key == inputs.game.attack then
             player.attack(enemies)
+            player.inventory.wearWeapon(player.getWearLosen())
         end
 
         player.inventory.keypressed(key)
