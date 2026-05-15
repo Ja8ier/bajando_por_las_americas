@@ -28,8 +28,8 @@ local player = {
     isDead = false,
     isCrouching = false,
     armament = {isArmed = true, weaponSelect = "wrench"},
-    HP = 1000,
-    maxHP = 1000,
+    HP = 10000,
+    maxHP = 10000,
     numberAttempts = 3,
     isHurt = false,
     hurtTimer = 0,
@@ -153,62 +153,63 @@ end
 --cambiar logica
 
 function player.updateAnimationState(dt)
-    local status = player.entityStatus.statusType
-    
-    if status == "stun" or status == "knockback" then
-        player.speed = 0
-        player.isMoving = false
-        setAnimation("walk")
-        return 
-    end
 
     if love.keyboard.isDown(inputs.game.crouch) then
         setAnimation("crouch")
         player.speed = 0
         player.isCrouching = true
-        player.isMoving = false
         return
     else
         player.isCrouching = false
     end
 
     local isAttackPressed = love.keyboard.isDown(inputs.game.attack)
-    if isAttackPressed and not wasAttackPressed and player.attackCooldownTimer <= 0 then
+
+    if isAttackPressed and not wasAttackPressed then
         attackTimer = attackDuration[player.armament.weaponSelect]
         if player.armament.isArmed then
             setAnimation("attack")
+            if player.speed == 0 then player.speed = 150 end
         else
             setAnimation("punch")
+            if player.speed == 0 then player.speed = 150 end
         end
+        player.speed = 0 -- Te detienes al atacar
     end
+
     wasAttackPressed = isAttackPressed
 
-    if attackTimer > 0 then
+    if attackTimer >= 0 then
         attackTimer = attackTimer - dt
-        player.speed = 0
-        player.isMoving = false
-        return 
+        return -- Salimos: el ataque bloquea el movimiento y el sprint
     end
 
-    local baseSpeed = love.keyboard.isDown(inputs.game.sprint) and 300 or 150
-    
-    if status == "slow" then
-        player.speed = baseSpeed * 0.5
-    else
-        player.speed = baseSpeed
-    end
+    local status = player.entityStatus and player.entityStatus.statusType
+    local isNormal = status ~= "slow" and status ~= "stun"
+    local isShift = love.keyboard.isDown(inputs.game.sprint)
 
     if player.isMoving then
-        if status == "slow" then
-            setAnimation("walk")
-        elseif love.keyboard.isDown(inputs.game.sprint) then
-            setAnimation("run")
+        player.isCrouching = false
+
+        if isNormal then
+            if isShift then
+                player.speed = 300
+                setAnimation("run")
+            else
+                player.speed = 150
+                setAnimation("walk")
+            end
         else
             setAnimation("walk")
         end
     else
+        player.isCrouching = false
+        if isNormal then
+            player.speed = 150
+        end
         setAnimation("walk")
     end
+
 end
 
 --movimiento del player
@@ -323,7 +324,7 @@ function player.attack(enemies)
                             break
 
                         elseif player.armament.weaponSelect == "wrench" then
-                            takeHP(e, 200)
+                            takeHP(e, 20000)
                             player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
                             --setAnimation("wrenchAttack")
                             break

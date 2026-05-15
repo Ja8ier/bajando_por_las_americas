@@ -12,12 +12,13 @@ local gui = require("src.scripts.gui.gui")
 local panel = require("src.scripts.gui.panel")
 local player = require("src.scripts.entities.player")
 
-local exitGame = panel.new((love.graphics.getWidth() - 400)/2, (love.graphics.getHeight() - 200)/2, 400, 200, "PAUSA", 30)
+local exitGame = panel.new((love.graphics.getWidth() - 500)/2, (love.graphics.getHeight() - 500)/2, 500, 500, "PAUSA", 30)
 
 local currentStageIndex = 1
 local currentStage = nil
 local oneTime = true
 local font = love.graphics.newFont("assets/fonts/VT323-Regular.ttf", 28)
+local spriteControls = love.graphics.newImage("assets/sprites/controls.png")
 local passLevel = false
 
 function game.load()
@@ -150,9 +151,12 @@ function game.draw()
         love.graphics.setFont(font)
         panel.draw(exitGame)
 
-        gui.Draw_button("Guardar y Salir", exitGame.x + (exitGame.w - 250)/2, exitGame.y + 15 + (exitGame.h - 50)/2, 250, 50, 10,
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.draw(spriteControls, exitGame.x + 5, exitGame.y + 100, 0, 0.615, 0.615)
+        
+        gui.Draw_button("Guardar y Salir", exitGame.x + (exitGame.w - 250)/2, exitGame.y + 165 + (exitGame.h - 50)/2, 250, 50, 10,
         gui.utils.Search_opacity(exitGame.x + (exitGame.w - 250)/2, exitGame.x + (exitGame.w - 250)/2 + 250,
-        exitGame.y + 15 + (exitGame.h - 50)/2, exitGame.y + 65 + (exitGame.h - 50)/2, true))
+        exitGame.y + 165 + (exitGame.h - 50)/2, exitGame.y + 215 + (exitGame.h - 50)/2, true))
         love.graphics.setFont(font)
     end
 
@@ -183,9 +187,9 @@ function game.draw()
         love.graphics.setFont(font)
         panel.draw(exitGame)
 
-        gui.Draw_button("Guardar y Salir", exitGame.x + (exitGame.w - 250)/2, exitGame.y + 55 + (exitGame.h - 50)/2, 250, 50, 10,
+        gui.Draw_button("Guardar y Salir", exitGame.x + (exitGame.w - 250)/2, exitGame.y + 65 + (exitGame.h - 50)/2, 250, 50, 10,
         gui.utils.Search_opacity(exitGame.x + (exitGame.w - 250)/2, exitGame.x + (exitGame.w - 250)/2 + 250,
-        exitGame.y + 55 + (exitGame.h - 50)/2, exitGame.y + 115 + (exitGame.h - 50)/2, true))
+        exitGame.y + 65 + (exitGame.h - 50)/2, exitGame.y + 115 + (exitGame.h - 50)/2, true))
         love.graphics.setFont(font)
     end
     
@@ -245,10 +249,10 @@ end
 
 function game.mousereleased(x, y)
     local factor
-    if game.isPaused then factor = 0 elseif game.isWin then factor = 50 end
+    if game.isPaused then factor = 0 elseif game.isWin then factor = -100 end
     if game.isPaused or game.isWin then
         if (x > exitGame.x + (exitGame.w - 250)/2 and x < exitGame.x + (exitGame.w - 250)/2 + 250) and
-            (y > exitGame.y + 15 + factor + (exitGame.h - 50)/2 and y < exitGame.y + 65 + factor + (exitGame.h - 50)/2) then
+            (y > exitGame.y + 165 + factor + (exitGame.h - 50)/2 and y < exitGame.y + 215 + factor + (exitGame.h - 50)/2) then
             
             -- aqui va la logica para guardar datos (seguir este orden de lineas de codigo)
             game.restartStage()
