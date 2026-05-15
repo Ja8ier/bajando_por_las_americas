@@ -91,8 +91,12 @@ function entityStateSystem.updateStatus(entity, dt, attacker, obstacles)
 
         else
 
-            if (entity.entityStatus.statusType == "stun" or entity.entityStatus.statusType == "slow") and entity.originalSpeed then
-                entity.speed = entity.originalSpeed
+            if (entity.entityStatus.statusType == "stun" or entity.entityStatus.statusType == "slow") then
+                if entity.type == "player" then
+                    entity.speed = 150
+                else
+                    entity.speed = 150
+                end
                 entity.originalSpeed = nil
                 entity.isMoving = true
             end

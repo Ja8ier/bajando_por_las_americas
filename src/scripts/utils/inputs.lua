@@ -22,6 +22,7 @@ local inputs = {
 
     game = {
         pause = {"escape", "p"},
+        nextLevel = "space",
         up = "w",
         down = "s",
         left = "a",

@@ -30,6 +30,8 @@ local interactiveObject
 local openInventory = false
 local isMiniGamePlaying
 local spawnPoint = {x = 300, y = love.graphics.getHeight() - player.frameheight * player.scale - 250}
+local deadBoss = false
+local minigameCompleted = false
 
 local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
 
@@ -115,7 +117,7 @@ function stage1.load()
 
     local spawnTrigger = trigger.new(70, 84, 6, 80, true, function()
         setCheckpoint()
-        spawnEnemyWave(300, 5500, minY, maxY, false)
+        spawnEnemyWave(500, 5500, minY, maxY, false)
     end, true, nil)
 
     local middleTrigger = trigger.new(1180, 84, 6, 80, true, function()
@@ -138,10 +140,10 @@ function stage1.load()
     local enemy2 = enemy.new(1, 700, love.graphics.getHeight() -170)
 
     table.insert(enemies, enemy2)
-    table.insert(enemies, enemy1)
+    table.insert(enemies, enemy1) 
 
     local boss1 = enemy.new(5, 900, 400)
-    table.insert(enemies, boss1) ]]
+    table.insert(enemies, boss1)]]
 
     player.load(spawnPoint)
 end
@@ -151,7 +153,9 @@ function stage1.update(dt)
     if isMiniGamePlaying then
         miniGame.update(dt, 1)
 
-        if miniGame.isExited(1) then
+        local isExit
+        isExit, minigameCompleted = miniGame.isExited(1)
+        if isExit then
             miniGame.load(1)
             isMiniGamePlaying = false
         end
@@ -220,6 +224,7 @@ function stage1.update(dt)
         if e.isDead and e.animationDie then
             if e.tier == 5 then
                 NextBossWeaponIndex = NextBossWeaponIndex + 1
+                deadBoss = true
 
                 if math.random() <= 1 then
                     e:dropItem(items)
@@ -297,6 +302,8 @@ function stage1.draw()
         love.graphics.draw(layer.img, offsetX, 0, 0, scale, love.graphics.getHeight() / 144)
     end
 
+    love.graphics.print("stage: ".. NextBossWeaponIndex, 400, 200)
+
     --comienzo de la cámara
     camera.begin()
 
@@ -350,6 +357,8 @@ function stage1.cleanStatus()
     pickableItem = nil
     openInventory = false
     spawnPoint = {x = 500, y = love.graphics.getHeight() - player.frameheight * player.scale - 300}
+    deadBoss = false
+    minigameCompleted = false
 end
 
 function stage1.keypressed(key)
@@ -393,6 +402,13 @@ function stage1.keypressed(key)
 
         inventory.keypressed(key)
     end
+end
+
+function stage1.continueGame()
+    if #enemies == 0 and deadBoss and minigameCompleted then
+        return true
+    end
+    return false
 end
 
 return stage1

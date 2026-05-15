@@ -6,6 +6,8 @@ local mathUtils = require("src.scripts.utils.mathUtils")
 local entityStateSystem = require("src.scripts.systems.entity_state_system")
 local animation = require("src.scripts.systems.animation")
 local scale = love.graphics.getWidth() / 256
+local oneTime = true
+local enemyGenerationTimer = 5
 
 NextBossWeaponIndex = 1 -- guarda el indice del boss del nivel actual
 
@@ -256,6 +258,27 @@ function Enemy:draw()
 
 end
 
+local function spawnEnemyOnFlee(self, player, dt)
+    if oneTime then
+        entityStateSystem.applyStatusToTarget(player, entitiesStates[1].state, entitiesStates[1].duration / 1.5)
+        if self.x < player.x then
+            local newEnemy = Enemy.new(NextBossWeaponIndex, self.x - 150, self.collisionBox.y)
+            table.insert(enemies, newEnemy)
+        else
+            local newEnemy = Enemy.new(NextBossWeaponIndex, self.x + 150, self.collisionBox.y)
+            table.insert(enemies, newEnemy)
+        end
+        oneTime = false
+    end
+    
+    if enemyGenerationTimer > 0 then
+        enemyGenerationTimer = enemyGenerationTimer - dt
+    else
+        oneTime = true
+        enemyGenerationTimer = 5
+    end
+end
+
 function Enemy:selectDimensions(anim)
     if not dimensions or not dimensions[self.tier] then
         self:setAnimation(anim)
@@ -428,7 +451,7 @@ function Enemy:specialWrenchAttack(dt, player)
         if self.tier == 5 then
             player.HP = player.HP - baseDamage.specialWrenchAttack * multipliers[self.tier][NextBossWeaponIndex]
             print("special wrench: ".. baseDamage.specialWrenchAttack * multipliers[self.tier][NextBossWeaponIndex])
-            entityStateSystem.applyStatusToTarget(player, entitiesStates[2].state, entitiesStates[2].duration / 4)
+            entityStateSystem.applyStatusToTarget(player, entitiesStates[2].state, entitiesStates[2].duration / 3)
         else
             player.HP = player.HP - baseDamage.specialWrenchAttack * multipliers[self.tier]
             print("special wrench: ".. baseDamage.specialWrenchAttack * multipliers[self.tier])
@@ -498,6 +521,8 @@ function Enemy:stateFlee(dt, player)
 
     if distance < safe_distance and not self.isHealing then
 
+        if self.tier == 5 then spawnEnemyOnFlee(self, player, dt) end
+
         if player.x < self.x then self.facingLeft = false else self.facingLeft = true end
 
         if self.x < player.x then self:move(dt, "x", "left", 0.8, 1) else self:move(dt, "x", "right", 0.8, 1) end
@@ -505,7 +530,6 @@ function Enemy:stateFlee(dt, player)
 
     else
         self.isHealing = true
-        
         checkAnimation(self, "heal")
 
         self.HP = self.HP + (10 * dt * self.tier)
@@ -517,7 +541,6 @@ function Enemy:stateFlee(dt, player)
 end
 
 function Enemy:statePatrol(dt)
-
     if self.direction < 0 then self.facingLeft = true else self.facingLeft = false end
 
     self.isMoving = true

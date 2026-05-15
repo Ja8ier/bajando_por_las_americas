@@ -153,61 +153,62 @@ end
 --cambiar logica
 
 function player.updateAnimationState(dt)
+    local status = player.entityStatus.statusType
+    
+    if status == "stun" or status == "knockback" then
+        player.speed = 0
+        player.isMoving = false
+        setAnimation("walk")
+        return 
+    end
 
     if love.keyboard.isDown(inputs.game.crouch) then
         setAnimation("crouch")
         player.speed = 0
         player.isCrouching = true
+        player.isMoving = false
         return
     else
         player.isCrouching = false
     end
 
     local isAttackPressed = love.keyboard.isDown(inputs.game.attack)
-
-    if isAttackPressed and not wasAttackPressed then
+    if isAttackPressed and not wasAttackPressed and player.attackCooldownTimer <= 0 then
         attackTimer = attackDuration[player.armament.weaponSelect]
         if player.armament.isArmed then
             setAnimation("attack")
         else
             setAnimation("punch")
         end
-        player.speed = 0 -- Te detienes al atacar
     end
-
     wasAttackPressed = isAttackPressed
 
-    if attackTimer >= 0 then
+    if attackTimer > 0 then
         attackTimer = attackTimer - dt
-        return -- Salimos: el ataque bloquea el movimiento y el sprint
+        player.speed = 0
+        player.isMoving = false
+        return 
     end
 
-    local status = player.entityStatus and player.entityStatus.statusType
-    local isNormal = status ~= "slow" and status ~= "stun"
-    local isShift = love.keyboard.isDown(inputs.game.sprint)
+    local baseSpeed = love.keyboard.isDown(inputs.game.sprint) and 300 or 150
+    
+    if status == "slow" then
+        player.speed = baseSpeed * 0.5
+    else
+        player.speed = baseSpeed
+    end
 
     if player.isMoving then
-        player.isCrouching = false
-
-        if isNormal then
-            if isShift then
-                player.speed = 300
-                setAnimation("run")
-            else
-                player.speed = 150
-                setAnimation("walk")
-            end
+        if status == "slow" then
+            setAnimation("walk")
+        elseif love.keyboard.isDown(inputs.game.sprint) then
+            setAnimation("run")
         else
             setAnimation("walk")
         end
     else
-        player.isCrouching = false
-        if isNormal then
-            player.speed = 150
-        end
         setAnimation("walk")
     end
-
 end
 
 --movimiento del player
@@ -304,31 +305,31 @@ function player.attack(enemies)
                     if player.armament.isArmed then
                             
                         if player.armament.weaponSelect == "bottle" then
-                            takeHP(e, 40)
+                            takeHP(e, 80)
                             player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
                             --setAnimation("bottleAttack")
                             break
 
                         elseif player.armament.weaponSelect == "knife" then
-                            takeHP(e, 50)
+                            takeHP(e, 100)
                             player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
                             --setAnimation("knifeAttack")
                             break
 
                         elseif player.armament.weaponSelect == "bat" then
-                            takeHP(e, 70)
+                            takeHP(e, 150)
                             player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
                             --setAnimation("batAttack")
                             break
 
                         elseif player.armament.weaponSelect == "wrench" then
-                            takeHP(e, 85)
+                            takeHP(e, 200)
                             player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
                             --setAnimation("wrenchAttack")
                             break
                         end
                     else
-                        takeHP(e, 30)
+                        takeHP(e, 50)
                         player.attackCooldownTimer = attackDuration["bottle"]
                         --player.updateAnimationState()
                         break
