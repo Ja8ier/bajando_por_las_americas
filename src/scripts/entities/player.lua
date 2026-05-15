@@ -34,6 +34,9 @@ local wearLosen = 0
 local objectCarried = {image = nil, scale = 1, width = 0, height = 0, x = 0, y = 0, collisionType = ""}
 local objectToSave
 
+local THROWABLE_ITEM_DAMAGE = 400
+local THROW_ANGLE = 60
+
 local player = {
     x = 0,
     y = 0,
@@ -517,7 +520,7 @@ function player.throw(item)
     if item.itemType == ITEM_TYPES.PROJECTILE then
     else
         player.isCarringObject = false
-        projectile.new(350, 45, objectCarried.x, objectCarried.y, player.y + player.height, true, objectToSave.texture, objectToSave.scale, 2560 * scale)
+        projectile.new(THROWABLE_ITEM_DAMAGE, THROW_ANGLE, objectCarried.x, objectCarried.y, player.y + player.height, true, objectToSave.texture, objectToSave.scale, 2560 * scale)
         projectile.isActive = true
         projectile.throw()
         hasImpacted = false

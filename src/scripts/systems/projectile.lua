@@ -1,4 +1,4 @@
-local GRAVITY = 400
+local GRAVITY = 350
 local WORLD_WIDTH
 
 local angle = 30
