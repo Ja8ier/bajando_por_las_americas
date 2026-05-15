@@ -30,9 +30,6 @@ local carryableObject
 local isMiniGamePlaying
 local spawnPoint = {x = 300, y = love.graphics.getHeight() - player.frameheight * player.scale - 250}
 
-local GRAVITY = 10
-local ORIGIN_VELOCITY = 5
-
 local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
 
     local count
@@ -167,18 +164,8 @@ function stage1.load()
 
     local spawnTrigger = trigger.new(80, 84, 6, 80, true, function()
         setCheckpoint()
-        --spawnWorldObjects(300, 5500, minY, maxY, false)
-        --spawnEnemyWave(300, 5500, minY, maxY, false)
-        local sdsad = item.new("arepa", 0, 0)
-        sdsad.count = 3
-        player.inventory.insert(sdsad, 1)
-    end, true, nil)
-
-    local spawnTrigger2 = trigger.new(90, 84, 6, 80, true, function()
-        setCheckpoint()
-        local sdsad = item.new("arepa", 0, 0)
-        sdsad.count = 4
-        player.inventory.insert(sdsad, 1)
+        spawnWorldObjects(300, 5500, minY, maxY, false)
+        spawnEnemyWave(300, 5500, minY, maxY, false)
     end, true, nil)
 
     local spawnTrigger3 = trigger.new(100, 84, 6, 80, true, function()
@@ -203,7 +190,6 @@ function stage1.load()
     table.insert(triggers, phoneBoothTrigger)
     table.insert(triggers, coneTrigger)
     table.insert(triggers, spawnTrigger)
-    table.insert(triggers, spawnTrigger2)
     table.insert(triggers, spawnTrigger3)
     table.insert(triggers, middleTrigger)
     table.insert(triggers, endTrigger)
@@ -211,14 +197,6 @@ function stage1.load()
     table.insert(items, item.new("bat", spawnPoint.x, spawnPoint.y))
 
    -- enemies temporales
---[[      local enemy1 = enemy.new(4, 800, 400)
-    local enemy2 = enemy.new(1, 700, love.graphics.getHeight() -170)
-
-    table.insert(enemies, enemy2)
-    table.insert(enemies, enemy1)
-
-    local boss1 = enemy.new(5, 1000, 400)
-    table.insert(enemies, boss1) ]]
 
     player.load(spawnPoint)
 end
@@ -412,7 +390,7 @@ function stage1.draw()
         end
     end
 
-    cb.showBoxes(player, collisions, enemies, triggers, true)
+    cb.showBoxes(player, collisions, enemies, triggers, false)
     camera.ended()
 
     --frontground
@@ -465,6 +443,25 @@ function stage1.keypressed(key)
             if key == inputs.game.pickUpItem then
                 player.pickItem(items, pickableItem, player.inventory)
                 return
+            end
+
+        end
+
+        if key == inputs.game.useItem then
+
+            if player.inventory.getItemSelectSlot() ~= nil and 
+                player.inventory.getItemSelectSlot().itemType == ITEM_TYPES.CONSUMIBLE then
+
+                player.inventory.remove(player.inventory.getItemSelectSlot())
+
+                if player.HP ~= 1000 then
+                    if player.HP + 300 > 1000 then
+                        player.HP = 1000
+                    else
+                        player.HP = player.HP + 300
+                    end
+                end
+
             end
 
         end

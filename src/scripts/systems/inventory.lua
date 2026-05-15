@@ -47,9 +47,6 @@ local inventory = {
 
 function inventory.insert(_item, j)
 
-    -- 3 + 4 = 7
-    -- 5 - 7 = 2
-
     -- loquehayquemeterle = abso(loqueacepta - (loquetiene + loqlequierometer))
     if not inventory.hasSpace(inventory) then
         return
@@ -81,17 +78,21 @@ function inventory.insert(_item, j)
         inventory.insert(_item, i + 1)
     end
 
-    -- 3 + 4 = 7
-    -- 5 - (3 + 4) = 2
-    -- for i = 1, 9 do
-    -- end
-
 end
 
 function inventory.remove(_item)
 
     for i = 1, 9 do
         if inventory[i].item == _item then
+            if _item.isStackable then
+                if _item.count > 1 then
+                    inventory[i].item.count = inventory[i].item.count - 1
+                    return
+                else
+                    inventory[i].item = nil
+                    return
+                end
+            end
             inventory[i].item = nil
             return _item
         end
