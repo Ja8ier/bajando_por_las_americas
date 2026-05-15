@@ -30,8 +30,6 @@ local attackTimer = 0
 local attackDuration = 0.4
 
 local wearLosen = 0
-local finallY = nil
-local attackTrigger = nil
 
 local objectCarried = {image = nil, scale = 1, width = 0, height = 0, x = 0, y = 0, collisionType = ""}
 local objectToSave
@@ -78,6 +76,7 @@ function player.load(spawnPoint)
 
 end
 
+local hasImpacted = false
 function player.update(dt, enemies)
 
     --recorre el inventario y evalua si en la casilla selected hay un arma y la coloca al player
@@ -131,27 +130,33 @@ function player.update(dt, enemies)
 
     if projectile.isActive then
         projectile.update(dt, player.facingLeft)
-    end
 
-    if projectile.getGroundY() == finallY and finallY ~= nil and objectToSave ~= nil then
-        if attackTrigger ~= nil then
-            attackTrigger.x = projectile.getGroundX()
-            equi = attackTrigger.x
-            ye = attackTrigger.y
-            acho = attackTrigger.width
-            altho = attackTrigger.height
-            -- body
+        if not projectile.isActive and not hasImpacted then
+
+            local impactTrigger = trigger.new(projectile.getGroundX() / scale, projectile.getGroundY() / scale,
+                objectToSave.collisionBox.width / scale, objectToSave.collisionBox.height * 2 / scale, true, nil, true, nil)
+
+            player.hurtEnemiesByDistance(enemies, impactTrigger)
+
+            equi = impactTrigger.x
+            ye = impactTrigger.y
+            acho = impactTrigger.width
+            altho = impactTrigger.height
+
+            hasImpacted = true
+            objectToSave = nil
         end
-        player.hurtEnemiesByDistance(enemies, attackTrigger)
     end
 
     player.checkDeath(dt)
 
 end
+
 equi = 0
 ye = 0
 acho = 0
 altho = 0
+
 local function drawCarryableObject()
     if objectCarried.width > player.collisionBox.width then
         objectCarried.x = player.x - ((objectCarried.width  - player.collisionBox.width))
@@ -189,18 +194,10 @@ function player.draw()
     love.graphics.setColor(1,1,1)
 
     love.graphics.print(player.x .."--".. player.y, 100, 220)
+
     if player.isCarringObject then
 
         drawCarryableObject()
-        -- if objectCarried.width > player.collisionBox.width then
-        --     objectCarried.x = player.x - ((objectCarried.width  - player.collisionBox.width))
-        -- elseif objectCarried.width < player.collisionBox.width then
-        --     objectCarried.x = player.x + (player.collisionBox.width) - objectCarried.width * objectCarried.scale
-        -- end
-
-        -- objectCarried.y = player.y - objectCarried.height * objectCarried.scale
-
-        -- love.graphics.draw(objectCarried.image, objectCarried.x, objectCarried.y + 20, 0, objectCarried.scale, objectCarried.scale)
     end
 
     if projectile.isActive then
@@ -209,13 +206,13 @@ function player.draw()
 
     love.graphics.setColor(1,1,1)
 
-      if not projectile.isActive then
+    if not projectile.isActive then
         love.graphics.print(math.floor(equi) .. "---".. math.floor(ye) .."/"
         .. math.floor(acho) .. "---".. math.floor(altho), 100, 200)
-    love.graphics.setColor(1,0.88,0.23, 0.7)
+        love.graphics.setColor(1,0.88,0.23, 0.7)
 
         love.graphics.rectangle("fill", equi, ye, acho, altho)
-    love.graphics.setColor(1,1,1)
+        love.graphics.setColor(1,1,1)
 
     end
 
@@ -257,14 +254,14 @@ function player.updateAnimationState(dt)
         else
             setAnimation("punch")
         end
-        player.speed = 0 -- Te detienes al atacar
+        player.speed = 0
     end
 
     wasAttackPressed = isAttackPressed
 
     if attackTimer > 0 then
         attackTimer = attackTimer - dt
-        return -- Salimos: el ataque bloquea el movimiento y el sprint
+        return
     end
 
     local status = player.entityStatus and player.entityStatus.statusType
@@ -387,7 +384,7 @@ end
 function player.attack(enemies)
 
     if player.isCarringObject and objectCarried ~= nil then
-        player.throw(objectCarried, enemies)
+        player.throw(objectCarried)
         return
     end
 
@@ -522,7 +519,7 @@ function player.leaveObject()
         objectToSave.x = player.x + player.collisionBox.width
     end
 
-    --Agregar las restricciones de los bordes del mundo
+    --agregar las restricciones de los bordes del mundo
     objectToSave.y = player.y + player.height - objectToSave.collisionBox.height
 
     require("src.scripts.systems.collision_box").updatePosition(objectToSave)
@@ -548,9 +545,7 @@ function player.throw(item)
         projectile.new(350, 45, objectCarried.x, objectCarried.y, player.y + player.height, true, objectToSave.texture, objectToSave.scale, 2560 * scale)
         projectile.isActive = true
         projectile.throw()
-        attackTrigger = trigger.new(projectile.getGroundX() / scale, projectile.getGroundY() / scale, objectToSave.width / scale,
-            objectToSave.height / scale, true, nil, true, nil)
-        finallY = projectile.getGroundY()
+        hasImpacted = false
         objectCarried = nil
     end
 end
