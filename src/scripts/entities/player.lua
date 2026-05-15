@@ -138,11 +138,6 @@ function player.update(dt, enemies)
 
             player.hurtEnemiesByDistance(enemies, impactTrigger)
 
-            equi = impactTrigger.x
-            ye = impactTrigger.y
-            acho = impactTrigger.width
-            altho = impactTrigger.height
-
             hasImpacted = true
             objectToSave = nil
         end
@@ -151,11 +146,6 @@ function player.update(dt, enemies)
     player.checkDeath(dt)
 
 end
-
-equi = 0
-ye = 0
-acho = 0
-altho = 0
 
 local function drawCarryableObject()
     if objectCarried.width > player.collisionBox.width then
@@ -193,10 +183,8 @@ function player.draw()
 
     love.graphics.setColor(1,1,1)
 
-    love.graphics.print(player.x .."--".. player.y, 100, 220)
-
+    --Player levantando un objeto
     if player.isCarringObject then
-
         drawCarryableObject()
     end
 
@@ -205,17 +193,6 @@ function player.draw()
     end
 
     love.graphics.setColor(1,1,1)
-
-    if not projectile.isActive then
-        love.graphics.print(math.floor(equi) .. "---".. math.floor(ye) .."/"
-        .. math.floor(acho) .. "---".. math.floor(altho), 100, 200)
-        love.graphics.setColor(1,0.88,0.23, 0.7)
-
-        love.graphics.rectangle("fill", equi, ye, acho, altho)
-        love.graphics.setColor(1,1,1)
-
-    end
-
 
 end
 
@@ -227,8 +204,6 @@ local function setAnimation(animation)
         currentAnimation = newAnimation
     end
 end
-
---cambiar logica
 
 function player.updateAnimationState(dt)
 

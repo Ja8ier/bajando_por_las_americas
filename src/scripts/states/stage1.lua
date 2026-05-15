@@ -351,11 +351,14 @@ end
 local function drawPlayerHealthPoints()
     love.graphics.draw(love.graphics.newImage("assets/sprites/player_life.png"), 10, 10, 0, scale * 0.8, scale * 0.8)
     love.graphics.setColor(0.13, 0.55, 0.13) --verde
-    love.graphics.rectangle("fill", 10, 10 + 32 * scale * 0.8, mathUtils.calculateHealthBarWidth(player.HP, player.maxHP, 32 * scale * 0.8), 15)
+    love.graphics.rectangle("fill", 10, 10 + 32 * scale * 0.8,
+    mathUtils.calculateHealthBarWidth(player.HP, player.maxHP, 32 * scale * 0.8), 15, 4, 4)
     love.graphics.setColor(0.1, 0.1, 0.1) --gris oscuro (casi negro)
-    love.graphics.rectangle("line", 10, 10 + 32 * scale * 0.8, 32 * scale * 0.8, 15)
+    love.graphics.rectangle("line", 10, 10 + 32 * scale * 0.8, 32 * scale * 0.8, 15, 4, 4)
+    love.graphics.setColor(0.05, 0.05, 0.05, 0.7) --gris oscuro
+    love.graphics.rectangle("fill", 10, 25 + 32 * scale * 0.8, 32 * scale * 0.8, 30, 2, 2)
     love.graphics.setColor(0.75, 0.75, 0.75)--gris claro (casi blanco)
-    love.graphics.print("Salud:".. player.HP, 10, 25 + 32 * scale * 0.8, 0, 1, 0.9)
+    love.graphics.print("Salud:".. player.HP, 15, 25 + 32 * scale * 0.8, 0, 1, 0.9)
     love.graphics.setColor(1, 1, 1)
 end
 
@@ -397,6 +400,12 @@ function stage1.draw()
 
     --Barra de vida del player
     drawPlayerHealthPoints()
+
+    if player.isCarringObject then
+        love.graphics.setColor(1,1,1)
+        love.graphics.print("Presiona ".. string.upper(inputs.game.attack) .. " para lanzar", love.graphics.getWidth() - 250, 0, 0, 1, 1)
+        love.graphics.setColor(1,1,1)
+    end
 
     player.inventory.draw()
 
