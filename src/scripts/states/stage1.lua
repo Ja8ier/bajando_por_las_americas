@@ -11,6 +11,7 @@ local inputs = require("src.scripts.utils.inputs")
 local tableUtils = require("src.scripts.utils.tableUtils")
 local miniGame = require("src.scripts.states.minigame")
 local cb = require("src.scripts.systems.collision_box")
+local GameState = require("src.scripts.data.game_state")
 
 local worldWidth
 local layers = {}
@@ -75,6 +76,13 @@ local function carryObjectOnTrigger()
 end
 
 function stage1.load()
+    enemies = {}  --esto es para que el stage quede limpio, no su dupliquen cajas de colision, no queden triggers invisibles etc
+    stage1.enemies = enemies
+    local hasSavedEnemies = #GameState.world.savedEnemies > 0
+    collisions = {}
+    triggers = {}
+    items = {}
+
 
     isMiniGamePlaying = false
 
@@ -121,34 +129,72 @@ function stage1.load()
     --Triggers
     local phoneBoothTrigger = trigger.new(nil, nil, nil, nil, true, function() isMiniGamePlaying = true end, true, phoneBooth)
     local coneTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, cone)
+    phoneBoothTrigger.id = "stage1_phoneBoothTrigger"
 
     local minY, maxY = 330, love.graphics.getHeight() - 170
 
     local spawnTrigger = trigger.new(80, 84, 6, 80, true, function()
         setCheckpoint()
-        -- spawnEnemyWave(500, 5500, minY, maxY, false)
+        spawnEnemyWave(500, 5500, minY, maxY, false)
     end, true, nil)
+    spawnTrigger.id = "stage1_spawnTrigger"
 
     local middleTrigger = trigger.new(1180, 84, 6, 80, true, function()
         setCheckpoint()
         spawnEnemyWave(6000, 10000, minY, maxY, false)
     end, true, nil)
+    middleTrigger.id = "stage1_middleTrigger"
 
     local endTrigger = trigger.new(2100, 84, 6, 80, true, function()
         setCheckpoint()
         spawnEnemyWave(10500, 12000, minY, maxY, true)
     end, true, nil)
+    endTrigger.id = "stage1_endTrigger"
 
     table.insert(triggers, phoneBoothTrigger)
     table.insert(triggers, coneTrigger)
     table.insert(triggers, spawnTrigger)
     table.insert(triggers, middleTrigger)
     table.insert(triggers, endTrigger)
+    
+    if hasSavedEnemies then --reconstruye enemigos desde el json
+
+        for _, savedEnemy in ipairs(GameState.world.savedEnemies) do
+
+            local restoredEnemy = enemy.new(
+                savedEnemy.type,
+                savedEnemy.x,
+                savedEnemy.y
+            )
+
+            restoredEnemy.HP = savedEnemy.hp
+            restoredEnemy.id = savedEnemy.id
+
+            table.insert(enemies, restoredEnemy)
+
+        end
+
+    end
+
+    for _, t in ipairs(triggers) do
+
+        if t.id and GameState.world.usedTriggers[t.id] then
+            t.isActive = false
+        end
+
+    end
+
+
+    for _, t in ipairs(triggers) do
+        if t.id and GameState.world.usedTriggers[t.id] then
+            t.isActive = false
+        end
+    end
 
     table.insert(items, item.new("bat", spawnPoint.x, spawnPoint.y))
 
    -- enemies temporales
---[[      local enemy1 = enemy.new(4, 800, 400)
+   --[[      local enemy1 = enemy.new(4, 800, 400)
     local enemy2 = enemy.new(1, 700, love.graphics.getHeight() -170)
 
     table.insert(enemies, enemy2)
@@ -157,7 +203,20 @@ function stage1.load()
 local boss1 = enemy.new(5, 900, 400)
 table.insert(enemies, boss1)
 
-    player.load(spawnPoint)
+    if GameState.player.x ~= 0 and GameState.player.y ~= 0 then --si existe una posicion guardada usa esa
+        player.load({                                           -- si no, usa spawn normal
+            x = GameState.player.x,
+            y = GameState.player.y
+        })
+    else
+        player.load(spawnPoint)
+    end
+
+    player.HP = GameState.player.health
+    player.maxHP = GameState.player.maxHealth
+    player.numberAttempts = GameState.player.attempts
+
+    
 end
 
 function stage1.update(dt)
@@ -225,6 +284,15 @@ function stage1.update(dt)
                 else
                     _trigger.onTrigger()
                     _trigger.isActive = false
+
+                    if _trigger.id then
+                        GameState.world.usedTriggers[_trigger.id] = true
+                    end
+
+                    if _trigger.id then
+                        GameState.world.usedTriggers[_trigger.id] = true
+                    end
+
                 end
             end
 
@@ -489,5 +557,8 @@ function stage1.continueGame()
     end
     return false
 end
+
+stage1.enemies = enemies
+
 
 return stage1

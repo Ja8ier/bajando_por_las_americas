@@ -4,6 +4,8 @@ local gui = require("src.scripts.gui.gui")
 local settings = require("src.scripts.states.settings")
 local exit = require("src.scripts.states.exit")
 local inputs = require("src.scripts.utils.inputs")
+local GameState = require("src.scripts.data.game_state")
+local SaveManager = require("src.scripts.systems.save_manager")
 
 local sprite_Background
 local active_btn = false
@@ -77,6 +79,10 @@ function new_game.mousereleased(x, y, button)
             if #Games_created < MAX_GAMES then
 
                 table.insert(Games_created, gui.utils.text_input)
+
+                GameState.player.name = gui.utils.text_input
+                SaveManager.save(GameState)
+
                 gui.utils.text_input = ""
 
                 textbox_active = false

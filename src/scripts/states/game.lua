@@ -11,6 +11,8 @@ local inputs = require("src.scripts.utils.inputs")
 local gui = require("src.scripts.gui.gui")
 local panel = require("src.scripts.gui.panel")
 local player = require("src.scripts.entities.player")
+local GameState = require("src.scripts.data.game_state")
+local SaveManager = require("src.scripts.systems.save_manager")
 
 local exitGame = panel.new((love.graphics.getWidth() - 500)/2, (love.graphics.getHeight() - 500)/2, 500, 500, "PAUSA", 30)
 
@@ -20,6 +22,44 @@ local oneTime = true
 local font = love.graphics.newFont("assets/fonts/VT323-Regular.ttf", 28)
 local spriteControls = love.graphics.newImage("assets/sprites/controls.png")
 local passLevel = false
+
+local function saveCurrentGame() --funcion que convierte el gameplay actual en datos persistentes
+
+    GameState.currentStage = currentStageIndex
+
+    GameState.player.health = player.HP
+    GameState.player.maxHealth = player.maxHP
+    GameState.player.attempts = player.numberAttempts
+
+    GameState.player.x = player.x
+    GameState.player.y = player.y
+
+    GameState.world.savedEnemies = {}
+
+    for _, enemy in ipairs(currentStage.enemies) do --cuando se guarda recorre enemigos vivos, guarda solo datos esenciales e ignora enemigos muertos
+
+        if not enemy.isDead then
+
+            table.insert(GameState.world.savedEnemies, {
+
+                id = enemy.id,
+
+                type = enemy.enemyType,
+
+                x = enemy.x,
+                y = enemy.y,
+
+                hp = enemy.HP
+
+            })
+
+        end
+
+    end
+
+    SaveManager.save(GameState)
+
+end
 
 function game.load()
     stages[1] = require("src.scripts.states.stage1")
@@ -225,6 +265,7 @@ function game.keypressed(key)
     elseif player.isDead and key == "escape" and not game.isWin then
         
         -- aqui va la logica para guardar datos (seguir este orden de lineas de codigo)
+        saveCurrentGame()
 
         game.restartStage()
         Change_state(require("src.scripts.states.menu"))
@@ -236,6 +277,7 @@ function game.keypressed(key)
     elseif game.gameOver and key == "escape" and not game.isWin then
 
         -- aqui va la logica para guardar datos (seguir este orden de lineas de codigo)
+        saveCurrentGame()
 
         game.restartStage()
         Change_state(require("src.scripts.states.menu"))
@@ -255,6 +297,7 @@ function game.mousereleased(x, y)
             (y > exitGame.y + 165 + factor + (exitGame.h - 50)/2 and y < exitGame.y + 215 + factor + (exitGame.h - 50)/2) then
             
             -- aqui va la logica para guardar datos (seguir este orden de lineas de codigo)
+            saveCurrentGame()
             game.restartStage()
             Change_state(require("src.scripts.states.menu"))
         end

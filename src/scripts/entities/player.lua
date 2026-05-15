@@ -87,7 +87,7 @@ local currentAnimation = animations.walk
 --#region Load, update y draw
 
 function player.load(spawnPoint)
-
+    player.cleanStatus()
     player.scale = scale
     player.x = spawnPoint.x
     player.y = spawnPoint.y
