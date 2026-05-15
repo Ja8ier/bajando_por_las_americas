@@ -34,7 +34,7 @@ local message = {
 }
 
 local inventory = {
-    [1] = {item = item.new("bat", 0, 0), isSelected = true},
+    [1] = {item = nil, isSelected = true},
     [2] = {item = item.new("bat", 0, 0), isSelected = false},
     [3] = {item = item.new("bat", 0, 0), isSelected = false},
     [4] = {item = item.new("bat", 0, 0), isSelected = false},

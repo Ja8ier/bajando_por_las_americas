@@ -105,13 +105,15 @@ function stage1.load()
 
     --Objetos con textura
     local phoneBooth = obstacle.new(true, 2340, 50, 24, 55, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), false, 0.8)
-    local wheel = obstacle.new(true, 200, 100, 58, 42, "bottom", love.graphics.newImage("assets/sprites/items/wheel.png"), false, 0.5)
+    local wheel = obstacle.new(true, 200, 100, 58, 42, "bottom", love.graphics.newImage("assets/sprites/items/wheel.png"), true, 0.5)
     local cone = obstacle.new(true, 120, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), true, 0.4)
+    local cone2 = obstacle.new(true, 150, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), true, 0.4)
     local heavyStone = obstacle.new(true, 380, 108, 64, 53, "full", love.graphics.newImage("assets/sprites/items/heavyStone.png"), false, 0.5)
 
     table.insert(collisions, phoneBooth)
     table.insert(collisions, wheel)
     table.insert(collisions, cone)
+    table.insert(collisions, cone2)
     table.insert(collisions, heavyStone)
 
     --Items
@@ -124,14 +126,7 @@ function stage1.load()
 
     local spawnTrigger = trigger.new(80, 84, 6, 80, true, function()
         setCheckpoint()
-        spawnEnemyWave(500, 5500, minY, maxY, false)
-    end, true, nil)
-
-    local spawnTrigger3 = trigger.new(100, 84, 6, 80, true, function()
-        setCheckpoint()
-        local sdsad = item.new("arepa", 0, 0)
-        sdsad.count = 4
-        player.inventory.insert(sdsad, 1)
+        -- spawnEnemyWave(500, 5500, minY, maxY, false)
     end, true, nil)
 
     local middleTrigger = trigger.new(1180, 84, 6, 80, true, function()
@@ -147,7 +142,6 @@ function stage1.load()
     table.insert(triggers, phoneBoothTrigger)
     table.insert(triggers, coneTrigger)
     table.insert(triggers, spawnTrigger)
-    table.insert(triggers, spawnTrigger3)
     table.insert(triggers, middleTrigger)
     table.insert(triggers, endTrigger)
 
@@ -159,9 +153,9 @@ function stage1.load()
 
     table.insert(enemies, enemy2)
     table.insert(enemies, enemy1) 
-
-    local boss1 = enemy.new(5, 900, 400)
-    table.insert(enemies, boss1)]]
+]]
+local boss1 = enemy.new(5, 900, 400)
+table.insert(enemies, boss1)
 
     player.load(spawnPoint)
 end

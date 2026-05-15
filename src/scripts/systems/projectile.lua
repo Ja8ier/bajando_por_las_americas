@@ -47,7 +47,15 @@ function projectile.load()
 
 end
 
-function projectile.update(dt, facingLeft)
+local facingLeftOneTime = true
+local facingLeft
+
+function projectile.update(dt, _facingLeft)
+
+    if facingLeftOneTime then
+        facingLeft = _facingLeft    
+        facingLeftOneTime = false
+    end
 
     local time = dt * 1.5
     if projectile.isActive then

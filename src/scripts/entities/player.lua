@@ -166,6 +166,7 @@ function player.update(dt, enemies)
 
             hasImpacted = true
             objectToSave = nil
+            objectCarried = {image = nil, scale = 1, width = 0, height = 0, x = 0, y = 0, collisionType = ""}
         end
     end
 
