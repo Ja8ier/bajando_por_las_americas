@@ -6,6 +6,8 @@ local mathUtils = require("src.scripts.utils.mathUtils")
 local entityStateSystem = require("src.scripts.systems.entity_state_system")
 local animation = require("src.scripts.systems.animation")
 local scale = love.graphics.getWidth() / 256
+local oneTime = true
+local enemyGenerationTimer = 5
 
 NextBossWeaponIndex = 1 -- guarda el indice del boss del nivel actual
 
@@ -20,7 +22,7 @@ local entitiesStates = {
     {state = "knockback", duration = 0.7},
     {state = "stun", duration = 9},
     {state = "slow", duration = 12},
-    {state = "bleed", duration = 3}
+    {state = "bleed", duration = 9}
 }
 
 local baseDamage = {
@@ -39,6 +41,13 @@ local baseDamage = {
     specialWrenchAttack = 70
 }
 
+local bossWeaponMapping = {
+    [1] = "specialBottleAttack",
+    [2] = "specialKnifeAttack",
+    [3] = "specialBatAttack",
+    [4] = "specialWrenchAttack"
+}
+
 local multipliers = {
     [1] = 1,
     [2] = 1.3,
@@ -54,13 +63,14 @@ local dimensions = {
     [3] = { walk={40, 60}, heal={57, 62}, die={62, 59}, attack={60, 59}, jabAttack={64, 59}, comboAttack={64, 58}, sweepKick={48, 59}, groundSlam={61, 63}, heavySmash={49, 64}, scale = 0.5 }, --tier3
     [4] = { walk={40, 60}, heal={57, 62}, die={62, 59}, attack={60, 59}, jabAttack={64, 59}, comboAttack={64, 58}, sweepKick={48, 59}, groundSlam={61, 63}, heavySmash={49, 64}, scale = 0.5 }, --tier4
     [5] = {{ walk={41, 61}, attack={63, 56}, heal={59, 64}, die={59, 62}, scale = 0.7 }, --boss1
-            { walk={}, attack={}, heal={}, die={}, scale = 0.7  }, --boss2
-            { walk={}, attack={}, heal={}, die={}, scale = 0.7  }, --boss3
-            { walk={}, attack={}, heal={}, die={}, scale = 0.7  }  --boss4
+            { walk={41, 61}, attack={63, 56}, heal={59, 64}, die={59, 62}, scale = 0.7 }, --boss2
+            { walk={41, 61}, attack={63, 56}, heal={59, 64}, die={59, 62}, scale = 0.7 }, --boss3
+            { walk={41, 61}, attack={63, 56}, heal={59, 64}, die={59, 62}, scale = 0.7 }  --boss4
           }
 }
 
 local obstacles = {}
+local enemies = {}
 
 local function getRandomWeaponForEnemy(tier)
     local hasWeaponChance = 0.5
@@ -131,8 +141,6 @@ local function chooseTypeMovement(animations, equipment, tier)
                 animations.heal = animation.new("assets/sprites/enemies/oldman/oldman_healthing_53x59-200.png", 53, 59, 0.2, false)
                 animations.die = animation.new("assets/sprites/enemies/oldman/oldman_dead_62x59-250.png", 62, 59, 0.25, false)
             end
-
-        --    animations.commonWeaponAttack = animation.new("assets/sprites/enemies/oldman/attacks/oldman_weapon_60x59-100.png", 60, 59, 0.1, false)
         else
             animations.walk = animation.new("assets/sprites/enemies/oldman/oldman_walk_40x60-250.png", 40, 60, 0.25, false)
             animations.heal = animation.new("assets/sprites/enemies/oldman/oldman_healthing_53x59-200.png", 53, 59, 0.2, false)
@@ -208,11 +216,12 @@ function Enemy.new(tier, _x, _y)
     return instance
 end
 
-function Enemy:update(dt, player, obs)
+function Enemy:update(dt, player, obs, enems)
 
     self:handleDeathTimer(dt)
 
     obstacles = obs
+    enemies = enems
 
     self.tree:evaluate(self, dt)
 
@@ -249,6 +258,27 @@ function Enemy:draw()
         self.scale, self.scale)
     end
 
+end
+
+local function spawnEnemyOnFlee(self, player, dt)
+    if oneTime then
+        entityStateSystem.applyStatusToTarget(player, entitiesStates[1].state, entitiesStates[1].duration / 1.5)
+        if self.x < player.x then
+            local newEnemy = Enemy.new(NextBossWeaponIndex, self.x - 150, self.collisionBox.y)
+            table.insert(enemies, newEnemy)
+        else
+            local newEnemy = Enemy.new(NextBossWeaponIndex, self.x + 150, self.collisionBox.y)
+            table.insert(enemies, newEnemy)
+        end
+        oneTime = false
+    end
+    
+    if enemyGenerationTimer > 0 then
+        enemyGenerationTimer = enemyGenerationTimer - dt
+    else
+        oneTime = true
+        enemyGenerationTimer = 5
+    end
 end
 
 function Enemy:selectDimensions(anim)
@@ -343,11 +373,19 @@ function Enemy:heavySmash(dt, player)
 end
 
 function Enemy:specialAttackBoss(dt, player)
-    if self:hitTimer(dt, player, 2) then
-        player.HP = player.HP - baseDamage.specialBatAttack * multipliers[3]
-        print("special attack boss: ".. baseDamage.specialBatAttack * multipliers[3])
+    if self:hitTimer(dt, player, 5) then
+        player.HP = player.HP - baseDamage[bossWeaponMapping[NextBossWeaponIndex]] * multipliers[self.tier][NextBossWeaponIndex]
+        print("special attack boss: ".. baseDamage[bossWeaponMapping[NextBossWeaponIndex]] * multipliers[self.tier][NextBossWeaponIndex])
 
-        checkAnimation(self, "attack")
+        entityStateSystem.applyStatusToTarget(player, entitiesStates[1].state, entitiesStates[1].duration / 1.5)
+
+        if self.x < player.x then
+            local newEnemy = Enemy.new(NextBossWeaponIndex, self.x - 200, self.y)
+            table.insert(enemies, newEnemy)
+        else
+            local newEnemy = Enemy.new(NextBossWeaponIndex, self.x + 200, self.y)
+            table.insert(enemies, newEnemy)
+        end
     end
 end
 
@@ -357,9 +395,7 @@ function Enemy:commonWeaponAttack(dt, player)
         player.HP = player.HP - baseDamage.commonWeaponAttack * multipliers[self.tier]
         print("common weapon attack: ".. baseDamage.commonWeaponAttack * multipliers[self.tier])
 
-        if self.animations.commonWeaponAttack then
-            self:setAnimation("commonWeaponAttack")
-        end
+        checkAnimation(self, "attack")
     end
 end
 
@@ -368,17 +404,14 @@ function Enemy:specialBottleAttack(dt, player)
         if self.tier == 5 then
             player.HP = player.HP - baseDamage.specialBottleAttack * multipliers[self.tier][NextBossWeaponIndex]
             print("special bottle: ".. baseDamage.specialBottleAttack * multipliers[self.tier][NextBossWeaponIndex])
-    
+            entityStateSystem.applyStatusToTarget(player, entitiesStates[3].state, entitiesStates[3].duration / 4)
         else
             player.HP = player.HP - baseDamage.specialBottleAttack * multipliers[self.tier]
             print("special bottle: ".. baseDamage.specialBottleAttack * multipliers[self.tier])
+            entityStateSystem.applyStatusToTarget(player, entitiesStates[3].state, entitiesStates[3].duration)
         end
  
-        entityStateSystem.applyStatusToTarget(player, entitiesStates[3].state, entitiesStates[3].duration)
-
-        if self.animations.attack then
-            self:setAnimation("attack")
-        end
+        checkAnimation(self, "attack")
     end
 end
 
@@ -387,17 +420,15 @@ function Enemy:specialKnifeAttack(dt, player)
         if self.tier == 5 then
             player.HP = player.HP - baseDamage.specialKnifeAttack * multipliers[self.tier][NextBossWeaponIndex]
             print("special knife: ".. baseDamage.specialKnifeAttack * multipliers[self.tier][NextBossWeaponIndex])
+            entityStateSystem.applyStatusToTarget(player, entitiesStates[4].state, entitiesStates[4].duration / 3)
         
         else
             player.HP = player.HP - baseDamage.specialKnifeAttack * multipliers[self.tier]
             print("special knife: ".. baseDamage.specialKnifeAttack * multipliers[self.tier])
+            entityStateSystem.applyStatusToTarget(player, entitiesStates[4].state, entitiesStates[4].duration)
         end
 
-        entityStateSystem.applyStatusToTarget(player, entitiesStates[4].state, entitiesStates[4].duration)
-
-        if self.animations.attack then
-            self:setAnimation("attack")
-        end 
+        checkAnimation(self, "attack")
     end
 end
 
@@ -406,16 +437,14 @@ function Enemy:specialBatAttack(dt, player)
         if self.tier == 5 then
             player.HP = player.HP - baseDamage.specialBatAttack * multipliers[self.tier][NextBossWeaponIndex]
             print("special bat: ".. baseDamage.specialBatAttack * multipliers[self.tier][NextBossWeaponIndex])
+            entityStateSystem.applyStatusToTarget(player, entitiesStates[1].state, entitiesStates[1].duration / 1.5)
         else
             player.HP = player.HP - baseDamage.specialBatAttack * multipliers[self.tier]
             print("special bat: ".. baseDamage.specialBatAttack * multipliers[self.tier])
+            entityStateSystem.applyStatusToTarget(player, entitiesStates[1].state, entitiesStates[1].duration)
         end
 
-        entityStateSystem.applyStatusToTarget(player, entitiesStates[1].state, entitiesStates[1].duration)
-
-        if self.animations.attack then
-            self:setAnimation("attack")
-        end
+        checkAnimation(self, "attack")
     end
 end
 
@@ -424,16 +453,14 @@ function Enemy:specialWrenchAttack(dt, player)
         if self.tier == 5 then
             player.HP = player.HP - baseDamage.specialWrenchAttack * multipliers[self.tier][NextBossWeaponIndex]
             print("special wrench: ".. baseDamage.specialWrenchAttack * multipliers[self.tier][NextBossWeaponIndex])
+            entityStateSystem.applyStatusToTarget(player, entitiesStates[2].state, entitiesStates[2].duration / 3)
         else
             player.HP = player.HP - baseDamage.specialWrenchAttack * multipliers[self.tier]
             print("special wrench: ".. baseDamage.specialWrenchAttack * multipliers[self.tier])
+            entityStateSystem.applyStatusToTarget(player, entitiesStates[2].state, entitiesStates[2].duration)
         end
 
-        entityStateSystem.applyStatusToTarget(player, entitiesStates[2].state, entitiesStates[2].duration)
-
-        if self.animations.attack then
-            self:setAnimation("attack")
-        end
+        checkAnimation(self, "attack")
     end
 end
 
@@ -496,6 +523,8 @@ function Enemy:stateFlee(dt, player)
 
     if distance < safe_distance and not self.isHealing then
 
+        if self.tier == 5 then spawnEnemyOnFlee(self, player, dt) end
+
         if player.x < self.x then self.facingLeft = false else self.facingLeft = true end
 
         if self.x < player.x then self:move(dt, "x", "left", 0.8, 1) else self:move(dt, "x", "right", 0.8, 1) end
@@ -503,7 +532,6 @@ function Enemy:stateFlee(dt, player)
 
     else
         self.isHealing = true
-        
         checkAnimation(self, "heal")
 
         self.HP = self.HP + (10 * dt * self.tier)
@@ -515,7 +543,6 @@ function Enemy:stateFlee(dt, player)
 end
 
 function Enemy:statePatrol(dt)
-
     if self.direction < 0 then self.facingLeft = true else self.facingLeft = false end
 
     self.isMoving = true

@@ -8,7 +8,8 @@ local inputs = {
     },
 
     createNewGame = {
-        back = "escape"
+        back = "escape",
+        create = "return"
     },
 
     continueGame = {
@@ -21,6 +22,7 @@ local inputs = {
 
     game = {
         pause = {"escape", "p"},
+        nextLevel = "space",
         up = "w",
         down = "s",
         left = "a",

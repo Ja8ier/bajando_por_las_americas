@@ -29,20 +29,22 @@ local interactiveObject
 local carryableObject
 local isMiniGamePlaying
 local spawnPoint = {x = 300, y = love.graphics.getHeight() - player.frameheight * player.scale - 250}
+local deadBoss = false
+local minigameCompleted = false
 
 local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
 
     local count
     if MapEnd then
-        count = math.random(4, 8)
+        count = math.random(4, 6)
     else
-        count = math.random(10, 15)
+        count = math.random(7, 10)
     end
-
-    local currentTier = math.random(1, 4)--[[ NextBossWeaponIndex or 1 ]]
 
     local spawnX, spawnY
     for i = 1, count do
+        local currentTier = math.random(1, 4) --[[ NextBossWeaponIndex or 1 ]] --
+
         spawnX = math.random(xStart, xEnd)
         spawnY = math.random(yMin, yMax)
         
@@ -58,54 +60,12 @@ local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
         table.insert(enemies, boss)
     end
 
-    print("Invasión generada: " .. count .. " enemigos de Tier " .. currentTier)
-end
-
-local function spawnWorldObjects(xStart, xEnd, yMin, yMax, isFinal)
-    local enemyCount = isFinal and math.random(5, 8) or math.random(10, 15)
-    local obstacleCount = isFinal and math.random(5, 10) or math.random(15, 20)
-
-    local imgWheel = love.graphics.newImage("assets/sprites/items/wheel.png")
-    local imgCone = love.graphics.newImage("assets/sprites/items/cono.png")
-    local minDistance = 80
-
-    for i = 1, obstacleCount do
-        local placed = false
-        local attempts = 0
-        
-        while not placed and attempts < 10 do
-            local randX = math.random(xStart, xEnd)
-            local randY = math.random(yMin, yMax)
-            
-            local tooClose = false
-            for _, obs in ipairs(collisions) do
-                local dx = randX - (obs.x / scale)
-                local dy = randY - (obs.y / scale)
-                if math.sqrt(dx*dx + dy*dy) < minDistance then
-                    tooClose = true
-                    break
-                end
-            end
-
-            if not tooClose then
-                local newObs
-                if i % 2 == 0 then
-                    newObs = obstacle.new(true, randX, randY, 58, 42, "full", imgWheel, 0.5)
-                else
-                    newObs = obstacle.new(true, randX, randY, 24, 30, "bottom", imgCone, 0.7)
-                end
-                table.insert(collisions, newObs)
-                placed = true
-            end
-            attempts = attempts + 1
-        end
-    end
-    print("Zona generada: " .. enemyCount .. " enemigos y " .. obstacleCount .. " obstáculos.")
+    print("Invasión generada: " .. count .. " enemigos de Tier variado")
 end
 
 local function setCheckpoint()
     spawnPoint.x = player.x
-    spawnPoint.y = player.y
+    spawnPoint.y = player.y -- no funciona 
     print("Punto de control guardado en: " .. spawnPoint.x .. ", " .. spawnPoint.y)
 end
 
@@ -164,8 +124,7 @@ function stage1.load()
 
     local spawnTrigger = trigger.new(80, 84, 6, 80, true, function()
         setCheckpoint()
-        spawnWorldObjects(300, 5500, minY, maxY, false)
-        spawnEnemyWave(300, 5500, minY, maxY, false)
+        spawnEnemyWave(500, 5500, minY, maxY, false)
     end, true, nil)
 
     local spawnTrigger3 = trigger.new(100, 84, 6, 80, true, function()
@@ -177,14 +136,12 @@ function stage1.load()
 
     local middleTrigger = trigger.new(1180, 84, 6, 80, true, function()
         setCheckpoint()
-        spawnWorldObjects(6000, 10000, minY, maxY, false)
         spawnEnemyWave(6000, 10000, minY, maxY, false)
     end, true, nil)
 
     local endTrigger = trigger.new(2100, 84, 6, 80, true, function()
         setCheckpoint()
-        spawnWorldObjects(10500, 13000, minY, maxY, true)
-        spawnEnemyWave(10500, 13000, minY, maxY, true)
+        spawnEnemyWave(10500, 12000, minY, maxY, true)
     end, true, nil)
 
     table.insert(triggers, phoneBoothTrigger)
@@ -197,6 +154,14 @@ function stage1.load()
     table.insert(items, item.new("bat", spawnPoint.x, spawnPoint.y))
 
    -- enemies temporales
+--[[      local enemy1 = enemy.new(4, 800, 400)
+    local enemy2 = enemy.new(1, 700, love.graphics.getHeight() -170)
+
+    table.insert(enemies, enemy2)
+    table.insert(enemies, enemy1) 
+
+    local boss1 = enemy.new(5, 900, 400)
+    table.insert(enemies, boss1)]]
 
     player.load(spawnPoint)
 end
@@ -206,7 +171,9 @@ function stage1.update(dt)
     if isMiniGamePlaying then
         miniGame.update(dt, 1)
 
-        if miniGame.isExited(1) then
+        local isExit
+        isExit, minigameCompleted = miniGame.isExited(1)
+        if isExit then
             miniGame.load(1)
             isMiniGamePlaying = false
         end
@@ -272,7 +239,7 @@ function stage1.update(dt)
     end
 
     for i, e in ipairs(enemies) do
-        e:update(dt, player, collisions)
+        e:update(dt, player, collisions, enemies)
     end
 
     for i = #enemies, 1, -1 do
@@ -281,6 +248,7 @@ function stage1.update(dt)
         if e.isDead and e.animationDie then
             if e.tier == 5 then
                 NextBossWeaponIndex = NextBossWeaponIndex + 1
+                deadBoss = true
 
                 if math.random() <= 1 then
                     e:dropItem(items)
@@ -303,7 +271,7 @@ end
 
 function stage1.updateCheckPoint()
     player.x = spawnPoint.x
-    player.y = spawnPoint.y
+    player.y = spawnPoint.y -- no funciona
 end
 
 local function printByOrder()
@@ -372,6 +340,8 @@ function stage1.draw()
         love.graphics.draw(layer.img, offsetX, 0, 0, scale, love.graphics.getHeight() / 144)
     end
 
+    love.graphics.print("stage: ".. NextBossWeaponIndex, 400, 200)
+
     --comienzo de la cámara
     camera.begin()
 
@@ -427,6 +397,8 @@ function stage1.cleanStatus()
     touchingItem = false
     pickableItem = nil
     spawnPoint = {x = 500, y = love.graphics.getHeight() - player.frameheight * player.scale - 300}
+    deadBoss = false
+    minigameCompleted = false
 end
 
 function stage1.keypressed(key)
@@ -515,6 +487,13 @@ function stage1.keypressed(key)
 
     end
 
+end
+
+function stage1.continueGame()
+    if #enemies == 0 and deadBoss and minigameCompleted then
+        return true
+    end
+    return false
 end
 
 return stage1
