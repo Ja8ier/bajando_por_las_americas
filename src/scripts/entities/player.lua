@@ -8,6 +8,7 @@ local tableUtils = require("src.scripts.utils.tableUtils")
 local obstacle = require("src.scripts.entities.obstacle")
 local projectile = require("src.scripts.systems.projectile")
 local trigger = require("src.scripts.systems.trigger")
+local cb = require("src.scripts.systems.collision_box")
 local itemsDefinition = require("src.scripts.systems.itemsDefinition")
 
 local scale = love.graphics.getWidth() / 256
@@ -127,7 +128,7 @@ function player.update(dt)
     end
 
     if projectile.isActive then
-        projectile.update(dt)
+        projectile.update(dt, player.facingLeft)
     end
 
     player.checkDeath(dt)
@@ -344,7 +345,7 @@ end
 
 local function takeHP(e, amountOfHP)
 
-    if amountOfHP > 20 then
+    if amountOfHP > 20 and amountOfHP < 150 then
         wearLosen = amountOfHP / 2
     end
 
@@ -359,7 +360,7 @@ end
 function player.attack(enemies)
 
     if player.isCarringObject and objectCarried ~= nil then
-        player.throw(objectCarried)
+        player.throw(objectCarried, enemies)
         return
     end
 
@@ -499,15 +500,28 @@ function player.leaveObject()
 
     require("src.scripts.systems.collision_box").updatePosition(objectToSave)
     return objectToSave
+
 end
 
-function player.throw(item)
+function player.hurtEnemiesByDistance(enemies, tr)
+    for _, e in ipairs(enemies) do
+        if cb.checkInteractionCollision(e, tr) then
+            takeHP(e, 150)
+        end
+    end
+end
+
+function player.throw(item, enemies)
     if item.itemType == ITEM_TYPES.PROJECTILE then
     else
         player.isCarringObject = false
-        projectile.new(450, 30, player.x, player.y, player.y + player.height, false, objectToSave.texture, objectToSave.scale, 2560)
+        projectile.new(350, 45, objectCarried.x, objectCarried.y, player.y + player.height, true, objectToSave.texture, objectToSave.scale, 2560)
         projectile.isActive = true
         projectile.throw()
+        local newTrigger = trigger.new(projectile.getGroundX(), projectile.getGroundY(), objectToSave.width,
+            objectToSave.height, true, nil, true, nil)
+        player.hurtEnemiesByDistance(enemies, newTrigger)
+        objectToSave = nil
         objectCarried = nil
     end
 end

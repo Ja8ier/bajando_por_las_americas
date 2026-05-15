@@ -121,13 +121,6 @@ end
 
 function inventory.draw()
 
-    -- for i = 1, 9 do
-    --     if inventory[i].item ~= nil  and inventory[i].isSelected then
-    --         print(inventory[i].item.name .. "=" .. inventory[i].item.levelOfWear)
-    --         break
-    --     end
-    -- end
-
     for i = 1, 9 do
         if inventory[i].item ~= nil and inventory[i].isSelected and inventory[i].item.itemType == ITEM_TYPES.WEAPON then
             if not message.active then

@@ -5,6 +5,7 @@ local angle = 30
 local initialX = 0
 local initialY = 0
 local groundY = 0
+local groundX = 0
 
 local projectile = {
     x = 0,
@@ -22,6 +23,14 @@ local projectile = {
     }
 }
 
+function projectile.getGroundX()
+    return groundX
+end
+
+function projectile.getGroundY()
+    return groundY
+end
+
 function projectile.new(power, direction, _initialX, _initialY, finalY, bounced, _image, _scale, worldWidth)
     projectile.power = power
     angle = math.rad(direction)
@@ -38,20 +47,23 @@ function projectile.load()
 
 end
 
-function projectile.update(dt)
+function projectile.update(dt, facingLeft)
 
+    local time = dt * 1.5
     if projectile.isActive then
 
-        projectile.vy = projectile.vy + GRAVITY * dt
-        projectile.x = projectile.x + projectile.vx * dt
-        projectile.y = projectile.y + projectile.vy * dt
+        projectile.vy = projectile.vy + GRAVITY * time
+        if facingLeft then
+            projectile.x = projectile.x - projectile.vx * time
+        end
+        projectile.x = projectile.x + projectile.vx * time
+        projectile.y = projectile.y + projectile.vy * time
 
         -- condiciones de rebote y destrucción
         if projectile.y >= groundY then
             projectile.isActive = false
+            groundX = projectile.x
             if projectile.bounced then
-                --destrucción
-            else
                 projectile.y = groundY
             end
         end

@@ -52,10 +52,10 @@ function collisionBox.create(entity, type)
     end
 
     entity.collisionBox = {
-        width = _width,
-        height = _height,
-        x = _x,
-        y = _y,
+        width = math.floor(_width),
+        height = math.floor(_height),
+        x = math.floor(_x),
+        y = math.floor(_y),
         type = _type
     }
 
