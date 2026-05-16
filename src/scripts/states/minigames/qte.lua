@@ -43,6 +43,7 @@ local sounds = {}
 local bg = nil
 local font = nil
 local titleFont = nil
+local bigFont = nil
 
 --ui
 local blinkTimer = 0
@@ -62,11 +63,12 @@ local function loadAssets()
     images.right = love.graphics.newImage("assets/sprites/minigames/qte/right_arrow.png")
 
     -- Fondo
-    bg = love.graphics.newImage("assets/sprites/minigames/qte/bg.jpg")
+    bg = love.graphics.newImage("assets/sprites/minigames/qte/bg.png")
 
     -- Fuentes
     font = love.graphics.newFont("assets/fonts/VT323-Regular.ttf", 28)
     titleFont = love.graphics.newFont("assets/fonts/VT323-Regular.ttf", 48)
+    bigFont = love.graphics.newFont("assets/fonts/VT323-Regular.ttf", 64)
 
     love.graphics.setFont(font)
 
@@ -103,6 +105,7 @@ local function beginRound()
 end
 
 function qte.load()
+    math.randomseed(os.time())
     exit = false
     loadAssets()
     state = "start"
@@ -209,6 +212,10 @@ function qte.keypressed(key)
         lastFeedback = "Incorrecto!"
         state = "fail"
     end
+
+    if qte.isFinished() then
+        print("Recompensa:", qte.getReward())
+    end
 end
 
 function qte.isExited()
@@ -234,9 +241,9 @@ function qte.draw()
     local w = love.graphics.getWidth()
     local h = love.graphics.getHeight()
 
-    love.graphics.setColor(0, 0, 0, 0.7)
+--[[     love.graphics.setColor(0, 0, 0, 0.7)
     love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
-    love.graphics.setColor(1, 1, 1)
+    love.graphics.setColor(1, 1, 1) ]]
     
     -- Fondo
     if bg then
@@ -253,7 +260,7 @@ function qte.draw()
     if state == "start" then
         love.graphics.setFont(titleFont)
         love.graphics.setColor(0,1,1)
-        love.graphics.printf("QTE SYSTEM", 0, 40, w, "center")
+        love.graphics.printf("AUTHORIZATION SYSTEM", 0, 40, w, "center")
 
         love.graphics.setFont(font)
         love.graphics.setColor(1,1,1)
@@ -264,7 +271,7 @@ function qte.draw()
 
         if showPress then
             love.graphics.setColor(0,1,0)
-            love.graphics.printf("Presiona ENTER para comenzar", 0, 420, w, "center")
+            love.graphics.printf("PRESIONA ENTER PARA COMENZAR", 0, 420, w, "center")
         end
 
         love.graphics.setColor(1,1,1)
@@ -273,22 +280,27 @@ function qte.draw()
 
     love.graphics.setFont(titleFont)
     love.graphics.setColor(0,1,1)
-    love.graphics.printf("QTE SYSTEM", 0, 20, w, "center")
+    love.graphics.printf("AUTHORIZATION SYSTEM", 0, 20, w, "center")
 
     --UI normal
     love.graphics.setFont(font)
     love.graphics.setColor(1,1,1)
     love.graphics.printf("Nivel: "..level, 0, 80, w, "center")
 
+    local arrowOffsetX = 0
+    local arrowOffsetY = 40
     local arrowPositions = {
-        up =    {x = cx, y = cy - 120},
-        down =  {x = cx, y = cy + 120},
-        left =  {x = cx - 140, y = cy},
-        right = {x = cx + 140, y = cy}
+        up = {x = cx + arrowOffsetX, y = cy - 120 + arrowOffsetY},
+        down = {x = cx + arrowOffsetX, y = cy + 120 + arrowOffsetY},
+        left = {x = cx - 140 + arrowOffsetX, y = cy + arrowOffsetY},
+        right = {x = cx + 140 + arrowOffsetX, y = cy + arrowOffsetY}
     }
 
     if state == "showing" then
-        love.graphics.printf("Memoriza", 0, cy - 180, w, "center")
+        love.graphics.setFont(bigFont)
+        love.graphics.setColor(1,1,1)
+        love.graphics.printf("MEMORIZA", 0, cy - 200, w, "center")
+        love.graphics.setFont(font)
 
         if showIndex <= #sequence then
             local dir = sequence[showIndex]
@@ -299,14 +311,16 @@ function qte.draw()
                 local alpha = 1 - (flashTimer / config.showDelay)
                 if alpha < 0 then alpha = 0 end
 
-                love.graphics.setColor(1,1,1, alpha)
-
                 local scale = 2.5
                 local ax = pos.x - (arrow:getWidth()*scale)/2
                 local ay = pos.y - (arrow:getHeight()*scale)/2
 
+                love.graphics.setColor(0,1,1, alpha * 0.35)
+
+                love.graphics.draw(arrow, ax - 8, ay - 8, 0, scale * 1.12, scale * 1.12)
+                love.graphics.setColor(1,1,1,alpha)
                 love.graphics.draw(arrow, ax, ay, 0, scale, scale)
-                love.graphics.setColor(1,1,1,1)
+                love.graphics.setColor(1,1,1)
             end
         end
 
@@ -315,10 +329,26 @@ function qte.draw()
         love.graphics.printf("...", 0, cy, w, "center")
 
     elseif state == "input" then
-        love.graphics.printf("Repite!", 0, cy - 180, w, "center")
+        love.graphics.setFont(bigFont)
+        love.graphics.setColor(1,1,1)
 
-        love.graphics.printf("Tiempo: "..math.ceil(inputTimer), 0, cy + 120, w, "center")
-        love.graphics.printf("Progreso: "..(currentIndex-1).."/"..#sequence, 0, cy + 150, w, "center")
+        love.graphics.printf("REPITE LA SECUENCIA", 0, cy - 200, w, "center")
+
+        love.graphics.setFont(titleFont)
+
+        if inputTimer <= 0.7 then
+            love.graphics.setColor(1,0,0)
+        else
+            love.graphics.setColor(1,1,1)
+        end
+
+        love.graphics.printf(math.ceil(inputTimer), 0, cy + 110, w, "center")
+
+        love.graphics.setFont(font)
+        love.graphics.setColor(1,1,1)
+
+        --love.graphics.printf("Tiempo: "..math.ceil(inputTimer), 0, cy + 120, w, "center")
+        love.graphics.printf("Progreso: "..(currentIndex-1).."/"..#sequence, 0, cy + 180, w, "center")
 
         if lastFeedback == "Correcto!" then
             love.graphics.setColor(0,1,0)
@@ -326,12 +356,12 @@ function qte.draw()
             love.graphics.setColor(1,0,0)
         end
 
-        love.graphics.printf(lastFeedback, 0, cy + 180, w, "center")
+        love.graphics.printf(lastFeedback, 0, cy + 220, w, "center")
         love.graphics.setColor(1,1,1)
 
     elseif state == "success" then
         love.graphics.setColor(0,1,0)
-        love.graphics.printf("SUCCESS", 0, cy, w, "center")
+        love.graphics.printf("LO LOGRASTE!", 0, cy, w, "center")
 
         if level < config.maxLevel then
             love.graphics.printf("ENTER", 0, cy + 50, w, "center")
@@ -341,8 +371,14 @@ function qte.draw()
 
     elseif state == "fail" then
         love.graphics.setColor(1,0,0)
-        love.graphics.printf("FAIL", 0, cy, w, "center")
+        love.graphics.printf("FALLASTE", 0, cy, w, "center")
         love.graphics.printf("R PARA REINTENTAR", 0, cy + 50, w, "center")
+    end
+
+    love.graphics.setColor(0, 0, 0, 0.15)
+
+    for y = 0, h, 4 do
+        love.graphics.rectangle("fill", 0, y, w, 2)
     end
 
     love.graphics.setColor(1,1,1)
