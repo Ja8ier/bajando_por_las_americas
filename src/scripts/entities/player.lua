@@ -496,7 +496,7 @@ function player.dropItem(_items, _inventory)
 
             --Mejorar las restricciones de los bordes del mundo
 
-            local item = player.inventory[i].item
+            local newItem = player.inventory[i].item
             local itemX = player.x + player.collisionBox.width
             local itemY = player.collisionBox.y + player.collisionBox.height - _inventory[i].item.sprite:getHeight()
 
@@ -504,29 +504,30 @@ function player.dropItem(_items, _inventory)
                 itemX = player.x - player.collisionBox.width
             end
 
-            if (not player.facingLeft and itemX >= love.graphics.getWidth()) or (player.facingLeft and itemX <= 0) then
+            if (not player.facingLeft and itemX >= 2560) or (player.facingLeft and itemX <= 0) then
                 itemX = player.x
             end
 
-            item.x = itemX
-            item.y = itemY
+            newItem.x = itemX
+            newItem.y = itemY
 
-            if item ~= nil then
-                if item.isStackable and item.isStackable == true then
+            if newItem ~= nil then
+                if newItem.isStackable and newItem.isStackable == true then
                     if player.inventory[i].item.count == 1 then
-                        player.inventory.remove(item)
+                        table.insert(_items, item.new(player.inventory[i].item.id, itemX, itemY))
+                        player.inventory.remove(newItem)
                         return
                     end
                     local itemCount = player.inventory[i].item.count
-                    item.count = 1
-                    table.insert(_items, item)
+                    newItem.count = 1
+                    table.insert(_items, item.new(player.inventory[i].item.id, itemX, itemY))
                     player.inventory[i].item.count = itemCount - 1
                     return
                 end
             end
 
-            table.insert(_items, item)
-            player.inventory.remove(item)
+            table.insert(_items, newItem)
+            player.inventory.remove(newItem)
             return
         end
     end

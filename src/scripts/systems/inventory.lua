@@ -34,10 +34,10 @@ local message = {
 }
 
 local inventory = {
-    [1] = {item = item.new("bat", 0, 0), isSelected = true},
+    [1] = {item = nil, isSelected = false},
     [2] = {item = item.new("bat", 0, 0), isSelected = false},
-    [3] = {item = item.new("bat", 0, 0), isSelected = false},
-    [4] = {item = item.new("bat", 0, 0), isSelected = false},
+    [3] = {item = nil, isSelected = false},
+    [4] = {item = nil, isSelected = false},
     [5] = {item = item.new("knife", 0, 0), isSelected = false},
     [6] = {item = item.new("wrench", 0, 0), isSelected = false},
     [7] = {item = item.new("bat", 0, 0), isSelected = false},
@@ -78,7 +78,7 @@ function inventory.insert(_item, j)
                     _item.count = _item.count - 1
                     if _item.count <= 0 then
                         return
-                    else
+                    elseif inventory[i].item.count == itemsDefinition[inventory[i].item.id].maxCount then
                         if i == 9 then
                             i = 0
                         end
