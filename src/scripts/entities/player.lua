@@ -9,6 +9,7 @@ local obstacle = require("src.scripts.entities.obstacle")
 local projectile = require("src.scripts.systems.projectile")
 local trigger = require("src.scripts.systems.trigger")
 local cb = require("src.scripts.systems.collision_box")
+local item= require("src.scripts.entities.item")
 local itemsDefinition = require("src.scripts.systems.itemsDefinition")
 
 local scale = love.graphics.getWidth() / 256
@@ -475,9 +476,16 @@ function player.checkDeath(dt)
 end
 
 function player.pickItem(_items, _pickableItem, _inventory)
-    if player.inventory.hasSpace(_inventory) then
+    if player.inventory.hasSpace(_inventory, _pickableItem.isStackable) then
         tableUtils.removeByValue(_items, _pickableItem)
-        _inventory.insert(_pickableItem, 1)
+        if _pickableItem.x ~= 0 and _pickableItem ~= 0  and _pickableItem.isStackable then
+            local newItem = item.new(_pickableItem.id, 0, 0)
+            newItem.count = 1
+            _inventory.insert(newItem, 1)
+            return
+        else
+            _inventory.insert(_pickableItem, 1)
+        end
     end
 end
 
@@ -488,7 +496,7 @@ function player.dropItem(_items, _inventory)
 
             --Mejorar las restricciones de los bordes del mundo
 
-            local item = inventory[i].item
+            local item = player.inventory[i].item
             local itemX = player.x + player.collisionBox.width
             local itemY = player.collisionBox.y + player.collisionBox.height - _inventory[i].item.sprite:getHeight()
 
@@ -502,6 +510,20 @@ function player.dropItem(_items, _inventory)
 
             item.x = itemX
             item.y = itemY
+
+            if item ~= nil then
+                if item.isStackable and item.isStackable == true then
+                    if player.inventory[i].item.count == 1 then
+                        player.inventory.remove(item)
+                        return
+                    end
+                    local itemCount = player.inventory[i].item.count
+                    item.count = 1
+                    table.insert(_items, item)
+                    player.inventory[i].item.count = itemCount - 1
+                    return
+                end
+            end
 
             table.insert(_items, item)
             player.inventory.remove(item)
