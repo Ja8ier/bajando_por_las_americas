@@ -12,6 +12,7 @@ local tableUtils = require("src.scripts.utils.tableUtils")
 local miniGame = require("src.scripts.states.minigame")
 local cb = require("src.scripts.systems.collision_box")
 local GameState = require("src.scripts.data.game_state")
+local obstacleData = require("src.scripts.utils.obstacleData")
 
 local worldWidth
 local layers = {}
@@ -113,77 +114,72 @@ function stage1.load()
 
     --Objetos con textura
     local phoneBooth = obstacle.new(true, 2340, 50, 24, 55, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), false, 0.8)
-    local wheel = obstacle.new(true, 200, 100, 58, 42, "bottom", love.graphics.newImage("assets/sprites/items/wheel.png"), true, 0.5)
-    local cone = obstacle.new(true, 120, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), true, 0.4)
-    local cone2 = obstacle.new(true, 150, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), true, 0.4)
-    local heavyStone = obstacle.new(true, 380, 108, 64, 53, "full", love.graphics.newImage("assets/sprites/items/heavyStone.png"), false, 0.5)
+--[[     local wheel = obstacle.new(true, 200, 100, 58, 42, "bottom", love.graphics.newImage("assets/sprites/items/wheel.png"), true, 0.5)
+    local cone = obstacle.new(true, 1100, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), true, 0.4)
+    local cone2 = obstacle.new(true, 1950, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), true, 0.4)
+    local heavyStone = obstacle.new(true, 380, 108, 64, 53, "full", love.graphics.newImage("assets/sprites/items/heavyStone.png"), false, 0.5) ]]
 
     table.insert(collisions, phoneBooth)
-    table.insert(collisions, wheel)
+--[[     table.insert(collisions, wheel)
     table.insert(collisions, cone)
     table.insert(collisions, cone2)
-    table.insert(collisions, heavyStone)
+    table.insert(collisions, heavyStone) ]]
 
     --Items
 
     --Triggers
     local phoneBoothTrigger = trigger.new(nil, nil, nil, nil, true, function() isMiniGamePlaying = true end, true, phoneBooth)
-    local coneTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, cone)
+    --local coneTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, cone)
     phoneBoothTrigger.id = "stage1_phoneBoothTrigger"
 
-    local minY, maxY = 330, love.graphics.getHeight() - 170
+    local minY, maxY = 330, love.graphics.getHeight() - 170 -- este valor modificar a algo mas aceptable
 
-    local spawnTrigger = trigger.new(80, 84, 6, 80, true, function()
+    local spawnTrigger = trigger.new(78, 84, 6, 80, true, function()
         setCheckpoint()
+        obstacleData.generateFixedObstacles(2, obstacle, collisions)
         spawnEnemyWave(500, 5500, minY, maxY, false)
     end, true, nil)
     spawnTrigger.id = "stage1_spawnTrigger"
 
     local middleTrigger = trigger.new(1180, 84, 6, 80, true, function()
         setCheckpoint()
+        obstacleData.generateFixedObstacles(1, obstacle, collisions)
         spawnEnemyWave(6000, 10000, minY, maxY, false)
     end, true, nil)
     middleTrigger.id = "stage1_middleTrigger"
 
     local endTrigger = trigger.new(2100, 84, 6, 80, true, function()
         setCheckpoint()
+        obstacleData.generateFixedObstacles(3, obstacle, collisions)
         spawnEnemyWave(10500, 12000, minY, maxY, true)
     end, true, nil)
     endTrigger.id = "stage1_endTrigger"
 
     table.insert(triggers, phoneBoothTrigger)
-    table.insert(triggers, coneTrigger)
+    --table.insert(triggers, coneTrigger)
     table.insert(triggers, spawnTrigger)
     table.insert(triggers, middleTrigger)
     table.insert(triggers, endTrigger)
-    
+
+--[[     local arepa = item.new("arepa", 200, 500)
+    table.insert(items, arepa) ]]
+
     if hasSavedEnemies then --reconstruye enemigos desde el json
 
         for _, savedEnemy in ipairs(GameState.world.savedEnemies) do
 
-            local restoredEnemy = enemy.new(
-                savedEnemy.type,
-                savedEnemy.x,
-                savedEnemy.y
-            )
-
+            local restoredEnemy = enemy.new(savedEnemy.type, savedEnemy.x, savedEnemy.y)
             restoredEnemy.HP = savedEnemy.hp
             restoredEnemy.id = savedEnemy.id
-
             table.insert(enemies, restoredEnemy)
-
         end
-
     end
 
     for _, t in ipairs(triggers) do
-
         if t.id and GameState.world.usedTriggers[t.id] then
             t.isActive = false
         end
-
     end
-
 
     for _, t in ipairs(triggers) do
         if t.id and GameState.world.usedTriggers[t.id] then
@@ -194,14 +190,14 @@ function stage1.load()
     table.insert(items, item.new("bat", spawnPoint.x, spawnPoint.y))
 
    -- enemies temporales
-    local enemy1 = enemy.new(4, 800, 400)
+   --[[      local enemy1 = enemy.new(4, 800, 400)
     local enemy2 = enemy.new(1, 700, love.graphics.getHeight() -170)
 
     table.insert(enemies, enemy2)
     table.insert(enemies, enemy1) 
 
     local boss1 = enemy.new(5, 900, 400)
-    table.insert(enemies, boss1)
+    table.insert(enemies, boss1)]]
 
     if GameState.player.x ~= 0 and GameState.player.y ~= 0 then --si existe una posicion guardada usa esa
         player.load({                                           -- si no, usa spawn normal
@@ -214,7 +210,7 @@ function stage1.load()
 
     player.HP = GameState.player.health
     player.maxHP = GameState.player.maxHealth
-    player.numberAttempts = GameState.player.attempts  
+    player.numberAttempts = GameState.player.attempts
 end
 
 function stage1.update(dt)
