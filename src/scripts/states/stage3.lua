@@ -1,4 +1,4 @@
-local stage3 = {}
+local stage1 = {}
 
 local player = require("src.scripts.entities.player")
 local enemy = require("src.scripts.entities.enemy")
@@ -11,7 +11,7 @@ local inputs = require("src.scripts.utils.inputs")
 local tableUtils = require("src.scripts.utils.tableUtils")
 local miniGame = require("src.scripts.states.minigame")
 local cb = require("src.scripts.systems.collision_box")
-local inventory = require("src.scripts.systems.inventory")
+local GameState = require("src.scripts.data.game_state")
 
 local worldWidth
 local layers = {}
@@ -27,7 +27,7 @@ local touchingItem
 local pickableItem
 local touchingTrigger
 local interactiveObject
-local openInventory = false
+local carryableObject
 local isMiniGamePlaying
 local spawnPoint = {x = 300, y = love.graphics.getHeight() - player.frameheight * player.scale - 250}
 local deadBoss = false
@@ -70,11 +70,23 @@ local function setCheckpoint()
     print("Punto de control guardado en: " .. spawnPoint.x .. ", " .. spawnPoint.y)
 end
 
-function stage3.load()
+local function carryObjectOnTrigger()
+    player.carryObject(collisions, carryableObject.item)
+    tableUtils.removeByValue(triggers, carryableObject)
+end
+
+function stage1.load()
+    enemies = {}  --esto es para que el stage quede limpio, no su dupliquen cajas de colision, no queden triggers invisibles etc
+    stage1.enemies = enemies
+    local hasSavedEnemies = #GameState.world.savedEnemies > 0
+    collisions = {}
+    triggers = {}
+    items = {}
+
 
     isMiniGamePlaying = false
 
-    miniGame.load(1)
+    miniGame.load(2)
 
     --sirve para que las teclas al presionarlas ejecuten su accion una sola vez en lugar de hacerlo de manera constante
     love.keyboard.setKeyRepeat(false)
@@ -100,63 +112,120 @@ function stage3.load()
     table.insert(collisions, collisionWall1)
 
     --Objetos con textura
-    local phoneBooth = obstacle.new(true, 2340, 50, 24, 55, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), 0.8)
-    local wheel = obstacle.new(true, 120, 100, 58, 42, "full", love.graphics.newImage("assets/sprites/items/wheel.png"), 0.5)
-    local cono = obstacle.new(true, 200, 100, 24, 30, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), 0.7)
+    local phoneBooth = obstacle.new(true, 2340, 50, 24, 55, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), false, 0.8)
+    local wheel = obstacle.new(true, 200, 100, 58, 42, "bottom", love.graphics.newImage("assets/sprites/items/wheel.png"), true, 0.5)
+    local cone = obstacle.new(true, 120, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), true, 0.4)
+    local cone2 = obstacle.new(true, 150, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), true, 0.4)
+    local heavyStone = obstacle.new(true, 380, 108, 64, 53, "full", love.graphics.newImage("assets/sprites/items/heavyStone.png"), false, 0.5)
 
     table.insert(collisions, phoneBooth)
     table.insert(collisions, wheel)
-    table.insert(collisions, cono)
+    table.insert(collisions, cone)
+    table.insert(collisions, cone2)
+    table.insert(collisions, heavyStone)
 
     --Items
 
     --Triggers
     local phoneBoothTrigger = trigger.new(nil, nil, nil, nil, true, function() isMiniGamePlaying = true end, true, phoneBooth)
+    local coneTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, cone)
+    phoneBoothTrigger.id = "stage1_phoneBoothTrigger"
 
     local minY, maxY = 330, love.graphics.getHeight() - 170
 
-    local spawnTrigger = trigger.new(70, 84, 6, 80, true, function()
+    local spawnTrigger = trigger.new(80, 84, 6, 80, true, function()
         setCheckpoint()
-        spawnEnemyWave(300, 5500, minY, maxY, false)
+        spawnEnemyWave(500, 5500, minY, maxY, false)
     end, true, nil)
+    spawnTrigger.id = "stage1_spawnTrigger"
 
     local middleTrigger = trigger.new(1180, 84, 6, 80, true, function()
         setCheckpoint()
         spawnEnemyWave(6000, 10000, minY, maxY, false)
     end, true, nil)
+    middleTrigger.id = "stage1_middleTrigger"
 
     local endTrigger = trigger.new(2100, 84, 6, 80, true, function()
         setCheckpoint()
         spawnEnemyWave(10500, 12000, minY, maxY, true)
     end, true, nil)
+    endTrigger.id = "stage1_endTrigger"
 
     table.insert(triggers, phoneBoothTrigger)
+    table.insert(triggers, coneTrigger)
     table.insert(triggers, spawnTrigger)
     table.insert(triggers, middleTrigger)
     table.insert(triggers, endTrigger)
+    
+    if hasSavedEnemies then --reconstruye enemigos desde el json
+
+        for _, savedEnemy in ipairs(GameState.world.savedEnemies) do
+
+            local restoredEnemy = enemy.new(
+                savedEnemy.type,
+                savedEnemy.x,
+                savedEnemy.y
+            )
+
+            restoredEnemy.HP = savedEnemy.hp
+            restoredEnemy.id = savedEnemy.id
+
+            table.insert(enemies, restoredEnemy)
+
+        end
+
+    end
+
+    for _, t in ipairs(triggers) do
+
+        if t.id and GameState.world.usedTriggers[t.id] then
+            t.isActive = false
+        end
+
+    end
+
+
+    for _, t in ipairs(triggers) do
+        if t.id and GameState.world.usedTriggers[t.id] then
+            t.isActive = false
+        end
+    end
+
+    table.insert(items, item.new("bat", spawnPoint.x, spawnPoint.y))
 
    -- enemies temporales
---[[      local enemy1 = enemy.new(4, 800, 400)
+        local enemy1 = enemy.new(4, 800, 400)
     local enemy2 = enemy.new(1, 700, love.graphics.getHeight() -170)
 
     table.insert(enemies, enemy2)
-    table.insert(enemies, enemy1)
+    table.insert(enemies, enemy1) 
 
     local boss1 = enemy.new(5, 900, 400)
-    table.insert(enemies, boss1) ]]
+    table.insert(enemies, boss1)
 
-    player.load(spawnPoint)
+    if GameState.player.x ~= 0 and GameState.player.y ~= 0 then --si existe una posicion guardada usa esa
+        player.load({                                           -- si no, usa spawn normal
+            x = GameState.player.x,
+            y = GameState.player.y
+        })
+    else
+        player.load(spawnPoint)
+    end
+
+    player.HP = GameState.player.health
+    player.maxHP = GameState.player.maxHealth
+    player.numberAttempts = GameState.player.attempts  
 end
 
-function stage3.update(dt)
-    
+function stage1.update(dt)
+
     if isMiniGamePlaying then
-        miniGame.update(dt, 1)
+        miniGame.update(dt, 2)
 
         local isExit
-        isExit, minigameCompleted = miniGame.isExited(1)
+        isExit, minigameCompleted = miniGame.isExited(2)
         if isExit then
-            miniGame.load(1)
+            miniGame.load(2)
             isMiniGamePlaying = false
         end
 
@@ -199,19 +268,34 @@ function stage3.update(dt)
     --detección del contacto de un player con un trigger
     touchingTrigger = false
     for _, _trigger in ipairs(triggers) do
+
         if cb.checkInteractionCollision(player, _trigger) then
 
             touchingTrigger = true
             if _trigger.isActive then
                 if _trigger.item and _trigger.item ~= nil then
+                    if _trigger.item.isCarryable then
+                        carryableObject = _trigger
+                        break
+                    end
                     interactiveObject = _trigger
                 else
                     _trigger.onTrigger()
                     _trigger.isActive = false
+
+                    if _trigger.id then
+                        GameState.world.usedTriggers[_trigger.id] = true
+                    end
+
+                    if _trigger.id then
+                        GameState.world.usedTriggers[_trigger.id] = true
+                    end
+
                 end
             end
 
         end
+
     end
 
     for i, e in ipairs(enemies) do
@@ -241,11 +325,11 @@ function stage3.update(dt)
 
     --actualizar animaciones y sonidos:
     player.updateAnimationState(dt)
-    player.update(dt)
+    player.update(dt, enemies)
     camera.update(player.x, worldWidth * scale)
 end
 
-function stage3.updateCheckPoint()
+function stage1.updateCheckPoint()
     player.x = spawnPoint.x
     player.y = spawnPoint.y -- no funciona
 end
@@ -291,7 +375,21 @@ local function printByOrder()
 
 end
 
-function stage3.draw()
+local function drawPlayerHealthPoints()
+    love.graphics.draw(love.graphics.newImage("assets/sprites/player_life.png"), 10, 10, 0, scale * 0.8, scale * 0.8)
+    love.graphics.setColor(0.13, 0.55, 0.13) --verde
+    love.graphics.rectangle("fill", 10, 10 + 32 * scale * 0.8,
+    mathUtils.calculateHealthBarWidth(player.HP, player.maxHP, 32 * scale * 0.8), 15, 4, 4)
+    love.graphics.setColor(0.1, 0.1, 0.1) --gris oscuro (casi negro)
+    love.graphics.rectangle("line", 10, 10 + 32 * scale * 0.8, 32 * scale * 0.8, 15, 4, 4)
+    love.graphics.setColor(0.05, 0.05, 0.05, 0.7) --gris oscuro
+    love.graphics.rectangle("fill", 10, 25 + 32 * scale * 0.8, 32 * scale * 0.8, 30, 2, 2)
+    love.graphics.setColor(0.75, 0.75, 0.75)--gris claro (casi blanco)
+    love.graphics.print("Salud:".. player.HP, 20, 25 + 32 * scale * 0.8, 0, 1, 0.9)
+    love.graphics.setColor(1, 1, 1)
+end
+
+function stage1.draw()
 
     love.graphics.setColor(1, 1, 1)
 
@@ -313,6 +411,10 @@ function stage3.draw()
         if cb.checkInteractionCollision(player, _trigger) then
 
             if _trigger.item then
+                if _trigger.item.isCarryable then
+                    love.graphics.print("Presiona ".. string.upper(inputs.game.carryObject) .. " para recoger", _trigger.item.x - 80 , _trigger.item.y - 30, 0, 1, 1)
+                    break
+                end
                 love.graphics.print("Presiona ".. inputs.game.interact .. " para interactuar", _trigger.item.x - 100 , _trigger.item.y - 30, 0, 1, 1)
             end
         end
@@ -326,24 +428,23 @@ function stage3.draw()
     love.graphics.draw(layers[#layers].img, frontgroundOffsetX, 0, 0, scale, love.graphics.getHeight() / 144)
 
     --Barra de vida del player
-    love.graphics.draw(love.graphics.newImage("assets/sprites/player_life.png"), 10, 10, 0, scale * 0.8, scale * 0.8)
-    love.graphics.setColor(0,1,0.1)
-    love.graphics.rectangle("fill", 10, 10 + 32 * scale * 0.8, mathUtils.calculateHealthBarWidth(player.HP, player.maxHP, 32 * scale * 0.8), 15)
-    love.graphics.setColor(1,1,1)
-    love.graphics.rectangle("line", 10, 10 + 32 * scale * 0.8, 32 * scale * 0.8, 15)
-    love.graphics.print("Vida:".. player.HP, 10, 25 + 32 * scale * 0.8, 0, 1.08, 0.85)
-    
-    if openInventory and not player.isDead then
-        inventory.draw()
+    drawPlayerHealthPoints()
+
+    if player.isCarringObject then
+        love.graphics.setColor(1,1,1)
+        love.graphics.print("Presiona ".. string.upper(inputs.game.attack) .. " para lanzar", love.graphics.getWidth() - 250, 0, 0, 1, 1)
+        love.graphics.setColor(1,1,1)
     end
 
+    player.inventory.draw()
+
     if isMiniGamePlaying then
-        miniGame.draw(1)
+        miniGame.draw(2)
     end
 
 end
 
-function stage3.cleanStatus()
+function stage1.cleanStatus()
     layers = {}
     enemies = {}
     collisions = {}
@@ -355,60 +456,114 @@ function stage3.cleanStatus()
     isMiniGamePlaying = false
     touchingItem = false
     pickableItem = nil
-    openInventory = false
     spawnPoint = {x = 500, y = love.graphics.getHeight() - player.frameheight * player.scale - 300}
     deadBoss = false
     minigameCompleted = false
 end
 
-function stage3.keypressed(key)
-
-    if isMiniGamePlaying then
-        miniGame.keypressed(key)
-        return
-    end
-
-    if touchingItem then
-        if key == inputs.game.pickUpItem then
-            tableUtils.removeByValue(items, pickableItem)
-            inventory.insert(pickableItem)
-        end
-    end
-
-    -- if key == inputs.game.dropItem then
-    --     player.dropItem(items, inventory.itemPosSelected(), inventory)
-    -- end
-
-    if touchingTrigger then
-        if key == inputs.game.interact then
-            interactiveObject.onTrigger()
-        end
-    end
+function stage1.keypressed(key)
 
     if not player.isDead then
+
+        if isMiniGamePlaying then
+            miniGame.keypressed(key)
+            return
+        end
+
         if touchingItem then
+
             if key == inputs.game.pickUpItem then
-                tableUtils.removeByValue(items, pickableItem)
+                player.pickItem(items, pickableItem, player.inventory)
+                return
             end
+
+        end
+
+        if key == inputs.game.useItem then
+
+            if player.inventory.getItemSelectSlot() ~= nil and 
+                player.inventory.getItemSelectSlot().itemType == ITEM_TYPES.CONSUMIBLE then
+
+                player.inventory.remove(player.inventory.getItemSelectSlot())
+
+                if player.HP ~= 1000 then
+                    if player.HP + 300 > 1000 then
+                        player.HP = 10000
+                    else
+                        player.HP = player.HP + 300
+                    end
+                end
+
+            end
+
+        end
+
+        if key == inputs.game.dropItem then
+            player.dropItem(items, player.inventory)
+            return
+        end
+
+        if key == inputs.game.carryObject then
+             if player.isCarringObject then
+                    local newObject = player.leaveObject()
+                    local newTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, newObject)
+                    table.insert(collisions, newObject)
+                    table.insert(triggers, newTrigger)
+                    player.isCarringObject = false
+                    return
+             end
+        end
+
+        if touchingTrigger then
+
+            if key == inputs.game.interact then
+
+                if interactiveObject ~= nil and not interactiveObject.isCarryable then
+                    interactiveObject.onTrigger()
+                    interactiveObject = nil
+                end
+
+            end
+
+            if key == inputs.game.carryObject then
+                if not player.isCarringObject then
+                    if carryableObject ~= nil and carryableObject.item ~= nil and
+                    carryableObject.item.isCarryable then
+                        carryableObject.onTrigger()
+                        carryableObject = nil
+                    end
+                end
+
+            end
+
         end
 
         if key == inputs.game.attack then
             player.attack(enemies)
+            player.inventory.wearWeapon(player.getWearLosen())
         end
 
-        if key == inputs.game.openInventory then
-            openInventory = not openInventory
-        end
+        player.inventory.keypressed(key)
 
-        inventory.keypressed(key)
+    end
+
+end
+
+function stage1.mousepressed(x, y, button)
+    if isMiniGamePlaying then
+        miniGame.mousepressed(x, y, button)
+        return
     end
 end
 
-function stage3.continueGame()
+function stage1.continueGame()
     if #enemies == 0 and deadBoss and minigameCompleted then
         return true
     end
     return false
 end
 
-return stage3
+stage1.enemies = enemies
+
+
+return stage1

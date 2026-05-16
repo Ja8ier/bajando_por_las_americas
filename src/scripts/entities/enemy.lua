@@ -158,6 +158,7 @@ end
 
 function Enemy.new(tier, _x, _y)
 
+    if NextBossWeaponIndex > 4 then NextBossWeaponIndex = 1 end
     
     local equipment
     if tier ~= 5 then
@@ -408,11 +409,11 @@ function Enemy:specialBottleAttack(dt, player)
         if self.tier == 5 then
             player.HP = player.HP - baseDamage.specialBottleAttack * multipliers[self.tier][NextBossWeaponIndex]
             print("special bottle: ".. baseDamage.specialBottleAttack * multipliers[self.tier][NextBossWeaponIndex])
-            entityStateSystem.applyStatusToTarget(player, entitiesStates[3].state, entitiesStates[3].duration / 4)
+            --entityStateSystem.applyStatusToTarget(player, entitiesStates[3].state, entitiesStates[3].duration / 4)
         else
             player.HP = player.HP - baseDamage.specialBottleAttack * multipliers[self.tier]
             print("special bottle: ".. baseDamage.specialBottleAttack * multipliers[self.tier])
-            entityStateSystem.applyStatusToTarget(player, entitiesStates[3].state, entitiesStates[3].duration)
+            --entityStateSystem.applyStatusToTarget(player, entitiesStates[3].state, entitiesStates[3].duration)
         end
  
         checkAnimation(self, "attack")

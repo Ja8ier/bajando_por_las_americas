@@ -246,12 +246,6 @@ function player.updateAnimationState(dt)
         player.isCrouching = false
     end
 
-    if player.isCarringObject then
-        setAnimation("walkWileCarry")
-        player.speed = 150
-        return
-    end
-
     local isAttackPressed = love.keyboard.isDown(inputs.game.attack)
 
     if isAttackPressed and not wasAttackPressed then
@@ -261,14 +255,14 @@ function player.updateAnimationState(dt)
         else
             setAnimation("punch")
         end
-        --player.speed = 0
+        player.speed = 0 -- Te detienes al atacar
     end
 
     wasAttackPressed = isAttackPressed
 
     if attackTimer >= 0 then
         attackTimer = attackTimer - dt
-        return
+        return -- Salimos: el ataque bloquea el movimiento y el sprint
     end
 
     local status = player.entityStatus and player.entityStatus.statusType
@@ -288,11 +282,6 @@ function player.updateAnimationState(dt)
             end
         else
             setAnimation("walk")
-            if status == "slow" then
-                player.speed = player.speed * 0.5
-            elseif status == "stun" then
-                --player.speed = 0
-            end
         end
     else
         player.isCrouching = false
@@ -300,13 +289,7 @@ function player.updateAnimationState(dt)
             player.speed = 150
         end
         setAnimation("walk")
-        if status == "slow" then
-            player.speed = player.speed * 0.5
-        elseif status == "stun" then
-            --player.speed = 0
-        end
     end
-
 end
 
 --movimiento del player

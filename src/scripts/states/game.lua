@@ -145,7 +145,6 @@ function game.update(dt)
 
     if currentStage and currentStage.continueGame then
         if currentStage.continueGame() and passLevel then
-            print(passLevel)
             passLevel = false
             game.nextStage()
         end
@@ -242,7 +241,7 @@ function game.draw()
     if currentStage and currentStage.continueGame then
         levelCompleted = currentStage.continueGame()
     end
-    if not passLevel and levelCompleted and not game.isWin then
+    if not passLevel and levelCompleted and not game.isWin and NextBossWeaponIndex < 5 then
         love.graphics.setColor(1,1,1,1)
         love.graphics.print("Presione ESPACIO para pasar al próximo nivel.", (love.graphics.getWidth() - 425)/2, 500)
     end
