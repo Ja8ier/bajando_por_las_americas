@@ -75,6 +75,12 @@ function love.mousereleased(x, y, button)
     end
 end
 
+function love.mousepressed(x, y, button)
+    if Current_state and Current_state.mousepressed then
+        Current_state.mousepressed(x, y, button)
+    end
+end
+
 function love.textinput(t)
     if Current_state and Current_state.textinput then
         Current_state.textinput(t)

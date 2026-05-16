@@ -3,7 +3,8 @@ local minigame = {}
 local gamePlayingIndex
 
 local minigames = {
-    [1] = require("src.scripts.states.minigames.qte")
+    [1] = require("src.scripts.states.minigames.qte"),
+    [2] = require("src.scripts.states.minigames.bomb defusal.bomb")
 }
 
 function minigame.load(index)
@@ -39,6 +40,12 @@ end
 function minigame.isExited(index)
     if minigames[index].draw then
         return minigames[index].isExited()
+    end
+end
+
+function minigame.mousepressed(x, y, button)
+    if minigames[gamePlayingIndex].mousepressed then
+        minigames[gamePlayingIndex].mousepressed(x, y, button)
     end
 end
 

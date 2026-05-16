@@ -222,12 +222,12 @@ end
 function stage1.update(dt)
 
     if isMiniGamePlaying then
-        miniGame.update(dt, 1)
+        miniGame.update(dt, 2)
 
         local isExit
-        isExit, minigameCompleted = miniGame.isExited(1)
+        isExit, minigameCompleted = miniGame.isExited(2)
         if isExit then
-            miniGame.load(1)
+            miniGame.load(2)
             isMiniGamePlaying = false
         end
 
