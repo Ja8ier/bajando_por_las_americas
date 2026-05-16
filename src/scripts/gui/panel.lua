@@ -20,7 +20,7 @@ function Panel.draw(new_panel)
     
     if not new_panel.visible then return end
 
-    love.graphics.setColor(0.996, 0.996, 1)
+    love.graphics.setColor(0.95, 0.95, 0.9)
     love.graphics.rectangle("fill", new_panel.x, new_panel.y, new_panel.w, new_panel.h, 10)
 
     love.graphics.setColor(0.1, 0.1, 0.1, 0.9)

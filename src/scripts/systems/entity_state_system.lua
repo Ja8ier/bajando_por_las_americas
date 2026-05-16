@@ -12,18 +12,15 @@ entityStateSystem.statusDictionary = {
     -- Estado de retroceso (Knockback)
     knockback = function(entity, dt, attacker, obstacles)
 
-        local factorSpeed
-        if attacker.tier and attacker.tier == 5 then factorSpeed = 5 else factorSpeed = 1.5 end
-
         local dx = entity.x - attacker.x
         local dy = entity.y - attacker.y
         local distance = math.sqrt(dx^2 + dy^2)
 
         if distance > 0 then
             if entity.x > attacker.x then
-                entity.involuntaryMovement(dt, "x", "right", factorSpeed, 1, obstacles)
+                entity.involuntaryMovement(dt, "x", "right", 1.5, 1, obstacles)
             else
-                entity.involuntaryMovement(dt, "x", "left", factorSpeed, 1, obstacles)
+                entity.involuntaryMovement(dt, "x", "left", 1.5, 1, obstacles)
             end
 
             if entity.y > attacker.y then
@@ -91,12 +88,8 @@ function entityStateSystem.updateStatus(entity, dt, attacker, obstacles)
 
         else
 
-            if (entity.entityStatus.statusType == "stun" or entity.entityStatus.statusType == "slow") then
-                if entity.type == "player" then
-                    entity.speed = 150
-                else
-                    entity.speed = 150
-                end
+            if (entity.entityStatus.statusType == "stun" or entity.entityStatus.statusType == "slow") and entity.originalSpeed then
+                entity.speed = entity.originalSpeed
                 entity.originalSpeed = nil
                 entity.isMoving = true
             end

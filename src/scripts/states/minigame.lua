@@ -1,4 +1,6 @@
-local minigame = {}
+local minigame = {
+    isWin = false
+}
 
 local gamePlayingIndex
 
