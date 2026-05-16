@@ -29,10 +29,10 @@ local level = 1
 local sequenceLength = config.baseLength
 
 local possibleInputs = {
-    inputs.minigames["1"].up,
-    inputs.minigames["1"].down,
-    inputs.minigames["1"].left,
-    inputs.minigames["1"].right
+    inputs.minigames["2"].up,
+    inputs.minigames["2"].down,
+    inputs.minigames["2"].left,
+    inputs.minigames["2"].right
 }
 
 local lastFeedback = ""
@@ -162,7 +162,7 @@ end
 
 function qte.keypressed(key)
 
-    if key == inputs.minigames["1"].quit then
+    if key == inputs.minigames["2"].quit then
         if state == "success" then
             if level < config.maxLevel then gameCompleted = false else gameCompleted = true end
         end
@@ -170,7 +170,7 @@ function qte.keypressed(key)
     end
 
     if state == "start" then
-        if key == inputs.minigames["1"].continue then
+        if key == inputs.minigames["2"].continue then
             sounds.start:clone():play()
             beginRound()
         end
@@ -178,7 +178,7 @@ function qte.keypressed(key)
     end
 
     if state == "success" then
-        if key == inputs.minigames["1"].continue then
+        if key == inputs.minigames["2"].continue then
             if level < config.maxLevel then
                 level = level + 1
                 beginRound()
@@ -188,7 +188,7 @@ function qte.keypressed(key)
     end
 
     if state == "fail" then
-        if key == inputs.minigames["1"].restart then
+        if key == inputs.minigames["2"].restart then
             level = 1
             beginRound()
         end
@@ -240,10 +240,6 @@ function qte.draw()
 
     local w = love.graphics.getWidth()
     local h = love.graphics.getHeight()
-
---[[     love.graphics.setColor(0, 0, 0, 0.7)
-    love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
-    love.graphics.setColor(1, 1, 1) ]]
     
     -- Fondo
     if bg then

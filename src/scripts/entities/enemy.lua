@@ -361,7 +361,7 @@ function Enemy:groundSlam(dt, player)
         player.HP = player.HP - baseDamage.groundSlam * multipliers[self.tier]
         print("slam: ".. baseDamage.groundSlam * multipliers[self.tier])
 
-        entityStateSystem.applyStatusToTarget(player, entitiesStates[2].state, entitiesStates[2].duration)
+        --entityStateSystem.applyStatusToTarget(player, entitiesStates[2].state, entitiesStates[2].duration)
 
         checkAnimation(self, "groundSlam")
     end
@@ -457,11 +457,11 @@ function Enemy:specialWrenchAttack(dt, player)
         if self.tier == 5 then
             player.HP = player.HP - baseDamage.specialWrenchAttack * multipliers[self.tier][NextBossWeaponIndex]
             print("special wrench: ".. baseDamage.specialWrenchAttack * multipliers[self.tier][NextBossWeaponIndex])
-            entityStateSystem.applyStatusToTarget(player, entitiesStates[2].state, entitiesStates[2].duration / 3)
+            --entityStateSystem.applyStatusToTarget(player, entitiesStates[2].state, entitiesStates[2].duration / 3)
         else
             player.HP = player.HP - baseDamage.specialWrenchAttack * multipliers[self.tier]
             print("special wrench: ".. baseDamage.specialWrenchAttack * multipliers[self.tier])
-            entityStateSystem.applyStatusToTarget(player, entitiesStates[2].state, entitiesStates[2].duration)
+            --entityStateSystem.applyStatusToTarget(player, entitiesStates[2].state, entitiesStates[2].duration)
         end
 
         checkAnimation(self, "attack")

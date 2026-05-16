@@ -214,20 +214,18 @@ function stage1.load()
 
     player.HP = GameState.player.health
     player.maxHP = GameState.player.maxHealth
-    player.numberAttempts = GameState.player.attempts
-
-    
+    player.numberAttempts = GameState.player.attempts  
 end
 
 function stage1.update(dt)
 
     if isMiniGamePlaying then
-        miniGame.update(dt, 2)
+        miniGame.update(dt, 1)
 
         local isExit
-        isExit, minigameCompleted = miniGame.isExited(2)
+        isExit, minigameCompleted = miniGame.isExited(1)
         if isExit then
-            miniGame.load(2)
+            miniGame.load(1)
             isMiniGamePlaying = false
         end
 
@@ -549,6 +547,13 @@ function stage1.keypressed(key)
 
     end
 
+end
+
+function stage1.mousepressed(x, y, button)
+    if isMiniGamePlaying then
+        miniGame.mousepressed(x, y, button)
+        return
+    end
 end
 
 function stage1.continueGame()

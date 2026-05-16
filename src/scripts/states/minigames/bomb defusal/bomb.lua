@@ -1,12 +1,13 @@
 local bomb = {}
 
-local Wires = require("modules.wires")
-local Buttons = require("modules.buttons")
-local Energy = require("modules.energy")
-local Keypad = require("modules.keypad")
-local HUD = require("ui.hud")
-local Briefing = require("ui.briefing")
-local Effects = require("game.effects")
+local Wires = require("src.scripts.states.minigames.bomb defusal.modules.wires")
+local Buttons = require("src.scripts.states.minigames.bomb defusal.modules.buttons")
+local Energy = require("src.scripts.states.minigames.bomb defusal.modules.energy")
+local Keypad = require("src.scripts.states.minigames.bomb defusal.modules.keypad")
+local HUD = require("src.scripts.states.minigames.bomb defusal.ui.hud")
+local Briefing = require("src.scripts.states.minigames.bomb defusal.ui.briefing")
+local Effects = require("src.scripts.states.minigames.bomb defusal.effects.effects")
+local inputs = require("src.scripts.utils.inputs")
 
 -- VARIABLES
 local state = "briefing"
@@ -14,6 +15,8 @@ local font, titleFont, timerFont, buttonFont
 local blinkTimer = 0
 local showPress = true
 local bombTimer = 30
+local exit
+local gameCompleted = false
 
 -- GAMEPLAY
 local currentStep = 1
@@ -59,6 +62,22 @@ local function nextStep()
     generateChallenge()
 end
 
+local function resetGameState()
+    state = "briefing"
+    bombTimer = 30
+    currentStep = 1
+    currentInstruction = nil
+    currentMode = "wire"
+    gameplayPhase = "main"
+    blinkTimer = 0
+    showPress = true
+    dangerPlaying = false
+
+    Energy.reset()
+    Keypad.reset()
+    Briefing.reset()
+end
+
 local function playInteract()
     interactSound:stop()
     interactSound:play()
@@ -70,8 +89,11 @@ local function playExplosion()
 end
 
 function bomb.load()
+    exit = false
+    gameCompleted = false
+
     math.randomseed(os.time())
-    background = love.graphics.newImage("assets/images/bg.png")
+    background = love.graphics.newImage("assets/sprites/miniGames/bomb defusal/bg.png")
 
     -- FONTS
     font = love.graphics.newFont("assets/fonts/PressStart2P-Regular.ttf", 16)
@@ -80,10 +102,10 @@ function bomb.load()
     buttonFont = love.graphics.newFont("assets/fonts/PressStart2P-Regular.ttf", 18)
 
     -- WIRES
-    wireSprites.red = love.graphics.newImage("assets/images/red_wire.png")
-    wireSprites.blue = love.graphics.newImage("assets/images/blue_wire.png")
-    wireSprites.green = love.graphics.newImage("assets/images/green_wire.png")
-    wireSprites.yellow = love.graphics.newImage("assets/images/yellow_wire.png")
+    wireSprites.red = love.graphics.newImage("assets/sprites/miniGames/bomb defusal/red_wire.png")
+    wireSprites.blue = love.graphics.newImage("assets/sprites/miniGames/bomb defusal/blue_wire.png")
+    wireSprites.green = love.graphics.newImage("assets/sprites/miniGames/bomb defusal/green_wire.png")
+    wireSprites.yellow = love.graphics.newImage("assets/sprites/miniGames/bomb defusal/yellow_wire.png")
 
     -- MODULE LOADS
     Wires.load(wireSprites)
@@ -93,19 +115,24 @@ function bomb.load()
     generateChallenge()
 
     -- SPRITES & AUDIO
-    finalButtonSprite = love.graphics.newImage("assets/images/final_button.png")
-    dangerSound = love.audio.newSource("assets/sounds/danger.wav", "stream")
+    finalButtonSprite = love.graphics.newImage("assets/sprites/miniGames/bomb defusal/final_button.png")
+    dangerSound = love.audio.newSource("assets/sounds/minigames/bomb defusal/danger.wav", "stream")
     dangerSound:setLooping(true)    
-    interactSound = love.audio.newSource("assets/sounds/show.wav", "static")
+    interactSound = love.audio.newSource("assets/sounds/minigames/bomb defusal/show.wav", "static")
     interactSound:setVolume(0.5)
-    explosionSound = love.audio.newSource("assets/sounds/explotion.flac", "static")
+    explosionSound = love.audio.newSource("assets/sounds/minigames/bomb defusal/explotion.flac", "static")
     explosionSound:setVolume(0.8)
-    ambientMusic = love.audio.newSource("assets/sounds/ambient.wav", "stream")
+    ambientMusic = love.audio.newSource("assets/sounds/minigames/bomb defusal/ambient.wav", "stream")
     ambientMusic:setLooping(true)
     ambientMusic:setVolume(1)
 end
 
 function bomb.update(dt)
+
+    if exit == true then
+        return
+    end
+
     blinkTimer = blinkTimer + dt
     if blinkTimer >= 0.5 then
         blinkTimer = 0
@@ -151,6 +178,9 @@ function bomb.update(dt)
 end
 
 function bomb.draw()
+
+    if exit then return end
+
     local bgScaleX = love.graphics.getWidth() / background:getWidth()
     local bgScaleY = love.graphics.getHeight() / background:getHeight()
 
@@ -219,13 +249,24 @@ function bomb.draw()
 end
 
 function bomb.keypressed(key)
-    if state == "briefing" and Briefing.isFinished() and key == "return" then
+
+    if key == inputs.minigames["1"].quit then
+        if state == "win" then gameCompleted = true else gameCompleted = false end
+        ambientMusic:stop()
+        dangerSound:stop()
+        interactSound:stop()
+        explosionSound:stop()
+        resetGameState()
+        exit = true
+    end
+
+    if state == "briefing" and Briefing.isFinished() and key == inputs.minigames["1"].continue then
         playInteract()
         state = "start"
         return
     end
 
-    if state == "start" and key == "return" then
+    if state == "start" and key == inputs.minigames["1"].continue then
         playInteract()
         ambientMusic:play()
         state = "playing"
@@ -233,7 +274,7 @@ function bomb.keypressed(key)
     end
 
     -- ENERGY PANEL
-    if gameplayPhase == "energy" and key == "space" and state == "playing" then
+    if gameplayPhase == "energy" and key == inputs.minigames["1"].space and state == "playing" then
         playInteract()
         if Energy.checkSuccess() then
             gameplayPhase = "keypad"
@@ -248,7 +289,7 @@ function bomb.keypressed(key)
     end
 
     -- RESTART
-    if state == "fail" and key == "r" then
+    if state == "fail" and key == inputs.minigames["1"].restart then
         ambientMusic:stop()
         dangerSound:stop()
         dangerPlaying = false
@@ -260,6 +301,17 @@ function bomb.keypressed(key)
         Keypad.reset()
         generateChallenge()
         return
+    end
+end
+
+function bomb.isExited()
+    if exit then
+        exit = false
+
+        if gameCompleted then
+            return true, gameCompleted
+        end
+        return true, gameCompleted
     end
 end
 
@@ -324,12 +376,14 @@ function bomb.mousepressed(x, y, button)
             playInteract()    
             if bombTimer <= 1 and bombTimer > 0 then
                 state = "win"
+                gameCompleted = true
                 ambientMusic:stop()
                 dangerSound:stop()
                 dangerPlaying = false
                 Effects.triggerShake(8)
             else
                 state = "fail"
+                gameCompleted = false
                 playExplosion()
                 ambientMusic:stop()
                 dangerSound:stop()

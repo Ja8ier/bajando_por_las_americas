@@ -52,6 +52,13 @@ local inputs = {
     minigames = {
 
         ["1"] = {
+            continue = "return",
+            restart = "r",
+            space = "space",
+            quit = "lctrl"
+        },
+
+        ["2"] = {
             up = "up",
             down = "down",
             left = "left",
@@ -59,8 +66,7 @@ local inputs = {
             continue = "return",
             restart = "r",
             quit = "lctrl"
-        },
-
+        }
     }
 
 }

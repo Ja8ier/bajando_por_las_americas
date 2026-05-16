@@ -14,7 +14,7 @@ keypad.panelY = 120
 keypad.scale = 0.55
 
 function keypad.load()
-    keypad.panel = love.graphics.newImage("assets/images/keypad_panel.png")
+    keypad.panel = love.graphics.newImage("assets/sprites/miniGames/bomb defusal/keypad_panel.png")
     keypad.buttons = {}
 
     -- BUTTON GRID

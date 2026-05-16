@@ -261,7 +261,7 @@ function player.updateAnimationState(dt)
         else
             setAnimation("punch")
         end
-        player.speed = 0
+        --player.speed = 0
     end
 
     wasAttackPressed = isAttackPressed
@@ -291,7 +291,7 @@ function player.updateAnimationState(dt)
             if status == "slow" then
                 player.speed = player.speed * 0.5
             elseif status == "stun" then
-                player.speed = 0
+                --player.speed = 0
             end
         end
     else
@@ -303,7 +303,7 @@ function player.updateAnimationState(dt)
         if status == "slow" then
             player.speed = player.speed * 0.5
         elseif status == "stun" then
-            player.speed = 0
+            --player.speed = 0
         end
     end
 

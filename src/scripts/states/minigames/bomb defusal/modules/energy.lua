@@ -18,7 +18,7 @@ energy.bar = { x = 0, y = 0, w = 0, h = 0 }
 energy.successZone = { x = 0, w = 0 }
 
 function energy.load()
-    energy.panel = love.graphics.newImage("assets/images/energy_panel.png")
+    energy.panel = love.graphics.newImage("assets/sprites/miniGames/bomb defusal/energy_panel.png")
 
     -- IMPORTANT:
     -- NO TOCAR ESTOS OFFSETS

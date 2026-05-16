@@ -3,8 +3,8 @@ local minigame = {}
 local gamePlayingIndex
 
 local minigames = {
-    [1] = require("src.scripts.states.minigames.qte"),
-    [2] = require("src.scripts.states.minigames.bomb defusal.bomb")
+    [1] = require("src.scripts.states.minigames.bomb defusal.bomb"),
+    [2] = require("src.scripts.states.minigames.qte.qte")
 }
 
 function minigame.load(index)

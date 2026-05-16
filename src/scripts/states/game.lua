@@ -145,6 +145,7 @@ function game.update(dt)
 
     if currentStage and currentStage.continueGame then
         if currentStage.continueGame() and passLevel then
+            print(passLevel)
             passLevel = false
             game.nextStage()
         end
@@ -249,8 +250,10 @@ end
 
 function game.keypressed(key)
 
-    if key == inputs.game.nextLevel then
-        passLevel = true
+    if currentStage and currentStage.continueGame then
+        if key == inputs.game.nextLevel and currentStage.continueGame() then
+            passLevel = true
+        end
     end
 
      if (type(inputs.game.pause) == "table") and (key == inputs.game.pause[1] or key == inputs.game.pause[2]) and not game.isWin then
@@ -291,6 +294,12 @@ function game.keypressed(key)
         currentStage.keypressed(key)
     end
     
+end
+
+function game.mousepressed(x, y, button)
+    if not game.isPaused and not game.gameOver and currentStage and currentStage.mousepressed then
+        currentStage.mousepressed(x, y, button)
+    end
 end
 
 function game.mousereleased(x, y)
