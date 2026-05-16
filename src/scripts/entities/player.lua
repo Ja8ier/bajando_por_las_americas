@@ -34,8 +34,11 @@ local wearLosen = 0
 local objectCarried = {image = nil, scale = 1, width = 0, height = 0, x = 0, y = 0, collisionType = ""}
 local objectToSave
 
-local THROWABLE_ITEM_DAMAGE = 400
-local THROW_ANGLE = 60
+local THROWABLE_ITEM_DAMAGE = 500
+local POWER = 400
+local THROW_ANGLE = 35
+
+local currentProjectile = nil
 
 local player = {
     x = 0,
@@ -155,19 +158,27 @@ function player.update(dt, enemies)
 
     end
 
-    if projectile.isActive then
-        projectile.update(dt, player.facingLeft)
+    if currentProjectile ~= nil then
+        if currentProjectile.isActive then
+            currentProjectile.update(dt, player.facingLeft)
 
-        if not projectile.isActive and not hasImpacted then
+            if not currentProjectile.isActive and not hasImpacted then
+                local impactTrigger = trigger.new(
+                    currentProjectile.getGroundX() / scale, 
+                    currentProjectile.getGroundY() / scale,
+                    currentProjectile.objWidth / scale, 
+                    currentProjectile.objHeight * 2 / scale, 
+                    true, nil, true, nil
+                )
+                player.hurtEnemiesByDistance(enemies, impactTrigger)
 
-            local impactTrigger = trigger.new(projectile.getGroundX() / scale, projectile.getGroundY() / scale,
-                objectToSave.collisionBox.width / scale, objectToSave.collisionBox.height * 2 / scale, true, nil, true, nil)
+                currentProjectile.reset() 
+                currentProjectile = nil
 
-            player.hurtEnemiesByDistance(enemies, impactTrigger)
-
-            hasImpacted = true
-            objectToSave = nil
-            objectCarried = {image = nil, scale = 1, width = 0, height = 0, x = 0, y = 0, collisionType = ""}
+                hasImpacted = true
+                objectToSave = nil
+                objectCarried = {image = nil, scale = 1, width = 0, height = 0, x = 0, y = 0, collisionType = ""}
+            end
         end
     end
 
@@ -216,8 +227,10 @@ function player.draw()
         drawCarryableObject()
     end
 
-    if projectile.isActive then
-        projectile.draw()
+    if currentProjectile ~= nil then
+        if currentProjectile.isActive then
+            currentProjectile.draw()
+        end
     end
 
     love.graphics.setColor(1,1,1)
@@ -494,8 +507,6 @@ function player.dropItem(_items, _inventory)
     for i = 1,9 do
         if _inventory[i].isSelected and _inventory[i].item ~= nil then
 
-            --Mejorar las restricciones de los bordes del mundo
-
             local newItem = player.inventory[i].item
             local itemX = player.x + player.collisionBox.width
             local itemY = player.collisionBox.y + player.collisionBox.height - _inventory[i].item.sprite:getHeight()
@@ -534,7 +545,16 @@ function player.dropItem(_items, _inventory)
 
 end
 
+function player.isThrowing()
+    return currentProjectile ~= nil and currentProjectile.isActive == true
+end
+
 function player.carryObject(objects, object)
+
+    if player.isThrowing() then
+       -- print("No puedes recoger objetos mientras lanzas otro")
+        return
+    end
     if object ~= nil then
         tableUtils.removeByValue(objects, object)
         player.isCarringObject = true
@@ -580,13 +600,29 @@ end
 
 function player.throw(item)
     if item.itemType == ITEM_TYPES.PROJECTILE then
+        return
     else
         player.isCarringObject = false
-        projectile.new(THROWABLE_ITEM_DAMAGE, THROW_ANGLE, objectCarried.x, objectCarried.y, player.y + player.height, true, objectToSave.texture, objectToSave.scale, 2560 * scale)
-        projectile.isActive = true
-        projectile.throw()
+        local throwX = player.x
+        local throwY = player.y - item.height
+        if player.facingLeft then
+            throwX = player.x - player.width
+        else
+            throwX = player.x + player.width
+        end
+
+        local objWidth = objectToSave.collisionBox.width
+        local objHeight = objectToSave.collisionBox.height
+
+        currentProjectile = projectile.new(POWER, THROW_ANGLE, throwX, throwY,
+            player.y + player.height, true, objectToSave.texture, objectToSave.scale, 2560, objWidth, objHeight)
+        if currentProjectile ~= nil then
+            currentProjectile.isActive = true
+            currentProjectile.throw()
+        end
         hasImpacted = false
-        objectCarried = nil
+        objectCarried = {image = nil, scale = 1, width = 0, height = 0, x = 0, y = 0, collisionType = ""}
+        objectToSave = nil
     end
 end
 

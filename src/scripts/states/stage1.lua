@@ -32,6 +32,7 @@ local isMiniGamePlaying
 local spawnPoint = {x = 300, y = love.graphics.getHeight() - player.frameheight * player.scale - 250}
 local deadBoss = false
 local minigameCompleted = false
+local CONSUMIBLE_HP = 300
 
 local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
 
@@ -116,7 +117,7 @@ function stage1.load()
     local wheel = obstacle.new(true, 200, 100, 58, 42, "bottom", love.graphics.newImage("assets/sprites/items/wheel.png"), true, 0.5)
     local cone = obstacle.new(true, 120, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), true, 0.4)
     local cone2 = obstacle.new(true, 150, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), true, 0.4)
-    local heavyStone = obstacle.new(true, 380, 108, 64, 53, "full", love.graphics.newImage("assets/sprites/items/heavyStone.png"), false, 0.5)
+    local heavyStone = obstacle.new(true, 380, 108, 64, 53, "bottom", love.graphics.newImage("assets/sprites/items/heavyStone.png"), true, 0.5)
 
     table.insert(collisions, phoneBooth)
     table.insert(collisions, wheel)
@@ -129,6 +130,8 @@ function stage1.load()
     --Triggers
     local phoneBoothTrigger = trigger.new(nil, nil, nil, nil, true, function() isMiniGamePlaying = true end, true, phoneBooth)
     local coneTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, cone)
+    local cone2Trigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, cone2)
+    local cauchotr = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, wheel)
     phoneBoothTrigger.id = "stage1_phoneBoothTrigger"
 
     local minY, maxY = 330, love.graphics.getHeight() - 170
@@ -156,6 +159,9 @@ function stage1.load()
     table.insert(triggers, spawnTrigger)
     table.insert(triggers, middleTrigger)
     table.insert(triggers, endTrigger)
+
+    table.insert(triggers, cone2Trigger)
+    table.insert(triggers, cauchotr)
     
     if hasSavedEnemies then --reconstruye enemigos desde el json
 
@@ -201,7 +207,7 @@ function stage1.load()
     table.insert(enemies, enemy1) 
 ]]
 local boss1 = enemy.new(5, 900, 400)
-table.insert(enemies, boss1)
+--table.insert(enemies, boss1)
 
     if GameState.player.x ~= 0 and GameState.player.y ~= 0 then --si existe una posicion guardada usa esa
         player.load({                                           -- si no, usa spawn normal
@@ -489,10 +495,10 @@ function stage1.keypressed(key)
                 player.inventory.remove(player.inventory.getItemSelectSlot())
 
                 if player.HP ~= 1000 then
-                    if player.HP + 300 > 1000 then
+                    if player.HP + CONSUMIBLE_HP > 1000 then
                         player.HP = 1000
                     else
-                        player.HP = player.HP + 300
+                        player.HP = player.HP + CONSUMIBLE_HP
                     end
                 end
 
@@ -506,14 +512,25 @@ function stage1.keypressed(key)
         end
 
         if key == inputs.game.carryObject then
-             if player.isCarringObject then
-                    local newObject = player.leaveObject()
-                    local newTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, newObject)
-                    table.insert(collisions, newObject)
-                    table.insert(triggers, newTrigger)
-                    player.isCarringObject = false
-                    return
-             end
+            if not player.isCarringObject then
+                if not player.isThrowing() then
+                    if carryableObject ~= nil and carryableObject.item ~= nil and
+                        carryableObject.item.isCarryable then
+                        carryableObject.onTrigger()
+                        carryableObject = nil
+                    end
+                else
+                    print("no puedes recoger objetos lanzas")
+                end
+            else
+                -- dejar objeto
+                local newObject = player.leaveObject()
+                local newTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, newObject)
+                table.insert(collisions, newObject)
+                table.insert(triggers, newTrigger)
+                player.isCarringObject = false
+            end
+            return
         end
 
         if touchingTrigger then

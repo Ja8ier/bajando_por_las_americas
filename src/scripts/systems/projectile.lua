@@ -1,4 +1,4 @@
-local GRAVITY = 350
+local GRAVITY = 400
 local WORLD_WIDTH
 
 local angle = 30
@@ -14,24 +14,26 @@ local projectile = {
     vx = 0,
     width = 0,
     height = 0,
-    power = 0, -- velocidad inicial
+    power = 0,
     isActive = false,
     bounced = false,
-    image = {
-        sprite = "",
-        scale = 1
-    }
+    image = { sprite = "", scale = 1 },
+    objWidth = 0,
+    objHeight = 0
 }
 
-function projectile.getGroundX()
-    return groundX
-end
+local facingLeftOneTime = true
+local facingLeft
 
-function projectile.getGroundY()
-    return groundY
-end
+function projectile.new(power, direction, _initialX, _initialY, finalY, bounced, _image, _scale, worldWidth, objWidth, objHeight)
 
-function projectile.new(power, direction, _initialX, _initialY, finalY, bounced, _image, _scale, worldWidth)
+    projectile.x = _initialX
+    projectile.y = _initialY
+    projectile.vx = 0
+    projectile.vy = 0
+    groundX = 0
+    facingLeftOneTime = true
+
     projectile.power = power
     angle = math.rad(direction)
     initialX = _initialX
@@ -41,14 +43,23 @@ function projectile.new(power, direction, _initialX, _initialY, finalY, bounced,
     projectile.image.sprite = _image
     projectile.image.scale = _scale
     WORLD_WIDTH = worldWidth
+    projectile.objWidth = objWidth or 0
+    projectile.objHeight = objHeight or 0
+    return projectile
+end
+
+function projectile.getGroundX()
+    return groundX
+end
+
+function projectile.getGroundY()
+    return groundY
 end
 
 function projectile.load()
 
 end
 
-local facingLeftOneTime = true
-local facingLeft
 
 function projectile.update(dt, _facingLeft)
 
@@ -98,6 +109,18 @@ function projectile.throw()
         projectile.vy = -projectile.power * math.sin(angle)
     end
 
+end
+
+function projectile.reset()
+    projectile.isActive = false
+    projectile.active = false
+    projectile.x = 0
+    projectile.y = 0
+    projectile.vx = 0
+    projectile.vy = 0
+    groundX = 0
+    groundY = 0
+    facingLeftOneTime = true
 end
 
 return projectile
