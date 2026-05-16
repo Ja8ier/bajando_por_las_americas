@@ -36,25 +36,27 @@ local function saveCurrentGame() --funcion que convierte el gameplay actual en d
 
     GameState.world.savedEnemies = {}
 
-    for _, enemy in ipairs(currentStage.enemies) do --cuando se guarda recorre enemigos vivos, guarda solo datos esenciales e ignora enemigos muertos
+    if currentStage and currentStage.enemies then
+        for _, enemy in ipairs(currentStage.enemies) do --cuando se guarda recorre enemigos vivos, guarda solo datos esenciales e ignora enemigos muertos
 
-        if not enemy.isDead then
+            if not enemy.isDead then
 
-            table.insert(GameState.world.savedEnemies, {
+                table.insert(GameState.world.savedEnemies, {
 
-                id = enemy.id,
+                    id = enemy.id,
 
-                type = enemy.enemyType,
+                    type = enemy.enemyType,
 
-                x = enemy.x,
-                y = enemy.y,
+                    x = enemy.x,
+                    y = enemy.y,
 
-                hp = enemy.HP
+                    hp = enemy.HP
 
-            })
+                })
+
+            end
 
         end
-
     end
 
     SaveManager.save(GameState)
@@ -82,7 +84,9 @@ end
 
 function game.nextStage()
 
-    currentStageIndex = currentStageIndex + 1
+    if currentStageIndex < 5 then
+        currentStageIndex = currentStageIndex + 1
+    end
 
     if stages[currentStageIndex] then
         --carga el siguiente

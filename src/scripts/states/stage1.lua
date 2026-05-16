@@ -199,9 +199,9 @@ function stage1.load()
 
     table.insert(enemies, enemy2)
     table.insert(enemies, enemy1) 
-]]
-local boss1 = enemy.new(5, 900, 400)
-table.insert(enemies, boss1)
+
+    local boss1 = enemy.new(5, 900, 400)
+    table.insert(enemies, boss1)]]
 
     if GameState.player.x ~= 0 and GameState.player.y ~= 0 then --si existe una posicion guardada usa esa
         player.load({                                           -- si no, usa spawn normal
@@ -490,7 +490,7 @@ function stage1.keypressed(key)
 
                 if player.HP ~= 1000 then
                     if player.HP + 300 > 1000 then
-                        player.HP = 1000
+                        player.HP = 10000
                     else
                         player.HP = player.HP + 300
                     end
