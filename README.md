@@ -54,8 +54,8 @@ Pasos para ejecutar el juego según tu sistema operativo:
           <strong>Ejecución del juego:</strong><br>
           <ul>
             <li>Abre la terminal.</li>
-            <li>Ejecuta el siguiente comando:</li><br>
-            <code>love 'ruta donde se ubica el directorio raíz del repositorio'</code>
+            <li>Accede a la ruta raíz del repositorio y ejecuta el siguiente comando:</li>
+            <code>love .</code>
           </ul>
         </li>
         <li>
