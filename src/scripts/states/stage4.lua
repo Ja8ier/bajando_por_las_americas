@@ -33,6 +33,7 @@ local isMiniGamePlaying
 local spawnPoint = {x = 300, y = love.graphics.getHeight() - player.frameheight * player.scale - 250}
 local deadBoss = false
 local minigameCompleted = false
+local font = love.graphics.newFont("assets/fonts/VT323-Regular.ttf", 28)
 
 local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
 
@@ -91,6 +92,8 @@ function stage4.load()
     --sirve para que las teclas al presionarlas ejecuten su accion una sola vez en lugar de hacerlo de manera constante
     love.keyboard.setKeyRepeat(false)
 
+    love.graphics.setFont(font)
+
     --capas del mapa: background, floor, frontground
     layers = {
         {img = love.graphics.newImage("assets/sprites/sky.png"), factor = 0},
@@ -112,7 +115,7 @@ function stage4.load()
     table.insert(collisions, collisionWall1)
 
     --Objetos con textura
-    local phoneBooth = obstacle.new(true, 2340, 50, 24, 55, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), false, 0.8)
+    local phoneBooth = obstacle.new(true, 1230, 50, 24, 55, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), false, 0.8)
 --[[     local wheel = obstacle.new(true, 200, 100, 58, 42, "bottom", love.graphics.newImage("assets/sprites/items/wheel.png"), true, 0.5)
     local cone = obstacle.new(true, 1100, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), true, 0.4)
     local cone2 = obstacle.new(true, 1950, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), true, 0.4)
@@ -226,7 +229,7 @@ function stage4.update(dt)
     end
 
     if minigameCompleted and onetime then
-        local arepas = {item.new("arepa", 11700, 480), item.new("arepa", 11650, 480), item.new("arepa", 11750, 480)}
+        local arepas = {item.new("arepa", 6100, 480), item.new("arepa", 6050, 480), item.new("arepa", 6150, 480)}
         for i, arep in ipairs(arepas) do
             arep.count = 1
             table.insert(items, arep)

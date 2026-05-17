@@ -298,6 +298,12 @@ function ui.draw()
             "center"
         )
 
+        love.graphics.print(
+            "Presiona CTRL para salir",
+            love.graphics.getWidth() - 420,
+            love.graphics.getHeight() - 30
+        )
+
     end
 
 end

@@ -33,6 +33,7 @@ local isMiniGamePlaying
 local spawnPoint = {x = 300, y = love.graphics.getHeight() - player.frameheight * player.scale - 250}
 local deadBoss = false
 local minigameCompleted = false
+local font = love.graphics.newFont("assets/fonts/VT323-Regular.ttf", 28)
 
 local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
 
@@ -85,7 +86,9 @@ function stage1.load()
 
     isMiniGamePlaying = false
 
-    miniGame.load(3)
+    miniGame.load(1)
+
+    love.graphics.setFont(font)
 
     --sirve para que las teclas al presionarlas ejecuten su accion una sola vez en lugar de hacerlo de manera constante
     love.keyboard.setKeyRepeat(false)
@@ -111,7 +114,7 @@ function stage1.load()
     table.insert(collisions, collisionWall1)
 
     --Objetos con textura
-    local phoneBooth = obstacle.new(true, --[[ 2340 ]]300, 50, 24, 55, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), false, 0.8)
+    local phoneBooth = obstacle.new(true, 2340, 50, 24, 55, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), false, 0.8)
 --[[     local wheel = obstacle.new(true, 200, 100, 58, 42, "bottom", love.graphics.newImage("assets/sprites/items/wheel.png"), true, 0.5)
     local cone = obstacle.new(true, 1100, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), true, 0.4)
     local cone2 = obstacle.new(true, 1950, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), true, 0.4)
@@ -162,9 +165,6 @@ function stage1.load()
     table.insert(triggers, middleTrigger)
     table.insert(triggers, endTrigger)
 
---[[     local arepa = item.new("arepa", 200, 500)
-    table.insert(items, arepa) ]]
-
     if hasSavedEnemies then --reconstruye enemigos desde el json
 
         for _, savedEnemy in ipairs(GameState.world.savedEnemies) do
@@ -213,12 +213,12 @@ local onetime = true
 function stage1.update(dt)
 
     if isMiniGamePlaying then
-        miniGame.update(dt, 3)
+        miniGame.update(dt, 1)
 
         local isExit
-        isExit, minigameCompleted = miniGame.isExited(3)
+        isExit, minigameCompleted = miniGame.isExited(1)
         if isExit then
-            miniGame.load(3)
+            miniGame.load(1)
             isMiniGamePlaying = false
         end
 
@@ -442,7 +442,7 @@ function stage1.draw()
     player.inventory.draw()
 
     if isMiniGamePlaying then
-        miniGame.draw(3)
+        miniGame.draw(1)
     end
 
 end

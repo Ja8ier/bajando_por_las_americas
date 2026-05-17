@@ -1,4 +1,5 @@
 local minigame = {}
+local font = love.graphics.newFont("assets/fonts/VT323-Regular.ttf", 28)
 
 local gamePlayingIndex
 
@@ -26,10 +27,11 @@ function minigame.update(dt, index)
 end
 
 function minigame.draw(index)
-
+    love.graphics.setFont(font)
     if minigames[index].draw then
         minigames[index].draw()
     end
+    love.graphics.setFont(font)
 end
 
 function minigame.keypressed(key)

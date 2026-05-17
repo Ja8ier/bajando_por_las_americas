@@ -74,7 +74,9 @@ local inputs = {
             a = "a",
             d = "d",
             restart = "r",
-            quit = "lctrl"
+            quit = "lctrl",
+            skip = "space",
+            start = "return"
         }
     }
 

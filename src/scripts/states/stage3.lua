@@ -33,6 +33,7 @@ local isMiniGamePlaying
 local spawnPoint = {x = 300, y = love.graphics.getHeight() - player.frameheight * player.scale - 250}
 local deadBoss = false
 local minigameCompleted = false
+local font = love.graphics.newFont("assets/fonts/VT323-Regular.ttf", 28)
 
 local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
 
@@ -86,10 +87,12 @@ function stage3.load()
 
     isMiniGamePlaying = false
 
-    miniGame.load(2)
+    miniGame.load(3)
 
     --sirve para que las teclas al presionarlas ejecuten su accion una sola vez en lugar de hacerlo de manera constante
     love.keyboard.setKeyRepeat(false)
+
+    love.graphics.setFont(font)
 
     --capas del mapa: background, floor, frontground
     layers = {
@@ -213,12 +216,12 @@ local onetime = true
 function stage3.update(dt)
 
     if isMiniGamePlaying then
-        miniGame.update(dt, 2)
+        miniGame.update(dt, 3)
 
         local isExit
-        isExit, minigameCompleted = miniGame.isExited(2)
+        isExit, minigameCompleted = miniGame.isExited(3)
         if isExit then
-            miniGame.load(2)
+            miniGame.load(3)
             isMiniGamePlaying = false
         end
 
@@ -442,7 +445,7 @@ function stage3.draw()
     player.inventory.draw()
 
     if isMiniGamePlaying then
-        miniGame.draw(2)
+        miniGame.draw(3)
     end
 
 end

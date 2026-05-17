@@ -21,7 +21,8 @@ game.victory = false
 
 function game.load()
     exit = false
-    audio.play("hum")
+    gameCompleted = false
+    --audio.play("hum")
     events.load()
     extraction.load()
     reactor.load()
@@ -122,6 +123,14 @@ function game.keypressed(key)
     
     if key == inputs.minigames["3"].quit then
         gameCompleted = game.victory == true
+        
+        if audio.sounds and audio.sounds.hum then
+            print("sdfghhgfdfg")
+            audio.sounds.hum:stop()
+        end
+        if audio.sounds and audio.sounds.alarm then
+            audio.sounds.alarm:stop()
+        end
         exit = true
     end
 
