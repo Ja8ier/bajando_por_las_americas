@@ -83,7 +83,7 @@ local function createObs()
 
     for _, obs in ipairs(data1) do
         local s = sprites1[obs.t]
-        local newObs = obstacle.new(true, obs.x, obs.y, s.w, s.h, s.col, s.img, false, 0.5)
+        local newObs = obstacle.new(true, obs.x, obs.y, s.w, s.h, s.col, s.img, true, 0.5)
         table.insert(collisions, newObs)
         if obs.t == "cono" then
             local newTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, newObs)
@@ -92,7 +92,7 @@ local function createObs()
     end
     for _, obs in ipairs(data2) do
         local s = sprites2[obs.t]
-        local newObs = obstacle.new(true, obs.x, obs.y, s.w, s.h, s.col, s.img, false, 0.5)
+        local newObs = obstacle.new(true, obs.x, obs.y, s.w, s.h, s.col, s.img, true, 0.5)
         table.insert(collisions, newObs)
         if obs.t == "cono" then
             local newTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, newObs)
@@ -101,7 +101,7 @@ local function createObs()
     end
     for _, obs in ipairs(data3) do
         local s = sprites3[obs.t]
-        local newObs = obstacle.new(true, obs.x, obs.y, s.w, s.h, s.col, s.img, false, 0.5)
+        local newObs = obstacle.new(true, obs.x, obs.y, s.w, s.h, s.col, s.img, true, 0.5)
         table.insert(collisions, newObs)
         if obs.t == "cono" then
             local newTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, newObs)

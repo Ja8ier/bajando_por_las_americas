@@ -79,7 +79,7 @@ local animations = {
     attack_bat = animation.new("assets/sprites/player/player_attack_bat.png", 32, 31, 0.25, false),
     attack_wrench = animation.new("assets/sprites/player/player_attack_wrench.png", 31, 31, 0.25, false),
     punch = animation.new("assets/sprites/player/player_punch.png", 24, 28, 0.1, false),
-    walkWileCarry = animation.new("assets/sprites/player/player_walking_while_carring.png", 20, 29, 0.25, false),
+    walkWileCarry = animation.new("assets/sprites/player/player_walking_while_carring.png", 20, 29, 0.25, true),
 }
 
 local currentAnimation = animations.walk
@@ -290,6 +290,12 @@ local function setAttackAnimation()
 end
 
 function player.updateAnimationState(dt)
+
+    if player.isCarringObject then
+        setAnimation("walkWileCarry")
+        player.speed = 150
+        return
+    end
 
     if love.keyboard.isDown(inputs.game.crouch) then
         setAnimation("crouch")
