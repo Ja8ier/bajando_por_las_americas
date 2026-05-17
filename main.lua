@@ -27,7 +27,8 @@ function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
     math.randomseed(os.time()) -- para generar de forma aleatoria la probabilidad de que el enemigo tenga arma o no
 
-    local data = SaveManager.load()
+    local selectedSlot = GameState.currentSlot or 1
+    local data = SaveManager.load(GameState.currentSlot or 1)
 
     if data then
 

@@ -1,6 +1,7 @@
 local GameState = {
 
     currentStage = 1,
+    currentSlot = 1,
 
     player = {
         name = "",

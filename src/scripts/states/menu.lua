@@ -15,7 +15,7 @@ local sprite_Background_menu
 local active = true
 
 menu.Show_settings = false
-menu.Show_exit = false
+menu.Show_exit = false 
 
 function menu.load()
 

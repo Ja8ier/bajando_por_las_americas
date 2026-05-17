@@ -53,7 +53,7 @@ local function saveCurrentGame() --funcion que convierte el gameplay actual en d
 
     end
 
-    SaveManager.save(GameState)
+    SaveManager.save(GameState, GameState.currentSlot)
 
 end
 
