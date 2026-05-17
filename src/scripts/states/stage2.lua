@@ -86,7 +86,7 @@ function stage2.load()
 
     isMiniGamePlaying = false
 
-    miniGame.load(1)
+    miniGame.load(2)
 
     --sirve para que las teclas al presionarlas ejecuten su accion una sola vez en lugar de hacerlo de manera constante
     love.keyboard.setKeyRepeat(false)
@@ -213,12 +213,12 @@ local onetime = true
 function stage2.update(dt)
 
     if isMiniGamePlaying then
-        miniGame.update(dt, 1)
+        miniGame.update(dt, 2)
 
         local isExit
-        isExit, minigameCompleted = miniGame.isExited(1)
+        isExit, minigameCompleted = miniGame.isExited(2)
         if isExit then
-            miniGame.load(1)
+            miniGame.load(2)
             isMiniGamePlaying = false
         end
 
@@ -442,7 +442,7 @@ function stage2.draw()
     player.inventory.draw()
 
     if isMiniGamePlaying then
-        miniGame.draw(1)
+        miniGame.draw(2)
     end
 
 end

@@ -66,6 +66,15 @@ local inputs = {
             continue = "return",
             restart = "r",
             quit = "lctrl"
+        },
+
+        ["3"] = {
+            q = "q",
+            e = "e",
+            a = "a",
+            d = "d",
+            restart = "r",
+            quit = "lctrl"
         }
     }
 

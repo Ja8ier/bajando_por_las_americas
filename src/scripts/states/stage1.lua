@@ -85,7 +85,7 @@ function stage1.load()
 
     isMiniGamePlaying = false
 
-    miniGame.load(1)
+    miniGame.load(3)
 
     --sirve para que las teclas al presionarlas ejecuten su accion una sola vez en lugar de hacerlo de manera constante
     love.keyboard.setKeyRepeat(false)
@@ -111,7 +111,7 @@ function stage1.load()
     table.insert(collisions, collisionWall1)
 
     --Objetos con textura
-    local phoneBooth = obstacle.new(true, 2340, 50, 24, 55, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), false, 0.8)
+    local phoneBooth = obstacle.new(true, --[[ 2340 ]]300, 50, 24, 55, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), false, 0.8)
 --[[     local wheel = obstacle.new(true, 200, 100, 58, 42, "bottom", love.graphics.newImage("assets/sprites/items/wheel.png"), true, 0.5)
     local cone = obstacle.new(true, 1100, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), true, 0.4)
     local cone2 = obstacle.new(true, 1950, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), true, 0.4)
@@ -213,12 +213,12 @@ local onetime = true
 function stage1.update(dt)
 
     if isMiniGamePlaying then
-        miniGame.update(dt, 1)
+        miniGame.update(dt, 3)
 
         local isExit
-        isExit, minigameCompleted = miniGame.isExited(1)
+        isExit, minigameCompleted = miniGame.isExited(3)
         if isExit then
-            miniGame.load(1)
+            miniGame.load(3)
             isMiniGamePlaying = false
         end
 
@@ -442,7 +442,7 @@ function stage1.draw()
     player.inventory.draw()
 
     if isMiniGamePlaying then
-        miniGame.draw(1)
+        miniGame.draw(3)
     end
 
 end
