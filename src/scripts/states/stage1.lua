@@ -12,6 +12,7 @@ local tableUtils = require("src.scripts.utils.tableUtils")
 local miniGame = require("src.scripts.states.minigame")
 local cb = require("src.scripts.systems.collision_box")
 local GameState = require("src.scripts.data.game_state")
+local entitiesData = require("src.scripts.utils.entitiesData")
 
 local worldWidth
 local layers = {}
@@ -53,9 +54,8 @@ local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
     end
 
     if MapEnd then
-        spawnX = math.random(xStart, xEnd)
         spawnY = math.random(yMin, yMax)
-        local boss = enemy.new(5, spawnX, spawnY)
+        local boss = enemy.new(5, 12200, spawnY)
         table.insert(enemies, boss)
     end
 
@@ -123,10 +123,9 @@ function stage1.load()
     triggers = {}
     items = {}
 
-
     isMiniGamePlaying = false
 
-    miniGame.load(1)
+    miniGame.load(3)
 
     --sirve para que las teclas al presionarlas ejecuten su accion una sola vez en lugar de hacerlo de manera constante
     love.keyboard.setKeyRepeat(false)
@@ -152,28 +151,34 @@ function stage1.load()
     table.insert(collisions, collisionWall1)
 
     --Objetos con textura
-    local phoneBooth = obstacle.new(true, 2340, 50, 24, 55, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), false, 0.8)
-    local wheel = obstacle.new(true, 200, 100, 58, 42, "bottom", love.graphics.newImage("assets/sprites/items/wheel.png"), true, 0.5)
-    local cone = obstacle.new(true, 120, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), true, 0.4)
-    local cone2 = obstacle.new(true, 150, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), true, 0.4)
-    local heavyStone = obstacle.new(true, 380, 108, 64, 53, "full", love.graphics.newImage("assets/sprites/items/heavyStone.png"), false, 0.5)
+    local phoneBooth = obstacle.new(true, --[[ 2340 ]]300, 50, 24, 55, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), false, 0.8)
+--[[     local wheel = obstacle.new(true, 200, 100, 58, 42, "bottom", love.graphics.newImage("assets/sprites/items/wheel.png"), true, 0.5)
+    local cone = obstacle.new(true, 1100, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), true, 0.4)
+    local cone2 = obstacle.new(true, 1950, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), true, 0.4)
+    local heavyStone = obstacle.new(true, 380, 108, 64, 53, "full", love.graphics.newImage("assets/sprites/items/heavyStone.png"), false, 0.5) ]]
 
     table.insert(collisions, phoneBooth)
-    table.insert(collisions, wheel)
+--[[     table.insert(collisions, wheel)
     table.insert(collisions, cone)
     table.insert(collisions, cone2)
-    table.insert(collisions, heavyStone)
+    table.insert(collisions, heavyStone) ]]
+
+
+    entitiesData.generateFixedObstacles(1, obstacle, collisions)
+    entitiesData.generateFixedObstacles(2, obstacle, collisions)
+    entitiesData.generateFixedObstacles(3, obstacle, collisions)
+    entitiesData.generateItems(1, item, items)
 
     --Items
 
     --Triggers
     local phoneBoothTrigger = trigger.new(nil, nil, nil, nil, true, function() isMiniGamePlaying = true end, true, phoneBooth)
-    local coneTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, cone)
+    --local coneTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, cone)
     phoneBoothTrigger.id = "stage1_phoneBoothTrigger"
 
-    local minY, maxY = 330, love.graphics.getHeight() - 170
+    local minY, maxY = 330, love.graphics.getHeight() - 170 -- este valor modificar a algo mas aceptable
 
-    local spawnTrigger = trigger.new(80, 84, 6, 80, true, function()
+    local spawnTrigger = trigger.new(78, 84, 6, 80, true, function()
         setCheckpoint()
         spawnWorldObjects(300, 5500, minY, maxY, false)
         spawnEnemyWave(300, 5500, minY, maxY, false)
@@ -195,38 +200,24 @@ function stage1.load()
     endTrigger.id = "stage1_endTrigger"
 
     table.insert(triggers, phoneBoothTrigger)
-    table.insert(triggers, coneTrigger)
+    --table.insert(triggers, coneTrigger)
     table.insert(triggers, spawnTrigger)
     table.insert(triggers, middleTrigger)
     table.insert(triggers, endTrigger)
-    
+
+--[[     local arepa = item.new("arepa", 200, 500)
+    table.insert(items, arepa) ]]
+
     if hasSavedEnemies then --reconstruye enemigos desde el json
 
         for _, savedEnemy in ipairs(GameState.world.savedEnemies) do
 
-            local restoredEnemy = enemy.new(
-                savedEnemy.type,
-                savedEnemy.x,
-                savedEnemy.y
-            )
-
+            local restoredEnemy = enemy.new(savedEnemy.type, savedEnemy.x, savedEnemy.y)
             restoredEnemy.HP = savedEnemy.hp
             restoredEnemy.id = savedEnemy.id
-
             table.insert(enemies, restoredEnemy)
-
         end
-
     end
-
-    for _, t in ipairs(triggers) do
-
-        if t.id and GameState.world.usedTriggers[t.id] then
-            t.isActive = false
-        end
-
-    end
-
 
     for _, t in ipairs(triggers) do
         if t.id and GameState.world.usedTriggers[t.id] then
@@ -242,9 +233,9 @@ function stage1.load()
 
     table.insert(enemies, enemy2)
     table.insert(enemies, enemy1) 
-]]
-local boss1 = enemy.new(5, 900, 400)
-table.insert(enemies, boss1)
+
+    local boss1 = enemy.new(5, 900, 400)
+    table.insert(enemies, boss1)]]
 
     if GameState.player.x ~= 0 and GameState.player.y ~= 0 then --si existe una posicion guardada usa esa
         player.load({                                           -- si no, usa spawn normal
@@ -258,21 +249,33 @@ table.insert(enemies, boss1)
     player.HP = GameState.player.health
     player.maxHP = GameState.player.maxHealth
     player.numberAttempts = GameState.player.attempts
-
-    
 end
+
+local onetime = true
 
 function stage1.update(dt)
 
     if isMiniGamePlaying then
-        miniGame.update(dt, 1)
+        miniGame.update(dt, 3)
 
-        if miniGame.isExited(1) then
-            miniGame.load(1)
+        local isExit
+        isExit, minigameCompleted = miniGame.isExited(3)
+        if isExit then
+            miniGame.load(3)
             isMiniGamePlaying = false
         end
 
         return
+    end
+
+    if minigameCompleted and onetime then
+        local arepas = {item.new("arepa", 11700, 480), item.new("arepa", 11650, 480), item.new("arepa", 11750, 480)}
+        for i, arep in ipairs(arepas) do
+            arep.count = 1
+            table.insert(items, arep)
+        end
+        print("asdfghhcx")
+        onetime = false
     end
 
     --Mover x
@@ -479,7 +482,7 @@ function stage1.draw()
     player.inventory.draw()
 
     if isMiniGamePlaying then
-        miniGame.draw(1)
+        miniGame.draw(3)
     end
 
 end
@@ -526,7 +529,7 @@ function stage1.keypressed(key)
 
                 if player.HP ~= 1000 then
                     if player.HP + 300 > 1000 then
-                        player.HP = 1000
+                        player.HP = 10000
                     else
                         player.HP = player.HP + 300
                     end
@@ -585,6 +588,13 @@ function stage1.keypressed(key)
 
     end
 
+end
+
+function stage1.mousepressed(x, y, button)
+    if isMiniGamePlaying then
+        miniGame.mousepressed(x, y, button)
+        return
+    end
 end
 
 function stage1.continueGame()

@@ -57,8 +57,8 @@ local player = {
     isDead = false,
     isCrouching = false,
     armament = {isArmed = false, weaponSelect = "bottle"},
-    HP = 1000,
-    maxHP = 1000,
+    HP = 10000,
+    maxHP = 10000,
     numberAttempts = 3,
     isHurt = false,
     hurtTimer = 0,
@@ -209,18 +209,15 @@ local function setAnimation(animation)
     end
 end
 
+local playerSlowStateTimer = 4
+local playerStunStateTimer = 2
+
 function player.updateAnimationState(dt)
 
     if love.keyboard.isDown(inputs.game.crouch) then
         setAnimation("crouch")
         player.speed = 0
         player.isCrouching = true
-        return
-    end
-
-    if player.isCarringObject then
-        setAnimation("walkWileCarry")
-        player.speed = 150
         return
     end
 
@@ -233,14 +230,14 @@ function player.updateAnimationState(dt)
         else
             setAnimation("punch")
         end
-        player.speed = 0
+        player.speed = 0 -- Te detienes al atacar
     end
 
     wasAttackPressed = isAttackPressed
 
     if attackTimer > 0 then
         attackTimer = attackTimer - dt
-        return
+        return -- Salimos: el ataque bloquea el movimiento y el sprint
     end
 
     local status = player.entityStatus and player.entityStatus.statusType
@@ -268,7 +265,6 @@ function player.updateAnimationState(dt)
         end
         setAnimation("walk")
     end
-
 end
 
 --movimiento del player
@@ -380,27 +376,35 @@ function player.attack(enemies)
                 player.attacking = true
                 player.isCrouching = false
 
-                if player.armament.isArmed then
+                if not player.isCrouching then
+                    if player.attackCooldownTimer <= 0 then
+                        if player.armament.isArmed then
+                                
+                            if player.armament.weaponSelect == "bottle" then
+                                takeHP(e, 8000)
+                                player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
+                                break
 
-                    if player.armament.weaponSelect == "bottle" then
-                        takeHP(e, 40)
-                        --setAnimation("bottleAttack")
-                        break
+                            elseif player.armament.weaponSelect == "knife" then
+                                takeHP(e, 10000)
+                                player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
+                                break
 
-                    elseif player.armament.weaponSelect == "knife" then
-                        takeHP(e, 60)
-                        --setAnimation("knifeAttack")
-                        break
+                            elseif player.armament.weaponSelect == "bat" then
+                                takeHP(e, 15000)
+                                player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
+                                break
 
-                    elseif player.armament.weaponSelect == "bat" then
-                        takeHP(e, 80)
-                        --setAnimation("batAttack")
-                        break
-
-                    elseif player.armament.weaponSelect == "wrench" then
-                        takeHP(e, 100)
-                        --setAnimation("wrenchAttack")
-                        break
+                            elseif player.armament.weaponSelect == "wrench" then
+                                takeHP(e, 20000)
+                                player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
+                                break
+                            end
+                        else
+                            takeHP(e, 5000)
+                            player.attackCooldownTimer = attackDuration["bottle"]
+                            break
+                        end
                     end
                 else
                     takeHP(e, 20)

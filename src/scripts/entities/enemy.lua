@@ -150,6 +150,7 @@ end
 
 function Enemy.new(tier, _x, _y)
 
+    if NextBossWeaponIndex > 4 then NextBossWeaponIndex = 1 end
     
     local equipment
     if tier ~= 5 then
@@ -331,7 +332,7 @@ function Enemy:groundSlam(dt, player)
         player.HP = player.HP - baseDamage.groundSlam * multipliers[self.tier]
         print("slam: ".. baseDamage.groundSlam * multipliers[self.tier])
 
-        entityStateSystem.applyStatusToTarget(player, entitiesStates[2].state, entitiesStates[2].duration)
+        --entityStateSystem.applyStatusToTarget(player, entitiesStates[2].state, entitiesStates[2].duration)
 
         checkAnimation(self, "groundSlam")
     end

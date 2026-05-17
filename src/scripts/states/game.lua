@@ -32,25 +32,27 @@ local function saveCurrentGame() --funcion que convierte el gameplay actual en d
 
     GameState.world.savedEnemies = {}
 
-    for _, enemy in ipairs(currentStage.enemies) do --cuando se guarda recorre enemigos vivos, guarda solo datos esenciales e ignora enemigos muertos
+    if currentStage and currentStage.enemies then
+        for _, enemy in ipairs(currentStage.enemies) do --cuando se guarda recorre enemigos vivos, guarda solo datos esenciales e ignora enemigos muertos
 
-        if not enemy.isDead then
+            if not enemy.isDead then
 
-            table.insert(GameState.world.savedEnemies, {
+                table.insert(GameState.world.savedEnemies, {
 
-                id = enemy.id,
+                    id = enemy.id,
 
-                type = enemy.enemyType,
+                    type = enemy.enemyType,
 
-                x = enemy.x,
-                y = enemy.y,
+                    x = enemy.x,
+                    y = enemy.y,
 
-                hp = enemy.HP
+                    hp = enemy.HP
 
-            })
+                })
+
+            end
 
         end
-
     end
 
     SaveManager.save(GameState, GameState.currentSlot)
@@ -79,7 +81,9 @@ end
 
 function game.nextStage()
 
-    currentStageIndex = currentStageIndex + 1
+    if currentStageIndex < 5 then
+        currentStageIndex = currentStageIndex + 1
+    end
 
     if stages[currentStageIndex] then
         --carga el siguiente
@@ -199,12 +203,42 @@ function game.draw()
         love.graphics.print("GAME OVER", (love.graphics.getWidth() - 300)/2, love.graphics.getHeight()/2, 0, 2, 2)
         love.graphics.print("Presiona R para reiniciar, ESC para salir", 10, 10)
     end
+
+    if game.isWin then
+        exitGame.visible = true
+        exitGame.title = "VICTORIA\n¡HAS SOBREVIVIDO A LAS AMÉRICAS!"
+        exitGame.x = (love.graphics.getWidth() - 450)/2 exitGame.y = (love.graphics.getHeight() - 250)/2
+        exitGame.w = 450 exitGame.h = 250
+        love.graphics.setColor(0, 0, 0, 0.7)
+        love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.setFont(font)
+        panel.draw(exitGame)
+
+        gui.Draw_button("Guardar y Salir", exitGame.x + (exitGame.w - 250)/2, exitGame.y + 65 + (exitGame.h - 50)/2, 250, 50, 10,
+        gui.utils.Search_opacity(exitGame.x + (exitGame.w - 250)/2, exitGame.x + (exitGame.w - 250)/2 + 250,
+        exitGame.y + 65 + (exitGame.h - 50)/2, exitGame.y + 115 + (exitGame.h - 50)/2, true))
+        love.graphics.setFont(font)
+    end
+    
+    local levelCompleted
+    if currentStage and currentStage.continueGame then
+        levelCompleted = currentStage.continueGame()
+    end
+    if not passLevel and levelCompleted and not game.isWin and NextBossWeaponIndex < 5 then
+        love.graphics.setColor(1,1,1,1)
+        love.graphics.print("Presione ESPACIO para pasar al próximo nivel.", (love.graphics.getWidth() - 425)/2, 500)
+    end
 end
 
 
 function game.keypressed(key)
 
-     if (type(inputs.game.pause) == "table") and (key == inputs.game.pause[1] or key == inputs.game.pause[2]) then
+    if currentStage and currentStage.continueGame then
+        if key == inputs.game.nextLevel and currentStage.continueGame() then
+            passLevel = true
+        end
+    end
 
         if not game.isPaused and not game.gameOver and game.isPlaying then
             game.isPaused = true
@@ -243,6 +277,12 @@ function game.keypressed(key)
         currentStage.keypressed(key)
     end
     
+end
+
+function game.mousepressed(x, y, button)
+    if not game.isPaused and not game.gameOver and currentStage and currentStage.mousepressed then
+        currentStage.mousepressed(x, y, button)
+    end
 end
 
 function game.mousereleased(x, y)
