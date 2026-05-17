@@ -1,5 +1,6 @@
 local utf8 = require("utf8")
 local audio = require("src.scripts.states.minigames.critical core.src.audio.audio")
+local inputs = require("src.scripts.utils.inputs")
 
 local briefing = {}
 
@@ -115,6 +116,9 @@ end
 
 function briefing.draw()
 
+    love.graphics.setColor(0, 0, 0, 1)
+    love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+
     love.graphics.setFont(font)
 
     -- Green terminal color
@@ -150,28 +154,33 @@ function briefing.draw()
             "center"
         )
     end
+
+    love.graphics.print("Presione ESPACIO para SKIP", love.graphics.getWidth() - 420, love.graphics.getHeight() - 30)
 end
 
 function briefing.keypressed(key)
 
     -- Skip typing
-    if key == "space" and not textFinished then
-
+    if key == inputs.minigames["3"].skip and not textFinished then
         displayedText = text
-
         charIndex = textLength + 1
-
         textFinished = true
     end
 
     -- Start game
-    if key == "return" and textFinished then
-
-        local stateManager =
-            require("src.scripts.states.minigames.critical core.src.core.stateManager")
-
+    if key == inputs.minigames["3"].start and textFinished then
+        local stateManager = require("src.scripts.states.minigames.critical core.src.core.stateManager")
         stateManager.setState("PLAYING")
     end
+end
+
+function briefing.reset()
+    displayedText = ""
+    charIndex = 1
+    timer = 0
+    cursorTimer = 0
+    startTextTimer = 0
+    textFinished = false
 end
 
 return briefing

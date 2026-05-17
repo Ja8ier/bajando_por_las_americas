@@ -33,6 +33,7 @@ local isMiniGamePlaying
 local spawnPoint = {x = 300, y = love.graphics.getHeight() - player.frameheight * player.scale - 250}
 local deadBoss = false
 local minigameCompleted = false
+local font = love.graphics.newFont("assets/fonts/VT323-Regular.ttf", 28)
 
 local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
 
@@ -75,6 +76,40 @@ local function carryObjectOnTrigger()
     tableUtils.removeByValue(triggers, carryableObject)
 end
 
+local function createObs()
+    local sprites1, data1 = entitiesData.generateFixedObstacles(4)
+    local sprites2, data2 = entitiesData.generateFixedObstacles(2)
+    local sprites3, data3 = entitiesData.generateFixedObstacles(6)
+
+    for _, obs in ipairs(data1) do
+        local s = sprites1[obs.t]
+        local newObs = obstacle.new(true, obs.x, obs.y, s.w, s.h, s.col, s.img, false, 0.5)
+        table.insert(collisions, newObs)
+        if obs.t == "cono" then
+            local newTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, newObs)
+            table.insert(triggers, newTrigger)
+        end
+    end
+    for _, obs in ipairs(data2) do
+        local s = sprites2[obs.t]
+        local newObs = obstacle.new(true, obs.x, obs.y, s.w, s.h, s.col, s.img, false, 0.5)
+        table.insert(collisions, newObs)
+        if obs.t == "cono" then
+            local newTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, newObs)
+            table.insert(triggers, newTrigger)
+        end
+    end
+    for _, obs in ipairs(data3) do
+        local s = sprites3[obs.t]
+        local newObs = obstacle.new(true, obs.x, obs.y, s.w, s.h, s.col, s.img, false, 0.5)
+        table.insert(collisions, newObs)
+        if obs.t == "cono" then
+            local newTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, newObs)
+            table.insert(triggers, newTrigger)
+        end
+    end
+end
+
 function stage4.load()
     enemies = {}  --esto es para que el stage quede limpio, no su dupliquen cajas de colision, no queden triggers invisibles etc
     stage4.enemies = enemies
@@ -90,6 +125,8 @@ function stage4.load()
 
     --sirve para que las teclas al presionarlas ejecuten su accion una sola vez en lugar de hacerlo de manera constante
     love.keyboard.setKeyRepeat(false)
+
+    love.graphics.setFont(font)
 
     --capas del mapa: background, floor, frontground
     layers = {
@@ -112,7 +149,7 @@ function stage4.load()
     table.insert(collisions, collisionWall1)
 
     --Objetos con textura
-    local phoneBooth = obstacle.new(true, 2340, 50, 24, 55, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), false, 0.8)
+    local phoneBooth = obstacle.new(true, 1230, 50, 24, 55, "full", love.graphics.newImage("assets/sprites/items/phone_booth.png"), false, 0.8)
 --[[     local wheel = obstacle.new(true, 200, 100, 58, 42, "bottom", love.graphics.newImage("assets/sprites/items/wheel.png"), true, 0.5)
     local cone = obstacle.new(true, 1100, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), true, 0.4)
     local cone2 = obstacle.new(true, 1950, 100, 51, 64, "bottom", love.graphics.newImage("assets/sprites/items/cono.png"), true, 0.4)
@@ -124,9 +161,7 @@ function stage4.load()
     table.insert(collisions, cone2)
     table.insert(collisions, heavyStone) ]]
 
-    entitiesData.generateFixedObstacles(2, obstacle, collisions)
-    entitiesData.generateFixedObstacles(4, obstacle, collisions)
-    entitiesData.generateFixedObstacles(6, obstacle, collisions)
+    createObs()
     entitiesData.generateItems(4, item, items)
 
     --Items
@@ -226,12 +261,11 @@ function stage4.update(dt)
     end
 
     if minigameCompleted and onetime then
-        local arepas = {item.new("arepa", 11700, 480), item.new("arepa", 11650, 480), item.new("arepa", 11750, 480)}
+        local arepas = {item.new("arepa", 6100, 480), item.new("arepa", 6050, 480), item.new("arepa", 6150, 480)}
         for i, arep in ipairs(arepas) do
             arep.count = 1
             table.insert(items, arep)
         end
-        print("asdfghhcx")
         onetime = false
     end
 
@@ -402,8 +436,6 @@ function stage4.draw()
         local offsetX = -camera.x * layer.factor
         love.graphics.draw(layer.img, offsetX, 0, 0, scale, love.graphics.getHeight() / 144)
     end
-
-    love.graphics.print("stage: ".. NextBossWeaponIndex, 400, 200)
 
     --comienzo de la cámara
     camera.begin()

@@ -33,6 +33,7 @@ local isMiniGamePlaying
 local spawnPoint = {x = 300, y = love.graphics.getHeight() - player.frameheight * player.scale - 250}
 local deadBoss = false
 local minigameCompleted = false
+local font = love.graphics.newFont("assets/fonts/VT323-Regular.ttf", 28)
 
 local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
 
@@ -75,6 +76,40 @@ local function carryObjectOnTrigger()
     tableUtils.removeByValue(triggers, carryableObject)
 end
 
+local function createObs()
+    local sprites1, data1 = entitiesData.generateFixedObstacles(4)
+    local sprites2, data2 = entitiesData.generateFixedObstacles(5)
+    local sprites3, data3 = entitiesData.generateFixedObstacles(6)
+
+    for _, obs in ipairs(data1) do
+        local s = sprites1[obs.t]
+        local newObs = obstacle.new(true, obs.x, obs.y, s.w, s.h, s.col, s.img, false, 0.5)
+        table.insert(collisions, newObs)
+        if obs.t == "cono" then
+            local newTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, newObs)
+            table.insert(triggers, newTrigger)
+        end
+    end
+    for _, obs in ipairs(data2) do
+        local s = sprites2[obs.t]
+        local newObs = obstacle.new(true, obs.x, obs.y, s.w, s.h, s.col, s.img, false, 0.5)
+        table.insert(collisions, newObs)
+        if obs.t == "cono" then
+            local newTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, newObs)
+            table.insert(triggers, newTrigger)
+        end
+    end
+    for _, obs in ipairs(data3) do
+        local s = sprites3[obs.t]
+        local newObs = obstacle.new(true, obs.x, obs.y, s.w, s.h, s.col, s.img, false, 0.5)
+        table.insert(collisions, newObs)
+        if obs.t == "cono" then
+            local newTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, newObs)
+            table.insert(triggers, newTrigger)
+        end
+    end
+end
+
 function stage2.load()
     enemies = {}  --esto es para que el stage quede limpio, no su dupliquen cajas de colision, no queden triggers invisibles etc
     stage2.enemies = enemies
@@ -91,6 +126,7 @@ function stage2.load()
     --sirve para que las teclas al presionarlas ejecuten su accion una sola vez en lugar de hacerlo de manera constante
     love.keyboard.setKeyRepeat(false)
 
+    love.graphics.setFont(font)
     --capas del mapa: background, floor, frontground
     layers = {
         {img = love.graphics.newImage("assets/sprites/stage2/mountains2.png"), factor = 0},
@@ -121,9 +157,7 @@ function stage2.load()
     table.insert(collisions, cone2)
     table.insert(collisions, heavyStone) ]]
 
-    entitiesData.generateFixedObstacles(4, obstacle, collisions)
-    entitiesData.generateFixedObstacles(5, obstacle, collisions)
-    entitiesData.generateFixedObstacles(6, obstacle, collisions)
+    createObs()
     entitiesData.generateItems(2, item, items)
 
     --Items
@@ -228,7 +262,6 @@ function stage2.update(dt)
             arep.count = 1
             table.insert(items, arep)
         end
-        print("asdfghhcx")
         onetime = false
     end
 
@@ -399,8 +432,6 @@ function stage2.draw()
         local offsetX = -camera.x * layer.factor
         love.graphics.draw(layer.img, offsetX, 0, 0, scale, love.graphics.getHeight() / 144)
     end
-
-    love.graphics.print("stage: ".. NextBossWeaponIndex, 400, 200)
 
     --comienzo de la cámara
     camera.begin()

@@ -31,7 +31,7 @@ function criticalCore.keypressed(key)
 end
 
 function criticalCore.isExited()
-    stateManager.isExited()
+    return stateManager.isExited()
 end
 
 return criticalCore

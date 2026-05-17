@@ -1,11 +1,11 @@
 local extraction = {}
 
-extraction.timeLeft = 60
+extraction.timeLeft =  10
 extraction.completed = false
 
 function extraction.load()
 
-    extraction.timeLeft = 60
+    extraction.timeLeft = 10
     extraction.completed = false
 end
 

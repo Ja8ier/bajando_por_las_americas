@@ -2,7 +2,7 @@ local reactor = require("src.scripts.states.minigames.critical core.src.reactor.
 
 local reactorRenderer = {}
 
-local coreNormal
+local coreNormall
 local coreWarning
 local coreCritical
 
