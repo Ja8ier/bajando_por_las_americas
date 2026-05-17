@@ -12,6 +12,8 @@ local panel = require("src.scripts.gui.panel")
 local player = require("src.scripts.entities.player")
 local GameState = require("src.scripts.data.game_state")
 local SaveManager = require("src.scripts.systems.save_manager")
+local sounds = require("src.scripts.sounds.sounds")
+
 
 local exitGame = panel.new((love.graphics.getWidth() - 350)/2, (love.graphics.getHeight() - 150)/2, 400, 200, "PAUSA", 30)
 
@@ -38,16 +40,11 @@ local function saveCurrentGame() --funcion que convierte el gameplay actual en d
             if not enemy.isDead then
 
                 table.insert(GameState.world.savedEnemies, {
-
                     id = enemy.id,
-
                     type = enemy.enemyType,
-
                     x = enemy.x,
                     y = enemy.y,
-
                     hp = enemy.HP
-
                 })
 
             end
@@ -76,6 +73,9 @@ function game.load()
     game.isPlaying = true
     game.isPaused = false
     game.gameOver = false
+
+    sounds.init()
+    sounds.playAmbient()
 
 end
 
@@ -240,12 +240,11 @@ function game.keypressed(key)
         end
     end
 
-        if not game.isPaused and not game.gameOver and game.isPlaying then
-            game.isPaused = true
-        else
-            game.isPaused = false
+    -- Control de Pausa corregido: Solo se activa presionando las teclas registradas en inputs.game.pause
+    if key == inputs.game.pause[1] or key == inputs.game.pause[2] then
+        if not game.gameOver and game.isPlaying then
+            game.isPaused = not game.isPaused
         end
-
     end
 
     if player.isDead and key == "r" then
@@ -253,10 +252,7 @@ function game.keypressed(key)
 
     elseif player.isDead and key == "escape" then
         game.restoreStage()
-        
-        -- aqui va la logica para guardar datos (seguir este orden de lineas de codigo)
         saveCurrentGame()
-
         game.restartStage()
         Change_state(require("src.scripts.states.menu"))
     end
@@ -265,10 +261,7 @@ function game.keypressed(key)
         game.restartStage()
 
     elseif game.gameOver and key == "escape" then
-
-        -- aqui va la logica para guardar datos (seguir este orden de lineas de codigo)
         saveCurrentGame()
-
         game.restartStage()
         Change_state(require("src.scripts.states.menu"))
     end
@@ -290,7 +283,6 @@ function game.mousereleased(x, y)
         if (x > exitGame.x + (exitGame.w - 250)/2 and x < exitGame.x + (exitGame.w - 250)/2 + 250) and
             (y > exitGame.y + 15 + (exitGame.h - 50)/2 and y < exitGame.y + 65 + (exitGame.h - 50)/2) then
             
-            -- aqui va la logica para guardar datos (seguir este orden de lineas de codigo)
             saveCurrentGame()
             game.restartStage()
             Change_state(require("src.scripts.states.menu"))

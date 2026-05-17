@@ -13,6 +13,7 @@ local miniGame = require("src.scripts.states.minigame")
 local cb = require("src.scripts.systems.collision_box")
 local GameState = require("src.scripts.data.game_state")
 local entitiesData = require("src.scripts.utils.entitiesData")
+local sounds = require("src.scripts.sounds.sounds")
 
 local worldWidth
 local layers = {}
@@ -30,6 +31,7 @@ local touchingTrigger
 local interactiveObject
 local carryableObject
 local isMiniGamePlaying
+local wasMiniGamePlaying = false --variable testigo
 local spawnPoint = {x = 300, y = love.graphics.getHeight() - player.frameheight * player.scale - 250}
 
 local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
@@ -254,6 +256,16 @@ end
 local onetime = true
 
 function stage1.update(dt)
+
+    if isMiniGamePlaying and not wasMiniGamePlaying then --detectar el cambio de estado en el audio
+        -- El minijuego acaba de comenzar en este frame -> Apagamos la música
+        sounds.stopAmbient()
+        wasMiniGamePlaying = true
+    elseif not isMiniGamePlaying and wasMiniGamePlaying then
+        -- El minijuego acaba de terminar -> Volvemos a encender la música
+        sounds.playAmbient()
+        wasMiniGamePlaying = false
+    end
 
     if isMiniGamePlaying then
         miniGame.update(dt, 3)
