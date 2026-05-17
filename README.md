@@ -1,5 +1,17 @@
 # Bajando por las Américas #
 
+¡Bienvenido a **Bajando por las Américas**! Un juego de plataformas y acción en 2.5D desarrollado en Lua utilizando el framework LÖVE.
+
+---
+
+##  Requisitos Previos
+
+Antes de empezar, asegúrate de tener clonado este repositorio en tu máquina local. Para ejecutar el juego, necesitarás instalar **LOVE (Love2D)**.
+
+---
+
+## Instrucciones de Instalación y Ejecución
+
 Pasos para ejecutar el juego según tu sistema operativo:
 
 ---
