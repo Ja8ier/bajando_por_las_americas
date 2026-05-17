@@ -34,15 +34,15 @@ local message = {
 }
 
 local inventory = {
-    [1] = {item = nil, isSelected = false},
-    [2] = {item = item.new("bat", 0, 0), isSelected = false},
+    [1] = {item = nil, isSelected = true},
+    [2] = {item = nil, isSelected = false},
     [3] = {item = nil, isSelected = false},
     [4] = {item = nil, isSelected = false},
-    [5] = {item = item.new("knife", 0, 0), isSelected = false},
-    [6] = {item = item.new("wrench", 0, 0), isSelected = false},
-    [7] = {item = item.new("bat", 0, 0), isSelected = false},
+    [5] = {item = nil, isSelected = false},
+    [6] = {item = nil, isSelected = false},
+    [7] = {item = nil, isSelected = false},
     [8] = {item = nil, isSelected = false},
-    [9] = {item = item.new("bottle", 0, 0), isSelected = false},
+    [9] = {item = nil, isSelected = false},
 }
 
 function inventory.insert(_item, j)

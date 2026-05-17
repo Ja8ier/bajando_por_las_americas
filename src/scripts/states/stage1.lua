@@ -544,9 +544,9 @@ function stage1.keypressed(key)
 
                 player.inventory.remove(player.inventory.getItemSelectSlot())
 
-                if player.HP ~= 1000 then
-                    if player.HP + CONSUMIBLE_HP > 1000 then
-                        player.HP = 1000
+                if player.HP ~= 1500 then
+                    if player.HP + CONSUMIBLE_HP > 1500 then
+                        player.HP = 1500
                     else
                         player.HP = player.HP + CONSUMIBLE_HP
                     end
