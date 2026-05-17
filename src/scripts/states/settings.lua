@@ -5,8 +5,8 @@ local panel = require("src.scripts.gui.panel")
 local sounds = require("src.scripts.sounds.sounds")
 
 local setting_panel = panel.new((love.graphics.getWidth() - gui.utils.Resize_scale(1, 400))/2, 
-                                (love.graphics.getHeight() - gui.utils.Resize_scale(2, 500))/2, 
-                                gui.utils.Resize_scale(1, 400), gui.utils.Resize_scale(2, 500), "AJUSTES", gui.utils.Resize_scale(1, 30))
+                                (love.graphics.getHeight() - gui.utils.Resize_scale(2, 600))/2, 
+                                gui.utils.Resize_scale(1, 600), gui.utils.Resize_scale(2, 600), "AJUSTES", gui.utils.Resize_scale(1, 30))
 
 Audio = true
 
