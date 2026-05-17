@@ -428,7 +428,7 @@ function stage1.draw()
         end
     end
 
-    cb.showBoxes(player, collisions, enemies, triggers, false)
+    cb.showBoxes(player, collisions, enemies, triggers, true)
     camera.ended()
 
     --frontground
