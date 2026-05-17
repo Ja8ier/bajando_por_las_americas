@@ -3,7 +3,17 @@
 ¡Bienvenido a **Bajando por las Américas**! Un juego de plataformas y acción en 2.5D desarrollado en Lua utilizando el framework LÖVE.
 
 ---
+### Nota Importante
+El guardado de partida del juego no esta terminado, se crea una sola partida funcional que se guarda en un solo archivo json, se puede crear otra partida pero seguira abriendo ese mismo json.
 
+Para crear otra partida debes borrar el json en:
+Para Windows
+**OS(C:)/Usuarios/TuUsuario/AppData/Roaming/LOVE/bajando_por_las_americas**
+Para Linux
+**/mnt/c/Users/TuUsuario/AppData/Roaming/LOVE/bajando_por_las_americas**
+
+ahi dentro encontraras un archivo llamado *save_slot1.json* ese es el que debes borrar
+--- 
 ##  Requisitos Previos
 
 Antes de empezar, asegúrate de tener clonado este repositorio en tu máquina local. Para ejecutar el juego, necesitarás instalar **LOVE (Love2D)**.
