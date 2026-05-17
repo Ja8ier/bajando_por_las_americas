@@ -28,7 +28,6 @@ local currentAnimation = animations.walk
 
 local wasAttackPressed = false
 local attackTimer = 0
-local attackDuration = 0.4
 
 local wearLosen = 0
 
@@ -111,6 +110,11 @@ end
 
 local hasImpacted = false
 function player.update(dt, enemies)
+
+    -- Si el temporizador es mayor a 0, le restamos el tiempo transcurrido (dt)
+    if player.attackCooldownTimer and player.attackCooldownTimer > 0 then
+        player.attackCooldownTimer = player.attackCooldownTimer - dt
+    end
 
     --recorre el inventario y evalua si en la casilla selected hay un arma y la coloca al player
     for i = 1, 9 do
@@ -311,20 +315,20 @@ function player.updateAnimationState(dt)
     local isAttackPressed = love.keyboard.isDown(inputs.game.attack)
 
     if isAttackPressed and not wasAttackPressed then
-        attackTimer = attackDuration
+        attackTimer = attackDuration[player.armament.weaponSelect]
         if player.armament.isArmed then
             setAttackAnimation()
         else
             setAnimation("punch")
         end
-        player.speed = 0 -- Te detienes al atacar
+        player.speed = 0
     end
 
     wasAttackPressed = isAttackPressed
 
     if attackTimer > 0 then
         attackTimer = attackTimer - dt
-        return -- Salimos: el ataque bloquea el movimiento y el sprint
+        return
     end
 
     local status = player.entityStatus and player.entityStatus.statusType
@@ -445,6 +449,15 @@ end
 
 function player.attack(enemies)
 
+    if player.attackCooldownTimer == nil then
+        player.attackCooldownTimer = 0
+    end
+
+    -- Si el temporizador aún no ha llegado a 0, no podemos atacar todavía
+    if player.attackCooldownTimer > 0 then
+        return
+    end
+
     if player.isCarringObject and objectCarried ~= nil then
         player.throw(objectCarried)
         return
@@ -457,50 +470,58 @@ function player.attack(enemies)
         end
     end
 
+    -- Activamos la bandera de ataque de forma segura si el cooldown está listo
+    player.attacking = true
+    player.isCrouching = false
+
     for i, e in ipairs(enemies) do
         if mathUtils.getDistanceToPlayer(player, e) <= 75 and e.entityStatus.statusType ~= "stun" then
-            if not player.isCarringObject then
-                player.attacking = true
-                player.isCrouching = false
+            if not player.isCarringObject and not player.isCrouching then
 
-                if not player.isCrouching then
-                    if player.attackCooldownTimer <= 0 then
-                        if player.armament.isArmed then
-                                
-                            if player.armament.weaponSelect == "bottle" then
-                                takeHP(e, 80)
-                                player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
-                                break
+                if player.armament.isArmed then
 
-                            elseif player.armament.weaponSelect == "knife" then
-                                takeHP(e, 100)
-                                player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
-                                break
+                    if player.armament.weaponSelect == "bottle" then
+                        takeHP(e, 80)
+                        player.attackCooldownTimer = 0.5
+                    end
 
-                            elseif player.armament.weaponSelect == "bat" then
-                                takeHP(e, 150)
-                                player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
-                                break
+                    if not player.isCrouching then
+                        if player.attackCooldownTimer <= 0 then
+                            if player.armament.isArmed then
 
-                            elseif player.armament.weaponSelect == "wrench" then
-                                takeHP(e, 200)
-                                player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
+                                if player.armament.weaponSelect == "bottle" then
+                                    takeHP(e, 80)
+                                    player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
+                                    break
+
+                                elseif player.armament.weaponSelect == "knife" then
+                                    takeHP(e, 100)
+                                    player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
+                                    break
+
+                                elseif player.armament.weaponSelect == "bat" then
+                                    takeHP(e, 150)
+                                    player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
+                                    break
+
+                                elseif player.armament.weaponSelect == "wrench" then
+                                    takeHP(e, 200)
+                                    player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
+                                    break
+                                end
+                            else
+                                takeHP(e, 50)
+                                player.attackCooldownTimer = attackDuration["bottle"]
                                 break
                             end
-                        else
-                            takeHP(e, 50)
-                            player.attackCooldownTimer = attackDuration["bottle"]
-                            break
                         end
+                    else
+                        takeHP(e, 50)
+                        player.attackCooldownTimer = 0.5
                     end
-                else
-                    takeHP(e, 20)
-                    --player.updateAnimationState()
                     break
                 end
-        end
-        else
-            player.attacking = false
+            end
         end
     end
 end
