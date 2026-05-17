@@ -76,6 +76,40 @@ local function carryObjectOnTrigger()
     tableUtils.removeByValue(triggers, carryableObject)
 end
 
+local function createObs()
+    local sprites1, data1 = entitiesData.generateFixedObstacles(4)
+    local sprites2, data2 = entitiesData.generateFixedObstacles(2)
+    local sprites3, data3 = entitiesData.generateFixedObstacles(6)
+
+    for _, obs in ipairs(data1) do
+        local s = sprites1[obs.t]
+        local newObs = obstacle.new(true, obs.x, obs.y, s.w, s.h, s.col, s.img, false, 0.5)
+        table.insert(collisions, newObs)
+        if obs.t == "cono" then
+            local newTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, newObs)
+            table.insert(triggers, newTrigger)
+        end
+    end
+    for _, obs in ipairs(data2) do
+        local s = sprites2[obs.t]
+        local newObs = obstacle.new(true, obs.x, obs.y, s.w, s.h, s.col, s.img, false, 0.5)
+        table.insert(collisions, newObs)
+        if obs.t == "cono" then
+            local newTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, newObs)
+            table.insert(triggers, newTrigger)
+        end
+    end
+    for _, obs in ipairs(data3) do
+        local s = sprites3[obs.t]
+        local newObs = obstacle.new(true, obs.x, obs.y, s.w, s.h, s.col, s.img, false, 0.5)
+        table.insert(collisions, newObs)
+        if obs.t == "cono" then
+            local newTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, newObs)
+            table.insert(triggers, newTrigger)
+        end
+    end
+end
+
 function stage4.load()
     enemies = {}  --esto es para que el stage quede limpio, no su dupliquen cajas de colision, no queden triggers invisibles etc
     stage4.enemies = enemies
@@ -127,9 +161,7 @@ function stage4.load()
     table.insert(collisions, cone2)
     table.insert(collisions, heavyStone) ]]
 
-    entitiesData.generateFixedObstacles(2, obstacle, collisions)
-    entitiesData.generateFixedObstacles(4, obstacle, collisions)
-    entitiesData.generateFixedObstacles(6, obstacle, collisions)
+    createObs()
     entitiesData.generateItems(4, item, items)
 
     --Items
