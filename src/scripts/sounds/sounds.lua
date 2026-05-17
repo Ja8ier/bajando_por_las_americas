@@ -5,7 +5,8 @@ local sounds = {
 
     sound_effects = {
         walk = love.audio.newSource("assets/sounds/walkingDefinitive.mp3", "static"),
-        run = love.audio.newSource("assets/sounds/runningDefinitive.mp3", "static")
+        run = love.audio.newSource("assets/sounds/runningDefinitive.mp3", "static"),
+        hit = love.audio.newSource("assets/sounds/golpesound.mpeg", "static")
     },
 
     cutscene_sounds = {}
@@ -40,13 +41,16 @@ function sounds.update()
         
         
         if sounds.background_music.ambient then
-            sounds.background_music.ambient:setVolume(0.03) -- Música de fondo muy suave (5%)
+            sounds.background_music.ambient:setVolume(0.03) -- Música de fondo muy suave
         end
         if sounds.sound_effects.walk then
             sounds.sound_effects.walk:setVolume(1)    
         end
         if sounds.sound_effects.run then
             sounds.sound_effects.run:setVolume(1)
+        end
+        if sounds.sound_effects.hit then
+            sounds.sound_effects.hit:setVolume(0.2)
         end
     else
         -- Si el jugador pulsa "Mute" en Ajustes, silenciamos el volumen general por completo

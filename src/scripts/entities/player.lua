@@ -82,6 +82,11 @@ end
 local hasImpacted = false
 function player.update(dt, enemies)
 
+    -- Si el temporizador es mayor a 0, le restamos el tiempo transcurrido (dt)
+    if player.attackCooldownTimer and player.attackCooldownTimer > 0 then
+        player.attackCooldownTimer = player.attackCooldownTimer - dt
+    end
+
     --recorre el inventario y evalua si en la casilla selected hay un arma y la coloca al player
     for i = 1, 9 do
         if player.inventory[i].item ~= nil and player.inventory[i].isSelected then
@@ -355,8 +360,16 @@ local function takeHP(e, amountOfHP)
         e.HP = 0
     end
 end
-
 function player.attack(enemies)
+
+    if player.attackCooldownTimer == nil then
+        player.attackCooldownTimer = 0
+    end
+
+    -- Si el temporizador aún no ha llegado a 0, no podemos atacar todavía
+    if player.attackCooldownTimer > 0 then
+        return
+    end
 
     if player.isCarringObject and objectCarried ~= nil then
         player.throw(objectCarried)
@@ -370,54 +383,46 @@ function player.attack(enemies)
         end
     end
 
+    -- Activamos la bandera de ataque de forma segura si el cooldown está listo
+    player.attacking = true
+    player.isCrouching = false
+
     for i, e in ipairs(enemies) do
         if mathUtils.getDistanceToPlayer(player, e) <= 75 and e.entityStatus.statusType ~= "stun" then
-            if not player.isCarringObject then
-                player.attacking = true
-                player.isCrouching = false
+            if not player.isCarringObject and not player.isCrouching then
+                
+                -- 1. Calculamos el daño y el cooldown según el arma equipada
+                if player.armament.isArmed then
+                    if player.armament.weaponSelect == "bottle" then
+                        takeHP(e, 8000)
+                        player.attackCooldownTimer = 0.5
 
-                if not player.isCrouching then
-                    if player.attackCooldownTimer <= 0 then
-                        if player.armament.isArmed then
-                                
-                            if player.armament.weaponSelect == "bottle" then
-                                takeHP(e, 8000)
-                                player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
-                                break
+                    elseif player.armament.weaponSelect == "knife" then
+                        takeHP(e, 10000)
+                        player.attackCooldownTimer = 0.4
 
-                            elseif player.armament.weaponSelect == "knife" then
-                                takeHP(e, 10000)
-                                player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
-                                break
+                    elseif player.armament.weaponSelect == "bat" then
+                        takeHP(e, 15000)
+                        player.attackCooldownTimer = 0.6
 
-                            elseif player.armament.weaponSelect == "bat" then
-                                takeHP(e, 15000)
-                                player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
-                                break
-
-                            elseif player.armament.weaponSelect == "wrench" then
-                                takeHP(e, 20000)
-                                player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
-                                break
-                            end
-                        else
-                            takeHP(e, 5000)
-                            player.attackCooldownTimer = attackDuration["bottle"]
-                            break
-                        end
+                    elseif player.armament.weaponSelect == "wrench" then
+                        takeHP(e, 20000)
+                        player.attackCooldownTimer = 0.7
                     end
                 else
-                    takeHP(e, 20)
-                    --player.updateAnimationState()
-                    break
-                end
-        end
-        else
-            player.attacking = false
+                    -- Golpe con puños limpios
+                    takeHP(e, 5000)
+                    player.attackCooldownTimer = 0.5
+                end 
+                -- Ya golpeamos con éxito al enemigo más cercano de la lista.
+                -- Ponemos un 'break' aquí afuera para cerrar el bucle 'for' de inmediato
+                -- y evitar que dañe a los demás enemigos que estén amontonados.
+                break
+
+            end
         end
     end
 end
-
 function player.cleanStatus()
     player.speed = 150
     player.facingLeft = false
