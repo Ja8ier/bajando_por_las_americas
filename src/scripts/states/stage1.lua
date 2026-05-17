@@ -231,7 +231,6 @@ function stage1.update(dt)
             arep.count = 1
             table.insert(items, arep)
         end
-        print("asdfghhcx")
         onetime = false
     end
 
@@ -402,8 +401,6 @@ function stage1.draw()
         local offsetX = -camera.x * layer.factor
         love.graphics.draw(layer.img, offsetX, 0, 0, scale, love.graphics.getHeight() / 144)
     end
-
-    love.graphics.print("stage: ".. NextBossWeaponIndex, 400, 200)
 
     --comienzo de la cámara
     camera.begin()
