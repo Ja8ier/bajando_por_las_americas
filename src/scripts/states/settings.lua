@@ -2,6 +2,7 @@ local settings = {}
 
 local gui = require("src.scripts.gui.gui")
 local panel = require("src.scripts.gui.panel")
+local sounds = require("src.scripts.sounds.sounds")
 
 local setting_panel = panel.new((love.graphics.getWidth() - gui.utils.Resize_scale(1, 500))/2, 
                                 (love.graphics.getHeight() - gui.utils.Resize_scale(2, 600))/2, 
@@ -81,24 +82,21 @@ end
 function settings.mousereleased(x, y, button)
 
     gui.utils.Resize_dimentions_btn(100, 32, 10)
-
     local bx, by = get_button_pos(210, 530)
     local bw, bh = gui.utils.button_width, gui.utils.button_height
-
     gui.utils.Resize_dimentions_btn(200, 50, 15)
 
     if x > bx and x < bx + bw and y > by and y < by + bh then
-        
         setting_panel.visible = false
-
         return true
     end
 
+    -- DETECTOR DEL CLIC EN EL SWITCH DE AUDIO
     if x > setting_panel.x + 305 and x < setting_panel.x + 365 and y > setting_panel.y + 117 and y < setting_panel.y + 147 then
         Audio = not Audio
+        sounds.update() -- 2. AÑADIR ESTA LÍNEA PARA APLICAR EL CAMBIO EN TIEMPO REAL
     end
     
     return false
 end
-
 return settings
