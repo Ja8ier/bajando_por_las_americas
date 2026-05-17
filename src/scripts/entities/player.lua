@@ -14,18 +14,6 @@ local itemsDefinition = require("src.scripts.systems.itemsDefinition")
 
 local scale = love.graphics.getWidth() / 256
 
-local animations = {
-    walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false),
-    run = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.15, false),
-    crouch = animation.new("assets/sprites/player/player_crouch.png", 22, 28, 0.1, true),
-    attack = animation.new("assets/sprites/player/player_attack.png", 31, 31, 0.080, false),
-    punch = animation.new("assets/sprites/player/player_punch.png", 24, 28, 0.1, false),
-    walkWileCarry = animation.new("assets/sprites/player/player_walking_while_carring.png", 20, 29, 0.25, false),
-    carry = animation.new("assets/sprites/player/player_carry.png", 17, 28, 0.1, true)
-}
-
-local currentAnimation = animations.walk
-
 local wasAttackPressed = false
 local attackTimer = 0
 
@@ -446,17 +434,7 @@ local function takeHP(e, amountOfHP)
         e.HP = 0
     end
 end
-
 function player.attack(enemies)
-
-    if player.attackCooldownTimer == nil then
-        player.attackCooldownTimer = 0
-    end
-
-    -- Si el temporizador aún no ha llegado a 0, no podemos atacar todavía
-    if player.attackCooldownTimer > 0 then
-        return
-    end
 
     if player.isCarringObject and objectCarried ~= nil then
         player.throw(objectCarried)
@@ -470,58 +448,52 @@ function player.attack(enemies)
         end
     end
 
-    -- Activamos la bandera de ataque de forma segura si el cooldown está listo
-    player.attacking = true
-    player.isCrouching = false
-
     for i, e in ipairs(enemies) do
+
         if mathUtils.getDistanceToPlayer(player, e) <= 75 and e.entityStatus.statusType ~= "stun" then
-            if not player.isCarringObject and not player.isCrouching then
+            if not player.isCarringObject then
+                player.attacking = true
 
-                if player.armament.isArmed then
+                if not player.isCrouching then
+                    --if player.attackCooldownTimer <= 0 then
+                        if player.armament.isArmed then
+                                
+                            if player.armament.weaponSelect == "bottle" then
+                                takeHP(e, 80)
+                                player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
+                                break
 
-                    if player.armament.weaponSelect == "bottle" then
-                        takeHP(e, 80)
-                        player.attackCooldownTimer = 0.5
-                    end
+                            elseif player.armament.weaponSelect == "knife" then
+                                takeHP(e, 100)
+                                player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
+                                break
 
-                    if not player.isCrouching then
-                        if player.attackCooldownTimer <= 0 then
-                            if player.armament.isArmed then
+                            elseif player.armament.weaponSelect == "bat" then
+                                takeHP(e, 150)
+                                player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
+                                break
 
-                                if player.armament.weaponSelect == "bottle" then
-                                    takeHP(e, 80)
-                                    player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
-                                    break
-
-                                elseif player.armament.weaponSelect == "knife" then
-                                    takeHP(e, 100)
-                                    player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
-                                    break
-
-                                elseif player.armament.weaponSelect == "bat" then
-                                    takeHP(e, 150)
-                                    player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
-                                    break
-
-                                elseif player.armament.weaponSelect == "wrench" then
-                                    takeHP(e, 200)
-                                    player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
-                                    break
-                                end
-                            else
-                                takeHP(e, 50)
-                                player.attackCooldownTimer = attackDuration["bottle"]
+                            elseif player.armament.weaponSelect == "wrench" then
+                                takeHP(e, 200)
+                                player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
                                 break
                             end
+                        else
+                            takeHP(e, 50)
+                            player.attackCooldownTimer = attackDuration["bottle"]
+                            break
                         end
-                    else
-                        takeHP(e, 50)
-                        player.attackCooldownTimer = 0.5
-                    end
-                    break
+                    --end
                 end
             end
+        end
+        
+        if mathUtils.getDistanceToPlayer(player, e) <= 75 and player.entityStatus.statusType ~= "stun" then
+            player.attacking = true
+
+            
+        else
+            player.attacking = false
         end
     end
 end
