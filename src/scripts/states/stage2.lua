@@ -93,12 +93,9 @@ function stage2.load()
 
     --capas del mapa: background, floor, frontground
     layers = {
-        {img = love.graphics.newImage("assets/sprites/sky.png"), factor = 0},
-       {img = love.graphics.newImage("assets/sprites/mountains.png"), factor = 0},
-       {img = love.graphics.newImage("assets/sprites/stage1/stage1_background2.png"), factor = 0.9},
-       {img = love.graphics.newImage("assets/sprites/stage1/stage1_background1.png"), factor = 1.0},
-       {img = love.graphics.newImage("assets/sprites/stage1/stage1_street.png"), factor = 1.0},
-       {img = love.graphics.newImage("assets/sprites/stage1/stage1_frontground.png"), factor = 1.0}
+        {img = love.graphics.newImage("assets/sprites/stage2/mountains2.png"), factor = 0},
+        {img = love.graphics.newImage("assets/sprites/stage2/stage2_background.png"), factor = 0.9},
+        {img = love.graphics.newImage("assets/sprites/stage2/stage2_street.png"), factor = 1.0},
     }
 
     worldWidth = layers[#layers].img:getWidth()
@@ -425,10 +422,6 @@ function stage2.draw()
 
     cb.showBoxes(player, collisions, enemies, triggers, false)
     camera.ended()
-
-    --frontground
-    local frontgroundOffsetX = -camera.x * layers[#layers].factor
-    love.graphics.draw(layers[#layers].img, frontgroundOffsetX, 0, 0, scale, love.graphics.getHeight() / 144)
 
     --Barra de vida del player
     drawPlayerHealthPoints()

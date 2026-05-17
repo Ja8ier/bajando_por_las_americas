@@ -9,6 +9,7 @@ local obstacle = require("src.scripts.entities.obstacle")
 local projectile = require("src.scripts.systems.projectile")
 local trigger = require("src.scripts.systems.trigger")
 local cb = require("src.scripts.systems.collision_box")
+local item= require("src.scripts.entities.item")
 local itemsDefinition = require("src.scripts.systems.itemsDefinition")
 
 local scale = love.graphics.getWidth() / 256
@@ -34,8 +35,11 @@ local wearLosen = 0
 local objectCarried = {image = nil, scale = 1, width = 0, height = 0, x = 0, y = 0, collisionType = ""}
 local objectToSave
 
-local THROWABLE_ITEM_DAMAGE = 400
-local THROW_ANGLE = 60
+local THROWABLE_ITEM_DAMAGE = 500
+local POWER = 400
+local THROW_ANGLE = 35
+
+local currentProjectile = nil
 
 local player = {
     x = 0,
@@ -66,6 +70,32 @@ local player = {
     entityStatus = {statusType = "none", statusTimer = 0},
     isCarringObject = false
 }
+
+local attackDuration = {
+    bottle = 0.2,
+    knife = 0.3,
+    bat = 0.4,
+    wrench = 0.5
+}
+
+local animations = {
+    walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false),
+    walk_bottle = animation.new("assets/sprites/player/player_walking_bottle.png", 20, 28, 0.25, false),
+    walk_knife = animation.new("assets/sprites/player/player_walking_knife.png", 20, 28, 0.25, false),
+    walk_bat = animation.new("assets/sprites/player/player_walking_bat.png", 23, 28, 0.25, false),
+    walk_wrench = animation.new("assets/sprites/player/player_walking_wrench.png", 23, 28, 0.25, false),
+    run = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.15, false),
+    crouch = animation.new("assets/sprites/player/player_crouch.png", 22, 28, 0.1, true),
+    attack = animation.new("assets/sprites/player/player_attack.png", 31, 31, attackDuration[player.armament.weaponSelect]/4, false),
+    attack_bottle = animation.new("assets/sprites/player/player_attack_bottle.png", 31, 31, 0.25, false),
+    attack_knife = animation.new("assets/sprites/player/player_attack_knife.png", 31, 31, 0.25, false),
+    attack_bat = animation.new("assets/sprites/player/player_attack_bat.png", 32, 31, 0.25, false),
+    attack_wrench = animation.new("assets/sprites/player/player_attack_wrench.png", 31, 31, 0.25, false),
+    punch = animation.new("assets/sprites/player/player_punch.png", 24, 28, 0.1, false),
+    walkWileCarry = animation.new("assets/sprites/player/player_walking_while_carring.png", 20, 29, 0.25, false),
+}
+
+local currentAnimation = animations.walk
 
 --#region Load, update y draw
 
@@ -131,19 +161,27 @@ function player.update(dt, enemies)
 
     end
 
-    if projectile.isActive then
-        projectile.update(dt, player.facingLeft)
+    if currentProjectile ~= nil then
+        if currentProjectile.isActive then
+            currentProjectile.update(dt, player.facingLeft)
 
-        if not projectile.isActive and not hasImpacted then
+            if not currentProjectile.isActive and not hasImpacted then
+                local impactTrigger = trigger.new(
+                    currentProjectile.getGroundX() / scale, 
+                    currentProjectile.getGroundY() / scale,
+                    currentProjectile.objWidth / scale, 
+                    currentProjectile.objHeight * 2 / scale, 
+                    true, nil, true, nil
+                )
+                player.hurtEnemiesByDistance(enemies, impactTrigger)
 
-            local impactTrigger = trigger.new(projectile.getGroundX() / scale, projectile.getGroundY() / scale,
-                objectToSave.collisionBox.width / scale, objectToSave.collisionBox.height * 2 / scale, true, nil, true, nil)
+                currentProjectile.reset() 
+                currentProjectile = nil
 
-            player.hurtEnemiesByDistance(enemies, impactTrigger)
-
-            hasImpacted = true
-            objectToSave = nil
-            objectCarried = {image = nil, scale = 1, width = 0, height = 0, x = 0, y = 0, collisionType = ""}
+                hasImpacted = true
+                objectToSave = nil
+                objectCarried = {image = nil, scale = 1, width = 0, height = 0, x = 0, y = 0, collisionType = ""}
+            end
         end
     end
 
@@ -192,8 +230,10 @@ function player.draw()
         drawCarryableObject()
     end
 
-    if projectile.isActive then
-        projectile.draw()
+    if currentProjectile ~= nil then
+        if currentProjectile.isActive then
+            currentProjectile.draw()
+        end
     end
 
     love.graphics.setColor(1,1,1)
@@ -209,8 +249,53 @@ local function setAnimation(animation)
     end
 end
 
-local playerSlowStateTimer = 4
-local playerStunStateTimer = 2
+local function setWalkAnimation()
+    if not player.armament.isArmed then
+        setAnimation("walk")
+        return
+    end
+    if player.armament.weaponSelect == "bottle" then
+        setAnimation("walk_bottle")
+    elseif player.armament.weaponSelect == "knife" then
+        setAnimation("walk_knife")
+    elseif player.armament.weaponSelect == "bat" then
+        setAnimation("walk_bat")
+    elseif player.armament.weaponSelect == "wrench" then
+        setAnimation("walk_wrench")
+    end
+end
+
+local function setRunAnimation()
+    if not player.armament.isArmed then
+        setAnimation("run")
+        return
+    end
+    if player.armament.weaponSelect == "bottle" then
+        setAnimation("run_bottle")
+    elseif player.armament.weaponSelect == "knife" then
+        setAnimation("run_knife")
+    elseif player.armament.weaponSelect == "bat" then
+        setAnimation("run_bat")
+    elseif player.armament.weaponSelect == "wrench" then
+        setAnimation("run_wrench")
+    end
+end
+
+local function setAttackAnimation()
+    if not player.armament.isArmed then
+        setAnimation("attack")
+        return
+    end
+    if player.armament.weaponSelect == "bottle" then
+        setAnimation("attack_bottle")
+    elseif player.armament.weaponSelect == "knife" then
+        setAnimation("attack_knife")
+    elseif player.armament.weaponSelect == "bat" then
+        setAnimation("attack_bat")
+    elseif player.armament.weaponSelect == "wrench" then
+        setAnimation("attack_wrench")
+    end
+end
 
 function player.updateAnimationState(dt)
 
@@ -219,6 +304,8 @@ function player.updateAnimationState(dt)
         player.speed = 0
         player.isCrouching = true
         return
+    else
+        player.isCrouching = false
     end
 
     local isAttackPressed = love.keyboard.isDown(inputs.game.attack)
@@ -226,7 +313,7 @@ function player.updateAnimationState(dt)
     if isAttackPressed and not wasAttackPressed then
         attackTimer = attackDuration
         if player.armament.isArmed then
-            setAnimation("attack")
+            setAttackAnimation()
         else
             setAnimation("punch")
         end
@@ -253,17 +340,17 @@ function player.updateAnimationState(dt)
                 setAnimation("run")
             else
                 player.speed = 150
-                setAnimation("walk")
+                setWalkAnimation()
             end
         else
-            setAnimation("walk")
+            setWalkAnimation()
         end
     else
         player.isCrouching = false
         if isNormal then
             player.speed = 150
         end
-        setAnimation("walk")
+        setWalkAnimation()
     end
 end
 
@@ -441,9 +528,16 @@ function player.checkDeath(dt)
 end
 
 function player.pickItem(_items, _pickableItem, _inventory)
-    if player.inventory.hasSpace(_inventory) then
+    if player.inventory.hasSpace(_inventory, _pickableItem.isStackable) then
         tableUtils.removeByValue(_items, _pickableItem)
-        _inventory.insert(_pickableItem, 1)
+        if _pickableItem.x ~= 0 and _pickableItem ~= 0  and _pickableItem.isStackable then
+            local newItem = item.new(_pickableItem.id, 0, 0)
+            newItem.count = 1
+            _inventory.insert(newItem, 1)
+            return
+        else
+            _inventory.insert(_pickableItem, 1)
+        end
     end
 end
 
@@ -452,9 +546,7 @@ function player.dropItem(_items, _inventory)
     for i = 1,9 do
         if _inventory[i].isSelected and _inventory[i].item ~= nil then
 
-            --Mejorar las restricciones de los bordes del mundo
-
-            local item = inventory[i].item
+            local newItem = player.inventory[i].item
             local itemX = player.x + player.collisionBox.width
             local itemY = player.collisionBox.y + player.collisionBox.height - _inventory[i].item.sprite:getHeight()
 
@@ -462,22 +554,46 @@ function player.dropItem(_items, _inventory)
                 itemX = player.x - player.collisionBox.width
             end
 
-            if (not player.facingLeft and itemX >= love.graphics.getWidth()) or (player.facingLeft and itemX <= 0) then
+            if (not player.facingLeft and itemX >= 2560) or (player.facingLeft and itemX <= 0) then
                 itemX = player.x
             end
 
-            item.x = itemX
-            item.y = itemY
+            newItem.x = itemX
+            newItem.y = itemY
 
-            table.insert(_items, item)
-            player.inventory.remove(item)
+            if newItem ~= nil then
+                if newItem.isStackable and newItem.isStackable == true then
+                    if player.inventory[i].item.count == 1 then
+                        table.insert(_items, item.new(player.inventory[i].item.id, itemX, itemY))
+                        player.inventory.remove(newItem)
+                        return
+                    end
+                    local itemCount = player.inventory[i].item.count
+                    newItem.count = 1
+                    table.insert(_items, item.new(player.inventory[i].item.id, itemX, itemY))
+                    player.inventory[i].item.count = itemCount - 1
+                    return
+                end
+            end
+
+            table.insert(_items, newItem)
+            player.inventory.remove(newItem)
             return
         end
     end
 
 end
 
+function player.isThrowing()
+    return currentProjectile ~= nil and currentProjectile.isActive == true
+end
+
 function player.carryObject(objects, object)
+
+    if player.isThrowing() then
+       -- print("No puedes recoger objetos mientras lanzas otro")
+        return
+    end
     if object ~= nil then
         tableUtils.removeByValue(objects, object)
         player.isCarringObject = true
@@ -523,13 +639,29 @@ end
 
 function player.throw(item)
     if item.itemType == ITEM_TYPES.PROJECTILE then
+        return
     else
         player.isCarringObject = false
-        projectile.new(THROWABLE_ITEM_DAMAGE, THROW_ANGLE, objectCarried.x, objectCarried.y, player.y + player.height, true, objectToSave.texture, objectToSave.scale, 2560 * scale)
-        projectile.isActive = true
-        projectile.throw()
+        local throwX = player.x
+        local throwY = player.y - item.height
+        if player.facingLeft then
+            throwX = player.x - player.width
+        else
+            throwX = player.x + player.width
+        end
+
+        local objWidth = objectToSave.collisionBox.width
+        local objHeight = objectToSave.collisionBox.height
+
+        currentProjectile = projectile.new(POWER, THROW_ANGLE, throwX, throwY,
+            player.y + player.height, true, objectToSave.texture, objectToSave.scale, 2560, objWidth, objHeight)
+        if currentProjectile ~= nil then
+            currentProjectile.isActive = true
+            currentProjectile.throw()
+        end
         hasImpacted = false
-        objectCarried = nil
+        objectCarried = {image = nil, scale = 1, width = 0, height = 0, x = 0, y = 0, collisionType = ""}
+        objectToSave = nil
     end
 end
 

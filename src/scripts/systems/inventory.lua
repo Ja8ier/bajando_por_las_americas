@@ -34,10 +34,10 @@ local message = {
 }
 
 local inventory = {
-    [1] = {item = nil, isSelected = true},
+    [1] = {item = nil, isSelected = false},
     [2] = {item = item.new("bat", 0, 0), isSelected = false},
-    [3] = {item = item.new("bat", 0, 0), isSelected = false},
-    [4] = {item = item.new("bat", 0, 0), isSelected = false},
+    [3] = {item = nil, isSelected = false},
+    [4] = {item = nil, isSelected = false},
     [5] = {item = item.new("knife", 0, 0), isSelected = false},
     [6] = {item = item.new("wrench", 0, 0), isSelected = false},
     [7] = {item = item.new("bat", 0, 0), isSelected = false},
@@ -47,10 +47,10 @@ local inventory = {
 
 function inventory.insert(_item, j)
 
-    -- loquehayquemeterle = abso(loqueacepta - (loquetiene + loqlequierometer))
-    if not inventory.hasSpace(inventory) then
+    if not inventory.hasSpace(inventory, _item.isStackable) then
         return
     end
+
     local i = j
 
     if inventory[i].item == nil then
@@ -58,22 +58,37 @@ function inventory.insert(_item, j)
         return
     else
         if inventory[i].item.isStackable and inventory[i].item.id == _item.id then
-    
+
             if inventory[i].item.count == itemsDefinition[inventory[i].item.id].maxCount then
+                if i == 9 then
+                    i = 0
+                end
                 inventory.insert(_item, i + 1)
                 return
             elseif _item.count == itemsDefinition[inventory[i].item.id].maxCount then
-                inventory[i].count, _item.count = _item.count, inventory[i].count
+                inventory[i].item.count, _item.count = _item.count, inventory[i].item.count
+                if i == 9 then
+                    i = 0
+                end
                 inventory.insert(_item, i + 1)
                 return
-            elseif _item.count < itemsDefinition[inventory[i].item.id].maxCount then
-    
-                local countToAdd = math.abs(itemsDefinition[inventory[i].item.id].maxCount - (inventory[i].item.count + _item.count))
-                inventory[i].item.count = inventory[i].item.count + _item.count - countToAdd
-                _item.count = countToAdd
-                inventory.insert(_item, i + 1)
-                return
+            else
+                for m = 1, itemsDefinition[inventory[i].item.id].maxCount do
+                    inventory[i].item.count = inventory[i].item.count + 1
+                    _item.count = _item.count - 1
+                    if _item.count <= 0 then
+                        return
+                    elseif inventory[i].item.count == itemsDefinition[inventory[i].item.id].maxCount then
+                        if i == 9 then
+                            i = 0
+                        end
+                        inventory.insert(_item, i + 1)
+                    end
+                end
             end
+        end
+        if i == 9 then
+            i = 0
         end
         inventory.insert(_item, i + 1)
     end
@@ -246,11 +261,23 @@ function inventory.draw()
 
 end
 
-function inventory.hasSpace(table)
+function inventory.hasSpace(table, isStackable)
 
-    for _, i in ipairs(table) do
-        if i.item == nil then
-            return true
+    if not isStackable then
+        for i = 1, 9 do
+            if table[i].item == nil then
+                return true
+            end
+        end
+    else
+        for i = 1, 9 do
+            if table[i].item == nil then
+                return true
+            elseif table[i].item.isStackable == true then
+                if (table[i].item.count < itemsDefinition[table[i].item.id].maxCount) then
+                    return true
+                end
+            end
         end
     end
 
