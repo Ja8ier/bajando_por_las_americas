@@ -12,7 +12,7 @@ local tableUtils = require("src.scripts.utils.tableUtils")
 local miniGame = require("src.scripts.states.minigame")
 local cb = require("src.scripts.systems.collision_box")
 local GameState = require("src.scripts.data.game_state")
-local obstacleData = require("src.scripts.utils.obstacleData")
+local entitiesData = require("src.scripts.utils.entitiesData")
 
 local worldWidth
 local layers = {}
@@ -56,9 +56,8 @@ local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
     end
 
     if MapEnd then
-        spawnX = math.random(xStart, xEnd)
         spawnY = math.random(yMin, yMax)
-        local boss = enemy.new(5, spawnX, spawnY)
+        local boss = enemy.new(5, 12200, spawnY)
         table.insert(enemies, boss)
     end
 
@@ -83,7 +82,6 @@ function stage1.load()
     collisions = {}
     triggers = {}
     items = {}
-
 
     isMiniGamePlaying = false
 
@@ -125,6 +123,12 @@ function stage1.load()
     table.insert(collisions, cone2)
     table.insert(collisions, heavyStone) ]]
 
+
+    entitiesData.generateFixedObstacles(1, obstacle, collisions)
+    entitiesData.generateFixedObstacles(2, obstacle, collisions)
+    entitiesData.generateFixedObstacles(3, obstacle, collisions)
+    entitiesData.generateItems(1, item, items)
+
     --Items
 
     --Triggers
@@ -136,21 +140,18 @@ function stage1.load()
 
     local spawnTrigger = trigger.new(78, 84, 6, 80, true, function()
         setCheckpoint()
-        obstacleData.generateFixedObstacles(1, obstacle, collisions)
         spawnEnemyWave(500, 5500, minY, maxY, false)
     end, true, nil)
     spawnTrigger.id = "stage1_spawnTrigger"
 
     local middleTrigger = trigger.new(1180, 84, 6, 80, true, function()
         setCheckpoint()
-        obstacleData.generateFixedObstacles(2, obstacle, collisions)
         spawnEnemyWave(6000, 10000, minY, maxY, false)
     end, true, nil)
     middleTrigger.id = "stage1_middleTrigger"
 
     local endTrigger = trigger.new(2100, 84, 6, 80, true, function()
         setCheckpoint()
-        obstacleData.generateFixedObstacles(3, obstacle, collisions)
         spawnEnemyWave(10500, 12000, minY, maxY, true)
     end, true, nil)
     endTrigger.id = "stage1_endTrigger"
@@ -172,12 +173,6 @@ function stage1.load()
             restoredEnemy.HP = savedEnemy.hp
             restoredEnemy.id = savedEnemy.id
             table.insert(enemies, restoredEnemy)
-        end
-    end
-
-    for _, t in ipairs(triggers) do
-        if t.id and GameState.world.usedTriggers[t.id] then
-            t.isActive = false
         end
     end
 
@@ -213,6 +208,8 @@ function stage1.load()
     player.numberAttempts = GameState.player.attempts
 end
 
+local onetime = true
+
 function stage1.update(dt)
 
     if isMiniGamePlaying then
@@ -226,6 +223,16 @@ function stage1.update(dt)
         end
 
         return
+    end
+
+    if minigameCompleted and onetime then
+        local arepas = {item.new("arepa", 11700, 480), item.new("arepa", 11650, 480), item.new("arepa", 11750, 480)}
+        for i, arep in ipairs(arepas) do
+            arep.count = 1
+            table.insert(items, arep)
+        end
+        print("asdfghhcx")
+        onetime = false
     end
 
     --Mover x

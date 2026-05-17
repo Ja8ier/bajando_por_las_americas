@@ -1,4 +1,4 @@
-local stage1 = {}
+local stage4 = {}
 
 local player = require("src.scripts.entities.player")
 local enemy = require("src.scripts.entities.enemy")
@@ -12,7 +12,7 @@ local tableUtils = require("src.scripts.utils.tableUtils")
 local miniGame = require("src.scripts.states.minigame")
 local cb = require("src.scripts.systems.collision_box")
 local GameState = require("src.scripts.data.game_state")
-local obstacleData = require("src.scripts.utils.obstacleData")
+local entitiesData = require("src.scripts.utils.entitiesData")
 
 local worldWidth
 local layers = {}
@@ -56,9 +56,8 @@ local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
     end
 
     if MapEnd then
-        spawnX = math.random(xStart, xEnd)
         spawnY = math.random(yMin, yMax)
-        local boss = enemy.new(5, spawnX, spawnY)
+        local boss = enemy.new(5, 12200, spawnY)
         table.insert(enemies, boss)
     end
 
@@ -76,9 +75,9 @@ local function carryObjectOnTrigger()
     tableUtils.removeByValue(triggers, carryableObject)
 end
 
-function stage1.load()
+function stage4.load()
     enemies = {}  --esto es para que el stage quede limpio, no su dupliquen cajas de colision, no queden triggers invisibles etc
-    stage1.enemies = enemies
+    stage4.enemies = enemies
     local hasSavedEnemies = #GameState.world.savedEnemies > 0
     collisions = {}
     triggers = {}
@@ -125,35 +124,37 @@ function stage1.load()
     table.insert(collisions, cone2)
     table.insert(collisions, heavyStone) ]]
 
+    entitiesData.generateFixedObstacles(2, obstacle, collisions)
+    entitiesData.generateFixedObstacles(4, obstacle, collisions)
+    entitiesData.generateFixedObstacles(6, obstacle, collisions)
+    entitiesData.generateItems(4, item, items)
+
     --Items
 
     --Triggers
     local phoneBoothTrigger = trigger.new(nil, nil, nil, nil, true, function() isMiniGamePlaying = true end, true, phoneBooth)
     --local coneTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, cone)
-    phoneBoothTrigger.id = "stage1_phoneBoothTrigger"
+    phoneBoothTrigger.id = "stage4_phoneBoothTrigger"
 
     local minY, maxY = 330, love.graphics.getHeight() - 170 -- este valor modificar a algo mas aceptable
 
     local spawnTrigger = trigger.new(78, 84, 6, 80, true, function()
         setCheckpoint()
-        obstacleData.generateFixedObstacles(2, obstacle, collisions)
         spawnEnemyWave(500, 5500, minY, maxY, false)
     end, true, nil)
-    spawnTrigger.id = "stage1_spawnTrigger"
+    spawnTrigger.id = "stage4_spawnTrigger"
 
     local middleTrigger = trigger.new(1180, 84, 6, 80, true, function()
         setCheckpoint()
-        obstacleData.generateFixedObstacles(2, obstacle, collisions)
         spawnEnemyWave(6000, 10000, minY, maxY, false)
     end, true, nil)
-    middleTrigger.id = "stage1_middleTrigger"
+    middleTrigger.id = "stage4_middleTrigger"
 
     local endTrigger = trigger.new(2100, 84, 6, 80, true, function()
         setCheckpoint()
-        obstacleData.generateFixedObstacles(1, obstacle, collisions)
         spawnEnemyWave(10500, 12000, minY, maxY, true)
     end, true, nil)
-    endTrigger.id = "stage1_endTrigger"
+    endTrigger.id = "stage4_endTrigger"
 
     table.insert(triggers, phoneBoothTrigger)
     --table.insert(triggers, coneTrigger)
@@ -181,23 +182,17 @@ function stage1.load()
         end
     end
 
-    for _, t in ipairs(triggers) do
-        if t.id and GameState.world.usedTriggers[t.id] then
-            t.isActive = false
-        end
-    end
-
     table.insert(items, item.new("bat", spawnPoint.x, spawnPoint.y))
 
    -- enemies temporales
-   --[[      local enemy1 = enemy.new(4, 800, 400)
+--[[     local enemy1 = enemy.new(4, 800, 400)
     local enemy2 = enemy.new(1, 700, love.graphics.getHeight() -170)
 
     table.insert(enemies, enemy2)
     table.insert(enemies, enemy1) 
 
     local boss1 = enemy.new(5, 900, 400)
-    table.insert(enemies, boss1)]]
+    table.insert(enemies, boss1) ]]
 
     if GameState.player.x ~= 0 and GameState.player.y ~= 0 then --si existe una posicion guardada usa esa
         player.load({                                           -- si no, usa spawn normal
@@ -213,7 +208,9 @@ function stage1.load()
     player.numberAttempts = GameState.player.attempts
 end
 
-function stage1.update(dt)
+local onetime = true
+
+function stage4.update(dt)
 
     if isMiniGamePlaying then
         miniGame.update(dt, 1)
@@ -226,6 +223,16 @@ function stage1.update(dt)
         end
 
         return
+    end
+
+    if minigameCompleted and onetime then
+        local arepas = {item.new("arepa", 11700, 480), item.new("arepa", 11650, 480), item.new("arepa", 11750, 480)}
+        for i, arep in ipairs(arepas) do
+            arep.count = 1
+            table.insert(items, arep)
+        end
+        print("asdfghhcx")
+        onetime = false
     end
 
     --Mover x
@@ -325,7 +332,7 @@ function stage1.update(dt)
     camera.update(player.x, worldWidth * scale)
 end
 
-function stage1.updateCheckPoint()
+function stage4.updateCheckPoint()
     player.x = spawnPoint.x
     player.y = spawnPoint.y -- no funciona
 end
@@ -385,7 +392,7 @@ local function drawPlayerHealthPoints()
     love.graphics.setColor(1, 1, 1)
 end
 
-function stage1.draw()
+function stage4.draw()
 
     love.graphics.setColor(1, 1, 1)
 
@@ -440,7 +447,7 @@ function stage1.draw()
 
 end
 
-function stage1.cleanStatus()
+function stage4.cleanStatus()
     layers = {}
     enemies = {}
     collisions = {}
@@ -457,7 +464,7 @@ function stage1.cleanStatus()
     minigameCompleted = false
 end
 
-function stage1.keypressed(key)
+function stage4.keypressed(key)
 
     if not player.isDead then
 
@@ -545,21 +552,21 @@ function stage1.keypressed(key)
 
 end
 
-function stage1.mousepressed(x, y, button)
+function stage4.mousepressed(x, y, button)
     if isMiniGamePlaying then
         miniGame.mousepressed(x, y, button)
         return
     end
 end
 
-function stage1.continueGame()
+function stage4.continueGame()
     if #enemies == 0 and deadBoss and minigameCompleted then
         return true
     end
     return false
 end
 
-stage1.enemies = enemies
+stage4.enemies = enemies
 
 
-return stage1
+return stage4
