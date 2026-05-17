@@ -4,6 +4,7 @@ local gui = require("src.scripts.gui.gui")
 local settings = require("src.scripts.states.settings")
 local exit = require("src.scripts.states.exit")
 local inputs = require("src.scripts.utils.inputs")
+local GameState = require("src.scripts.data.game_state")
 
 local sprite_Background
 local active_edit = {}
@@ -109,6 +110,8 @@ function continue_game.draw()
 end
 
 function continue_game.mousereleased(x, y, button)
+    -- Aseguramos tener el SaveManager disponible
+    local SaveManager = require("src.scripts.systems.save_manager")
 
     local bx1, bw1, bh1 = gui.utils.center_btn_x, gui.utils.button_width, gui.utils.button_height
 
@@ -129,11 +132,29 @@ function continue_game.mousereleased(x, y, button)
 
         for i = 1, #Games_created, 1 do
             
+            -- >>> AQUÍ ESTÁ EL CAMBIO PRINCIPAL <<<
+            -- Cuando el jugador hace clic sobre el botón de la partida 'i' para continuarla
             if x > bx1 and x < bx1 + bw1 and y > gui.utils.Resize_scale(2, by1) and y < gui.utils.Resize_scale(2, by1) + bh1 and active_btn then
                 
-                gui.utils.text_input = ""
-                
-                Change_state(require("src.scripts.states.game"))
+                -- 1. Intentamos cargar los datos del JSON correspondiente a este slot 'i'
+                local datos_cargados = SaveManager.load(i)
+
+                if datos_cargados then
+                    -- 2. Le asignamos al GameState el número de slot actual (1, 2, 3...)
+                    GameState.currentSlot = i
+
+                    -- 3. Pasamos todos los datos guardados del JSON al GameState activo en memoria
+                    GameState.currentStage = datos_cargados.currentStage
+                    GameState.player = datos_cargados.player
+                    GameState.stats = datos_cargados.stats
+                    GameState.world = datos_cargados.world
+
+                    -- 4. Limpiamos la interfaz de texto y cambiamos al estado del juego
+                    gui.utils.text_input = ""
+                    Change_state(require("src.scripts.states.game"))
+                else
+                    print("Error: No se pudieron cargar los datos del archivo save_slot" .. i .. ".json")
+                end
                     
             elseif x > bx2 and x < bx2 + bw2 then
                 local by2 = gui.utils.Resize_scale(2, by1) + bh2 + gui.utils.Resize_scale(2, 5)
@@ -196,7 +217,7 @@ function continue_game.mousereleased(x, y, button)
                 end
             end
             
-            by1 = by1 +100
+            by1 = by1 + 100
         end
     end
 end
@@ -204,6 +225,10 @@ end
 function continue_game.textinput(t)
     gui.utils.textinput(t)
 end
+
+-- function continue_game.keypressed(key)
+--     gui.utils.keypressed(key)
+-- end
 
 function continue_game.keypressed(key)
 
@@ -213,9 +238,6 @@ function continue_game.keypressed(key)
         end
     end
     
-    if key == "backspace" then
-        gui.utils.keypressed(key)
-    end
 end
 
 return continue_game

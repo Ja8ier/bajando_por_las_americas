@@ -78,19 +78,29 @@ function new_game.mousereleased(x, y, button)
             
             if #Games_created < MAX_GAMES then
 
-                table.insert(Games_created, gui.utils.text_input)
+            -- 1. Calculamos dinámicamente cuál es el siguiente slot libre
+            -- Si no hay partidas (#Games_created es 0), el slot será 1.
+            -- Si ya hay 1 partida, el slot para esta nueva partida será 2, y así sucesivamente.
+            local nuevo_slot = #Games_created + 1
 
-                GameState.player.name = gui.utils.text_input
-                SaveManager.save(GameState)
+            -- 2. Guardamos el nombre en tu lista global de partidas
+            table.insert(Games_created, gui.utils.text_input)
 
-                gui.utils.text_input = ""
+            -- 3. ¡MUY IMPORTANTE! Le decimos al GameState cuál es su slot activo actual
+            GameState.currentSlot = nuevo_slot
+            GameState.player.name = gui.utils.text_input
+            
+            -- 4. Guardamos usando el nuevo_slot dinámico (creará save_slot1.json, save_slot2.json, etc.)
+            SaveManager.save(GameState, nuevo_slot)
 
-                textbox_active = false
-                Change_state(require("src.scripts.states.game"))
+            -- 5. Limpiamos el cuadro de texto y cambiamos de estado al juego
+            gui.utils.text_input = ""
+            textbox_active = false
+            Change_state(require("src.scripts.states.game"))
 
-            else
-                textbox_active = false
-            end
+        else
+            textbox_active = false
+        end
 
 
         elseif y > gui.utils.Resize_scale(2, 300) and y < gui.utils.Resize_scale(2, 300) + gui.utils.button_height then
@@ -108,6 +118,10 @@ function new_game.textinput(t)
     gui.utils.textinput(t)
 end
 
+-- function new_game.keypressed(key)
+--     gui.utils.keypressed(key)
+-- end
+
 function new_game.keypressed(key)
 
     if Current_state == require("src.scripts.states.create_new_game") then
@@ -116,24 +130,6 @@ function new_game.keypressed(key)
         end
     end
 
-    if key == "backspace" then
-        gui.utils.keypressed(key)
-    end
-
-    if key == inputs.createNewGame.create and gui.utils.text_input ~= "" then
-        if #Games_created < MAX_GAMES then
-
-            table.insert(Games_created, gui.utils.text_input)
-            gui.utils.text_input = ""
-
-            textbox_active = false
-            
-            Change_state(require("src.scripts.states.game"))
-
-        else
-            textbox_active = false
-        end
-    end
 end
 
 return new_game

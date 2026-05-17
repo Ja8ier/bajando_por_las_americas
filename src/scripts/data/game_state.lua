@@ -1,12 +1,13 @@
 local GameState = {
 
     currentStage = 1,
+    currentSlot = 1,
 
     player = {
         name = "",
         lives = 3,
-        health = 1000,
-        maxHealth = 1000,
+        health = 10000,
+        maxHealth = 10000,
         attempts = 3,
         x = 0,
         y = 0

@@ -2,28 +2,36 @@ local json = require("src.libraries.dkjson")
 
 local SaveManager = {}
 
-local SAVE_FILE = "save.json"
+function SaveManager.save(data, slot)
 
-function SaveManager.save(data)
+    local filename = "save_slot" .. slot .. ".json"
 
     local serialized = json.encode(data, { indent = true })
 
-    love.filesystem.write(SAVE_FILE, serialized)
+    love.filesystem.write(filename, serialized)
 
 end
 
-function SaveManager.load()
+function SaveManager.load(slot)
 
-    if not love.filesystem.getInfo(SAVE_FILE) then
+    local filename = "save_slot" .. slot .. ".json"
+
+    if not love.filesystem.getInfo(filename) then
         return nil
     end
 
-    local contents = love.filesystem.read(SAVE_FILE)
+    local contents = love.filesystem.read(filename)
 
     local data = json.decode(contents)
 
     return data
 
+end
+
+--check si slot existe
+function SaveManager.exists(slot)
+    local filename = "save_slot" .. slot .. ".json"
+    return love.filesystem.getInfo(filename) ~= nil
 end
 
 return SaveManager

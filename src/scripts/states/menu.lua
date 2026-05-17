@@ -15,7 +15,7 @@ local sprite_Background_menu
 local active = true
 
 menu.Show_settings = false
-menu.Show_exit = false
+menu.Show_exit = false 
 
 function menu.load()
 
@@ -146,11 +146,9 @@ function menu.keypressed(key)
         elseif key == inputs.menu.continueGame then
             Change_state(require("src.scripts.states.continue_the_game"))
         elseif key == inputs.menu.settings then
-            menu.Show_settings = not menu.Show_settings
-            menu.Show_exit = false
+            menu.Show_settings = true
         elseif key == inputs.menu.exit then
-            menu.Show_exit = not menu.Show_exit
-            menu.Show_settings = false
+            menu.Show_exit = true
         end
 
     end

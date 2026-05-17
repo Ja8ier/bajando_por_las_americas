@@ -8,8 +8,7 @@ local inputs = {
     },
 
     createNewGame = {
-        back = "escape",
-        create = "return"
+        back = "escape"
     },
 
     continueGame = {
@@ -22,7 +21,6 @@ local inputs = {
 
     game = {
         pause = {"escape", "p"},
-        nextLevel = "space",
         up = "w",
         down = "s",
         left = "a",
@@ -52,6 +50,13 @@ local inputs = {
     minigames = {
 
         ["1"] = {
+            continue = "return",
+            restart = "r",
+            space = "space",
+            quit = "lctrl"
+        },
+
+        ["2"] = {
             up = "up",
             down = "down",
             left = "left",
@@ -61,6 +66,14 @@ local inputs = {
             quit = "lctrl"
         },
 
+        ["3"] = {
+            q = "q",
+            e = "e",
+            a = "a",
+            d = "d",
+            restart = "r",
+            quit = "lctrl"
+        }
     }
 
 }

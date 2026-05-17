@@ -27,6 +27,7 @@ local currentAnimation = animations.walk
 
 local wasAttackPressed = false
 local attackTimer = 0
+local attackDuration = 0.4
 
 local wearLosen = 0
 
@@ -56,33 +57,15 @@ local player = {
     isDead = false,
     isCrouching = false,
     armament = {isArmed = false, weaponSelect = "bottle"},
-    HP = 1000,
-    maxHP = 1000,
+    HP = 10000,
+    maxHP = 10000,
     numberAttempts = 3,
     isHurt = false,
     hurtTimer = 0,
     attacking = false,
-    attackCooldownTimer = 0,
-    entityStatus = {statusType = "none", statusTimer = 0}
+    entityStatus = {statusType = "none", statusTimer = 0},
+    isCarringObject = false
 }
-
-local attackDuration = {
-    bottle = 0.2,
-    knife = 0.3,
-    bat = 0.4,
-    wrench = 0.5
-}
-
-local animations = {
-    walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false),
-    run = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.15, false),
-    crouch = animation.new("assets/sprites/player/player_crouch.png", 22, 28, 0.1, true),
-    attack = animation.new("assets/sprites/player/player_attack.png", 31, 31, attackDuration[player.armament.weaponSelect]/4, false),
-    punch = animation.new("assets/sprites/player/player_punch.png", 24, 28, 0.1, false),
-    walkWileCarry = animation.new("assets/sprites/player/player_walking_while_carring.png", 20, 29, 0.25, false),
-}
-
-local currentAnimation = animations.walk
 
 --#region Load, update y draw
 
@@ -121,12 +104,6 @@ function player.update(dt, enemies)
             player.isHurt = false
             player.hurtTimer = 0
         end
-    end
-
-    if player.attackCooldownTimer > 0 then
-        player.attackCooldownTimer = player.attackCooldownTimer - dt
-    else
-        player.attackCooldownTimer = 0
     end
 
     local oldMoving = player.isMoving
@@ -232,6 +209,9 @@ local function setAnimation(animation)
     end
 end
 
+local playerSlowStateTimer = 4
+local playerStunStateTimer = 2
+
 function player.updateAnimationState(dt)
 
     if love.keyboard.isDown(inputs.game.crouch) then
@@ -239,35 +219,25 @@ function player.updateAnimationState(dt)
         player.speed = 0
         player.isCrouching = true
         return
-    else
-        player.isCrouching = false
-    end
-
-    if player.isCarringObject then
-        setAnimation("walkWileCarry")
-        player.speed = 150
-        return
     end
 
     local isAttackPressed = love.keyboard.isDown(inputs.game.attack)
 
     if isAttackPressed and not wasAttackPressed then
-        attackTimer = attackDuration[player.armament.weaponSelect]
+        attackTimer = attackDuration
         if player.armament.isArmed then
             setAnimation("attack")
-            if player.speed == 0 then player.speed = 150 end
         else
             setAnimation("punch")
-            if player.speed == 0 then player.speed = 150 end
         end
-        player.speed = 0
+        player.speed = 0 -- Te detienes al atacar
     end
 
     wasAttackPressed = isAttackPressed
 
-    if attackTimer >= 0 then
+    if attackTimer > 0 then
         attackTimer = attackTimer - dt
-        return
+        return -- Salimos: el ataque bloquea el movimiento y el sprint
     end
 
     local status = player.entityStatus and player.entityStatus.statusType
@@ -295,7 +265,6 @@ function player.updateAnimationState(dt)
         end
         setAnimation("walk")
     end
-
 end
 
 --movimiento del player
@@ -375,7 +344,7 @@ end
 
 local function takeHP(e, amountOfHP)
 
-    if amountOfHP > 20 and amountOfHP < THROWABLE_ITEM_DAMAGE then
+    if amountOfHP > 20 and amountOfHP < 150 then
         wearLosen = amountOfHP / 2
     end
 
@@ -402,49 +371,47 @@ function player.attack(enemies)
     end
 
     for i, e in ipairs(enemies) do
-
         if mathUtils.getDistanceToPlayer(player, e) <= 75 and e.entityStatus.statusType ~= "stun" then
             if not player.isCarringObject then
                 player.attacking = true
+                player.isCrouching = false
 
                 if not player.isCrouching then
                     if player.attackCooldownTimer <= 0 then
                         if player.armament.isArmed then
                                 
                             if player.armament.weaponSelect == "bottle" then
-                                takeHP(e, 80)
+                                takeHP(e, 8000)
                                 player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
                                 break
 
                             elseif player.armament.weaponSelect == "knife" then
-                                takeHP(e, 100)
+                                takeHP(e, 10000)
                                 player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
                                 break
 
                             elseif player.armament.weaponSelect == "bat" then
-                                takeHP(e, 150)
+                                takeHP(e, 15000)
                                 player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
                                 break
 
                             elseif player.armament.weaponSelect == "wrench" then
-                                takeHP(e, 200)
+                                takeHP(e, 20000)
                                 player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
                                 break
                             end
                         else
-                            takeHP(e, 50)
+                            takeHP(e, 5000)
                             player.attackCooldownTimer = attackDuration["bottle"]
                             break
                         end
                     end
+                else
+                    takeHP(e, 20)
+                    --player.updateAnimationState()
+                    break
                 end
-            end
         end
-        
-        if mathUtils.getDistanceToPlayer(player, e) <= 75 and player.entityStatus.statusType ~= "stun" then
-            player.attacking = true
-
-            
         else
             player.attacking = false
         end
@@ -463,7 +430,6 @@ function player.cleanStatus()
     player.isHurt = false
     player.hurtTimer = 0
     player.attacking = false
-    player.attackCooldownTimer = 0
     player.entityStatus = {statusType = "none", statusTimer = 0}
     currentAnimation = animations.walk
 end

@@ -128,7 +128,7 @@ function EnemyLogic.createTree()
             AI.newCondition(
                 function(e) return e:getDistanceToPlayer(player) <= 350 end,
                 AI.newCondition(
-                    function(e) return math.random() < 0.2 end,
+                    function(e) return math.random() < 1 end,
                     actionBossSpecial,
                     bossWeaponAttackTree
                 ),

@@ -4,24 +4,23 @@ local gui = require("src.scripts.gui.gui")
 local panel = require("src.scripts.gui.panel")
 local sounds = require("src.scripts.sounds.sounds")
 
-local setting_panel = panel.new((love.graphics.getWidth() - gui.utils.Resize_scale(1, 500))/2, 
-                                (love.graphics.getHeight() - gui.utils.Resize_scale(2, 600))/2, 
-                                gui.utils.Resize_scale(1, 500), gui.utils.Resize_scale(2, 600), "AJUSTES", gui.utils.Resize_scale(1, 30))
+local setting_panel = panel.new((love.graphics.getWidth() - gui.utils.Resize_scale(1, 400))/2, 
+                                (love.graphics.getHeight() - gui.utils.Resize_scale(2, 500))/2, 
+                                gui.utils.Resize_scale(1, 400), gui.utils.Resize_scale(2, 500), "AJUSTES", gui.utils.Resize_scale(1, 30))
 
-Audio = true -- esta variable puede usarse como controlador del volumen en todo el juego, de lo contrario, ponerla como local y en minuscula
+Audio = true
+
 local spriteControls = love.graphics.newImage("assets/sprites/controls.png")
-
-
 function settings.load()
     gui.utils.Resize_dimentions_btn(100, 32, 10)
 end
 
 function settings.resize(w, h)
 
-    setting_panel.x = (love.graphics.getWidth() - gui.utils.Resize_scale(1, 500))/2
-    setting_panel.y = (love.graphics.getHeight() - gui.utils.Resize_scale(2, 600))/2
-    setting_panel.w = gui.utils.Resize_scale(1, 500)
-    setting_panel.h = gui.utils.Resize_scale(2, 600)
+    setting_panel.x = (love.graphics.getWidth() - gui.utils.Resize_scale(1, 400))/2
+    setting_panel.y = (love.graphics.getHeight() - gui.utils.Resize_scale(2, 500))/2
+    setting_panel.w = gui.utils.Resize_scale(1, 400)
+    setting_panel.h = gui.utils.Resize_scale(2, 500)
     setting_panel.scale_title = gui.utils.Resize_scale(1, 30)
 end
 
@@ -94,7 +93,7 @@ function settings.mousereleased(x, y, button)
     -- DETECTOR DEL CLIC EN EL SWITCH DE AUDIO
     if x > setting_panel.x + 305 and x < setting_panel.x + 365 and y > setting_panel.y + 117 and y < setting_panel.y + 147 then
         Audio = not Audio
-        sounds.update() -- 2. AÑADIR ESTA LÍNEA PARA APLICAR EL CAMBIO EN TIEMPO REAL
+        sounds.update() -- ESTA LÍNEA PARA APLICAR EL CAMBIO EN TIEMPO REAL
     end
     
     return false
