@@ -380,6 +380,26 @@ function stage1.update(dt)
         end
     end
 
+   -- CONTROL DE AUDIO INTELIGENTE DE PASOS (CORREGIDO)
+    if player.isMoving and not isMiniGamePlaying then
+        
+        -- Cambiamos la condición para detectar si SHIFT IZQUIERDO está presionado
+        -- Nota: Si tus compañeros guardaron la tecla en tus "inputs", puedes usar: love.keyboard.isDown(inputs.game.run)
+        if love.keyboard.isDown("lshift") then
+            -- Si se mueve y presiona Shift -> Suena correr, se apaga caminar
+            sounds.startRunning()
+            sounds.stopWalking()
+        else
+            -- Si se mueve sin Shift -> Suena caminar, se apaga correr
+            sounds.startWalking()
+            sounds.stopRunning()
+        end
+    else
+        -- Si está completamente quieto o en el minijuego del teléfono público
+        sounds.stopWalking()
+        sounds.stopRunning()
+    end
+
     --actualizar animaciones y sonidos:
     player.updateAnimationState(dt)
     player.update(dt, enemies)
