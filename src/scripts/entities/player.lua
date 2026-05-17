@@ -79,9 +79,17 @@ local attackDuration = {
 
 local animations = {
     walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false),
+    walk_bottle = animation.new("assets/sprites/player/player_walking_bottle.png", 20, 28, 0.25, false),
+    walk_knife = animation.new("assets/sprites/player/player_walking_knife.png", 20, 28, 0.25, false),
+    walk_bat = animation.new("assets/sprites/player/player_walking_bat.png", 23, 28, 0.25, false),
+    walk_wrench = animation.new("assets/sprites/player/player_walking_wrench.png", 23, 28, 0.25, false),
     run = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.15, false),
     crouch = animation.new("assets/sprites/player/player_crouch.png", 22, 28, 0.1, true),
     attack = animation.new("assets/sprites/player/player_attack.png", 31, 31, attackDuration[player.armament.weaponSelect]/4, false),
+    attack_bottle = animation.new("assets/sprites/player/player_attack_bottle.png", 31, 31, 0.25, false),
+    attack_knife = animation.new("assets/sprites/player/player_attack_knife.png", 31, 31, 0.25, false),
+    attack_bat = animation.new("assets/sprites/player/player_attack_bat.png", 32, 31, 0.25, false),
+    attack_wrench = animation.new("assets/sprites/player/player_attack_wrench.png", 31, 31, 0.25, false),
     punch = animation.new("assets/sprites/player/player_punch.png", 24, 28, 0.1, false),
     walkWileCarry = animation.new("assets/sprites/player/player_walking_while_carring.png", 20, 29, 0.25, false),
 }
@@ -246,6 +254,54 @@ local function setAnimation(animation)
     end
 end
 
+local function setWalkAnimation()
+    if not player.armament.isArmed then
+        setAnimation("walk")
+        return
+    end
+    if player.armament.weaponSelect == "bottle" then
+        setAnimation("walk_bottle")
+    elseif player.armament.weaponSelect == "knife" then
+        setAnimation("walk_knife")
+    elseif player.armament.weaponSelect == "bat" then
+        setAnimation("walk_bat")
+    elseif player.armament.weaponSelect == "wrench" then
+        setAnimation("walk_wrench")
+    end
+end
+
+local function setRunAnimation()
+    if not player.armament.isArmed then
+        setAnimation("run")
+        return
+    end
+    if player.armament.weaponSelect == "bottle" then
+        setAnimation("run_bottle")
+    elseif player.armament.weaponSelect == "knife" then
+        setAnimation("run_knife")
+    elseif player.armament.weaponSelect == "bat" then
+        setAnimation("run_bat")
+    elseif player.armament.weaponSelect == "wrench" then
+        setAnimation("run_wrench")
+    end
+end
+
+local function setAttackAnimation()
+    if not player.armament.isArmed then
+        setAnimation("attack")
+        return
+    end
+    if player.armament.weaponSelect == "bottle" then
+        setAnimation("attack_bottle")
+    elseif player.armament.weaponSelect == "knife" then
+        setAnimation("attack_knife")
+    elseif player.armament.weaponSelect == "bat" then
+        setAnimation("attack_bat")
+    elseif player.armament.weaponSelect == "wrench" then
+        setAnimation("attack_wrench")
+    end
+end
+
 function player.updateAnimationState(dt)
 
     if love.keyboard.isDown(inputs.game.crouch) then
@@ -257,31 +313,23 @@ function player.updateAnimationState(dt)
         player.isCrouching = false
     end
 
-    if player.isCarringObject then
-        setAnimation("walkWileCarry")
-        player.speed = 150
-        return
-    end
-
     local isAttackPressed = love.keyboard.isDown(inputs.game.attack)
 
     if isAttackPressed and not wasAttackPressed then
         attackTimer = attackDuration[player.armament.weaponSelect]
         if player.armament.isArmed then
-            setAnimation("attack")
-            if player.speed == 0 then player.speed = 150 end
+            setAttackAnimation()
         else
             setAnimation("punch")
-            if player.speed == 0 then player.speed = 150 end
         end
-        player.speed = 0
+        player.speed = 0 -- Te detienes al atacar
     end
 
     wasAttackPressed = isAttackPressed
 
     if attackTimer >= 0 then
         attackTimer = attackTimer - dt
-        return
+        return -- Salimos: el ataque bloquea el movimiento y el sprint
     end
 
     local status = player.entityStatus and player.entityStatus.statusType
@@ -297,19 +345,18 @@ function player.updateAnimationState(dt)
                 setAnimation("run")
             else
                 player.speed = 150
-                setAnimation("walk")
+                setWalkAnimation()
             end
         else
-            setAnimation("walk")
+            setWalkAnimation()
         end
     else
         player.isCrouching = false
         if isNormal then
             player.speed = 150
         end
-        setAnimation("walk")
+        setWalkAnimation()
     end
-
 end
 
 --movimiento del player
