@@ -95,7 +95,7 @@ function settings.mousereleased(x, y, button)
         Audio = not Audio
         sounds.update() -- ESTA LÍNEA PARA APLICAR EL CAMBIO EN TIEMPO REAL
     end
-    
+
     return false
 end
 return settings
