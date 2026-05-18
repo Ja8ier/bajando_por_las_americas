@@ -494,7 +494,7 @@ function player.attack(enemies)
                                 break
                             end
                         else
-                            takeHP(e, 50)
+                            takeHP(e, 5000)
                             player.attackCooldownTimer = attackDuration["bottle"]
                             break
                         end

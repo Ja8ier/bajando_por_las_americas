@@ -251,7 +251,8 @@ end
 function bomb.keypressed(key)
 
     if key == inputs.minigames["1"].quit then
-        if state == "win" then gameCompleted = true else gameCompleted = false end
+        -- if state == "win" then gameCompleted = true else gameCompleted = false end
+        gameCompleted = (state == "win")
         ambientMusic:stop()
         dangerSound:stop()
         interactSound:stop()

@@ -237,7 +237,9 @@ function continue_game.keypressed(key)
             Change_state(require("src.scripts.states.menu"))
         end
     end
-    
+    if key == "backspace" then
+        gui.utils.keypressed(key)
+    end
 end
 
 return continue_game

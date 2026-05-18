@@ -49,6 +49,9 @@ local bigFont = nil
 local blinkTimer = 0
 local showPress = true
 
+--is Win
+local gameCompleted = false
+
 --carga de assets
 local function loadAssets()
     if images.up then return end
@@ -219,7 +222,12 @@ function qte.isExited()
 
     if exit then
         exit = false
-        return true
+
+        if gameCompleted then
+            return true, gameCompleted
+        end
+
+        return true, gameCompleted
     end
 
 end
@@ -353,6 +361,8 @@ function qte.draw()
 
         if level < config.maxLevel then
             love.graphics.printf("ENTER", 0, cy + 50, w, "center")
+        else
+            love.graphics.printf("PRESIONA CTRL PARA SALIR", 0, cy + 65, w, "center")
         end
 
     elseif state == "fail" then

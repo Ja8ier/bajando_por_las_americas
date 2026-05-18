@@ -159,7 +159,7 @@ end
 function Enemy.new(tier, _x, _y)
 
     if NextBossWeaponIndex > 4 then NextBossWeaponIndex = 1 end
-    
+
     local equipment
     if tier ~= 5 then
         equipment = getRandomWeaponForEnemy(tier)

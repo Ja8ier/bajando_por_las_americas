@@ -303,7 +303,7 @@ function stage1.update(dt)
         miniGame.update(dt, 1)
         local isExit
         isExit, minigameCompleted = miniGame.isExited(1)
-        minigameCompleted = minigameCompleted or false
+        --minigameCompleted = minigameCompleted or false
         -- isExit, minigameCompleted = miniGame.isExited(1)
         if isExit then
             miniGame.load(1)
@@ -678,7 +678,8 @@ function stage1.mousepressed(x, y, button)
 end
 
 function stage1.continueGame()
-    if #enemies == 0 and deadBoss and minigameCompleted then
+
+    if minigameCompleted then
         return true
     end
     return false

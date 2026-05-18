@@ -674,7 +674,7 @@ function stage4.mousepressed(x, y, button)
 end
 
 function stage4.continueGame()
-    if #enemies == 0 and deadBoss and minigameCompleted then
+    if minigameCompleted then
         return true
     end
     return false
