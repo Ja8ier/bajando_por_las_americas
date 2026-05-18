@@ -32,6 +32,7 @@ local inputs = {
         attack = "k",
         carryObject = "l",
         dropItem = "q",
+        nextLevel = "space",
         pickUpItem = "f",
         slots = {
             [1] = "1",

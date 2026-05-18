@@ -303,9 +303,10 @@ function stage1.update(dt)
 
     if isMiniGamePlaying then
         miniGame.update(dt, 1)
-
         local isExit
         isExit, minigameCompleted = miniGame.isExited(1)
+        minigameCompleted = minigameCompleted or false
+        -- isExit, minigameCompleted = miniGame.isExited(1)
         if isExit then
             miniGame.load(1)
             isMiniGamePlaying = false
@@ -389,8 +390,9 @@ function stage1.update(dt)
 
     end
 
+
     for i, e in ipairs(enemies) do
-        e:update(dt, player, collisions)
+        e:update(dt, player, collisions, enemies)
     end
 
     for i = #enemies, 1, -1 do
@@ -399,6 +401,7 @@ function stage1.update(dt)
         if e.isDead and e.animationDie then
             if e.tier == 5 then
                 NextBossWeaponIndex = NextBossWeaponIndex + 1
+                deadBoss = true
 
                 if math.random() <= 1 then
                     e:dropItem(items)
@@ -412,6 +415,7 @@ function stage1.update(dt)
             table.remove(enemies, i)
         end
     end
+
 
    -- CONTROL DE AUDIO INTELIGENTE DE PASOS (CORREGIDO)
     if player.isMoving and not isMiniGamePlaying then
@@ -564,6 +568,7 @@ function stage1.cleanStatus()
     isMiniGamePlaying = false
     touchingItem = false
     pickableItem = nil
+    deadBoss = false
     spawnPoint = {x = 500, y = love.graphics.getHeight() - player.frameheight * player.scale - 300}
 end
 
