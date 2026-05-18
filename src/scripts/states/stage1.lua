@@ -292,11 +292,9 @@ local onetime = true
 function stage1.update(dt)
 
     if isMiniGamePlaying and not wasMiniGamePlaying then --detectar el cambio de estado en el audio
-        -- El minijuego acaba de comenzar en este frame -> Apagamos la música
         sounds.stopAmbient()
         wasMiniGamePlaying = true
     elseif not isMiniGamePlaying and wasMiniGamePlaying then
-        -- El minijuego acaba de terminar -> Volvemos a encender la música
         sounds.playAmbient()
         wasMiniGamePlaying = false
     end

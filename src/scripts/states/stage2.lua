@@ -13,6 +13,7 @@ local miniGame = require("src.scripts.states.minigame")
 local cb = require("src.scripts.systems.collision_box")
 local GameState = require("src.scripts.data.game_state")
 local entitiesData = require("src.scripts.utils.entitiesData")
+local sounds = require("src.scripts.sounds.sounds")
 
 local worldWidth
 local layers = {}
@@ -30,24 +31,26 @@ local touchingTrigger
 local interactiveObject
 local carryableObject
 local isMiniGamePlaying
+local wasMiniGamePlaying = false --variable testigo
 local spawnPoint = {x = 300, y = love.graphics.getHeight() - player.frameheight * player.scale - 250}
 local deadBoss = false
 local minigameCompleted = false
+local CONSUMIBLE_HP = 300
 local font = love.graphics.newFont("assets/fonts/VT323-Regular.ttf", 28)
 
 local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
 
     local count
     if MapEnd then
-        count = math.random(4, 6)
+        count = math.random(4, 8)
     else
-        count = math.random(7, 10)
+        count = math.random(10, 15)
     end
+
+    local currentTier = math.random(1, 4)--[[ NextBossWeaponIndex or 1 ]]
 
     local spawnX, spawnY
     for i = 1, count do
-        local currentTier = math.random(1, 4) --[[ NextBossWeaponIndex or 1 ]] --
-
         spawnX = math.random(xStart, xEnd)
         spawnY = math.random(yMin, yMax)
         
@@ -62,12 +65,54 @@ local function spawnEnemyWave(xStart, xEnd, yMin, yMax, MapEnd)
         table.insert(enemies, boss)
     end
 
-    print("Invasión generada: " .. count .. " enemigos de Tier variado")
+    print("Invasión generada: " .. count .. " enemigos de Tier " .. currentTier)
+end
+
+local function spawnWorldObjects(xStart, xEnd, yMin, yMax, isFinal)
+    local enemyCount = isFinal and math.random(5, 8) or math.random(10, 15)
+    local obstacleCount = isFinal and math.random(5, 10) or math.random(15, 20)
+
+    local imgWheel = love.graphics.newImage("assets/sprites/items/wheel.png")
+    local imgCone = love.graphics.newImage("assets/sprites/items/cono.png")
+    local minDistance = 80
+
+    for i = 1, obstacleCount do
+        local placed = false
+        local attempts = 0
+        
+        while not placed and attempts < 10 do
+            local randX = math.random(xStart, xEnd)
+            local randY = math.random(yMin, yMax)
+            
+            local tooClose = false
+            for _, obs in ipairs(collisions) do
+                local dx = randX - (obs.x / scale)
+                local dy = randY - (obs.y / scale)
+                if math.sqrt(dx*dx + dy*dy) < minDistance then
+                    tooClose = true
+                    break
+                end
+            end
+
+            if not tooClose then
+                local newObs
+                if i % 2 == 0 then
+                    newObs = obstacle.new(true, randX, randY, 58, 42, "full", imgWheel, 0.5)
+                else
+                    newObs = obstacle.new(true, randX, randY, 24, 30, "bottom", imgCone, 0.7)
+                end
+                table.insert(collisions, newObs)
+                placed = true
+            end
+            attempts = attempts + 1
+        end
+    end
+    print("Zona generada: " .. enemyCount .. " enemigos y " .. obstacleCount .. " obstáculos.")
 end
 
 local function setCheckpoint()
     spawnPoint.x = player.x
-    spawnPoint.y = player.y -- no funciona 
+    spawnPoint.y = player.y
     print("Punto de control guardado en: " .. spawnPoint.x .. ", " .. spawnPoint.y)
 end
 
@@ -83,7 +128,7 @@ local function createObs()
 
     for _, obs in ipairs(data1) do
         local s = sprites1[obs.t]
-        local newObs = obstacle.new(true, obs.x, obs.y, s.w, s.h, s.col, s.img, true, 0.5)
+        local newObs = obstacle.new(true, obs.x, obs.y, s.w, s.h, s.col, s.img, true, 0.4)
         table.insert(collisions, newObs)
         if obs.t == "cono" then
             local newTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, newObs)
@@ -92,7 +137,7 @@ local function createObs()
     end
     for _, obs in ipairs(data2) do
         local s = sprites2[obs.t]
-        local newObs = obstacle.new(true, obs.x, obs.y, s.w, s.h, s.col, s.img, true, 0.5)
+        local newObs = obstacle.new(true, obs.x, obs.y, s.w, s.h, s.col, s.img, true, 0.4)
         table.insert(collisions, newObs)
         if obs.t == "cono" then
             local newTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, newObs)
@@ -101,7 +146,7 @@ local function createObs()
     end
     for _, obs in ipairs(data3) do
         local s = sprites3[obs.t]
-        local newObs = obstacle.new(true, obs.x, obs.y, s.w, s.h, s.col, s.img, true, 0.5)
+        local newObs = obstacle.new(true, obs.x, obs.y, s.w, s.h, s.col, s.img, true, 0.4)
         table.insert(collisions, newObs)
         if obs.t == "cono" then
             local newTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, newObs)
@@ -109,7 +154,6 @@ local function createObs()
         end
     end
 end
-
 function stage2.load()
     enemies = {}  --esto es para que el stage quede limpio, no su dupliquen cajas de colision, no queden triggers invisibles etc
     stage2.enemies = enemies
@@ -243,11 +287,20 @@ local onetime = true
 
 function stage2.update(dt)
 
+    if isMiniGamePlaying and not wasMiniGamePlaying then --detectar el cambio de estado en el audio
+        sounds.stopAmbient()
+        wasMiniGamePlaying = true
+    elseif not isMiniGamePlaying and wasMiniGamePlaying then
+        sounds.playAmbient()
+        wasMiniGamePlaying = false
+    end
+
     if isMiniGamePlaying then
         miniGame.update(dt, 2)
-
         local isExit
         isExit, minigameCompleted = miniGame.isExited(2)
+        minigameCompleted = minigameCompleted or false
+        -- isExit, minigameCompleted = miniGame.isExited(1)
         if isExit then
             miniGame.load(2)
             isMiniGamePlaying = false
@@ -331,6 +384,7 @@ function stage2.update(dt)
 
     end
 
+
     for i, e in ipairs(enemies) do
         e:update(dt, player, collisions, enemies)
     end
@@ -356,6 +410,27 @@ function stage2.update(dt)
         end
     end
 
+
+   -- CONTROL DE AUDIO INTELIGENTE DE PASOS (CORREGIDO)
+    if player.isMoving and not isMiniGamePlaying then
+        
+        -- Cambiamos la condición para detectar si SHIFT IZQUIERDO está presionado
+        -- Nota: Si tus compañeros guardaron la tecla en tus "inputs", puedes usar: love.keyboard.isDown(inputs.game.run)
+        if love.keyboard.isDown("lshift") then
+            -- Si se mueve y presiona Shift -> Suena correr, se apaga caminar
+            sounds.startRunning()
+            sounds.stopWalking()
+        else
+            -- Si se mueve sin Shift -> Suena caminar, se apaga correr
+            sounds.startWalking()
+            sounds.stopRunning()
+        end
+    else
+        -- Si está completamente quieto o en el minijuego del teléfono público
+        sounds.stopWalking()
+        sounds.stopRunning()
+    end
+
     --actualizar animaciones y sonidos:
     player.updateAnimationState(dt)
     player.update(dt, enemies)
@@ -364,7 +439,7 @@ end
 
 function stage2.updateCheckPoint()
     player.x = spawnPoint.x
-    player.y = spawnPoint.y -- no funciona
+    player.y = spawnPoint.y
 end
 
 local function printByOrder()
@@ -483,9 +558,8 @@ function stage2.cleanStatus()
     isMiniGamePlaying = false
     touchingItem = false
     pickableItem = nil
-    spawnPoint = {x = 500, y = love.graphics.getHeight() - player.frameheight * player.scale - 300}
     deadBoss = false
-    minigameCompleted = false
+    spawnPoint = {x = 500, y = love.graphics.getHeight() - player.frameheight * player.scale - 300}
 end
 
 function stage2.keypressed(key)
@@ -513,11 +587,11 @@ function stage2.keypressed(key)
 
                 player.inventory.remove(player.inventory.getItemSelectSlot())
 
-                if player.HP ~= 1000 then
-                    if player.HP + 300 > 1000 then
-                        player.HP = 10000
+                if player.HP ~= 1500 then
+                    if player.HP + CONSUMIBLE_HP > 1500 then
+                        player.HP = 1500
                     else
-                        player.HP = player.HP + 300
+                        player.HP = player.HP + CONSUMIBLE_HP
                     end
                 end
 
@@ -531,14 +605,25 @@ function stage2.keypressed(key)
         end
 
         if key == inputs.game.carryObject then
-             if player.isCarringObject then
-                    local newObject = player.leaveObject()
-                    local newTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, newObject)
-                    table.insert(collisions, newObject)
-                    table.insert(triggers, newTrigger)
-                    player.isCarringObject = false
-                    return
-             end
+            if not player.isCarringObject then
+                if not player.isThrowing() then
+                    if carryableObject ~= nil and carryableObject.item ~= nil and
+                        carryableObject.item.isCarryable then
+                        carryableObject.onTrigger()
+                        carryableObject = nil
+                    end
+                else
+                    print("no puedes recoger objetos lanzas")
+                end
+            else
+                -- dejar objeto
+                local newObject = player.leaveObject()
+                local newTrigger = trigger.new(nil, nil, nil, nil, true, carryObjectOnTrigger, true, newObject)
+                table.insert(collisions, newObject)
+                table.insert(triggers, newTrigger)
+                player.isCarringObject = false
+            end
+            return
         end
 
         if touchingTrigger then
@@ -566,6 +651,7 @@ function stage2.keypressed(key)
         end
 
         if key == inputs.game.attack then
+            sounds.play(sounds.sound_effects.hit)
             player.attack(enemies)
             player.inventory.wearWeapon(player.getWearLosen())
         end
