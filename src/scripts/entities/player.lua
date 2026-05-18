@@ -48,8 +48,8 @@ local player = {
     isDead = false,
     isCrouching = false,
     armament = {isArmed = false, weaponSelect = "bottle"},
-    HP = 15000,
-    maxHP = 15000,
+    HP = 1500,
+    maxHP = 1500,
     numberAttempts = 3,
     isHurt = false,
     hurtTimer = 0,
@@ -463,7 +463,7 @@ function player.attack(enemies)
                 if not player.isCrouching then
                     --if player.attackCooldownTimer <= 0 then
                         if player.armament.isArmed then
-                                
+
                             if player.armament.weaponSelect == "bottle" then
                                 takeHP(e, 80)
                                 player.attackCooldownTimer = attackDuration[player.armament.weaponSelect]
@@ -485,7 +485,7 @@ function player.attack(enemies)
                                 break
                             end
                         else
-                            takeHP(e, 50)
+                            takeHP(e, 5000)
                             player.attackCooldownTimer = attackDuration["bottle"]
                             break
                         end
