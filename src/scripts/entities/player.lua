@@ -14,6 +14,36 @@ local itemsDefinition = require("src.scripts.systems.itemsDefinition")
 
 local scale = love.graphics.getWidth() / 256
 
+local attackDuration = {
+    bottle = 0.2,
+    knife = 0.3,
+    bat = 0.4,
+    wrench = 0.5
+}
+
+local animations = {
+    walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false),
+    walk_bottle = animation.new("assets/sprites/player/player_walking_bottle.png", 20, 28, 0.25, false),
+    walk_knife = animation.new("assets/sprites/player/player_walking_knife.png", 20, 28, 0.25, false),
+    walk_bat = animation.new("assets/sprites/player/player_walking_bat.png", 23, 28, 0.25, false),
+    walk_wrench = animation.new("assets/sprites/player/player_walking_wrench.png", 23, 28, 0.25, false),
+    run = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.15, false),
+    run_bottle = animation.new("assets/sprites/player/player_run_bottle.png", 28, 28, 0.15, false),
+    run_knife = animation.new("assets/sprites/player/player_run_knife.png", 27, 28, 0.15, false),
+    run_bat = animation.new("assets/sprites/player/player_run_bat.png", 29, 28, 0.15, false),
+    run_wrench = animation.new("assets/sprites/player/player_run_wrench.png", 29, 28, 0.15, false),
+    crouch = animation.new("assets/sprites/player/player_crouch.png", 22, 28, 0.1, true),
+    attack = animation.new("assets/sprites/player/player_attack.png", 31, 31, 0.08, false),
+    attack_bottle = animation.new("assets/sprites/player/player_attack_bottle.png", 31, 31, 0.08, false),
+    attack_knife = animation.new("assets/sprites/player/player_attack_knife.png", 31, 31, 0.08, false),
+    attack_bat = animation.new("assets/sprites/player/player_attack_bat.png", 32, 31, 0.08, false),
+    attack_wrench = animation.new("assets/sprites/player/player_attack_wrench.png", 31, 31, 0.08, false),
+    punch = animation.new("assets/sprites/player/player_punch.png", 24, 28, 0.1, false),
+    walkWileCarry = animation.new("assets/sprites/player/player_walking_while_carring.png", 20, 29, 0.25, false),
+}
+
+local currentAnimation = animations.walk
+
 local wasAttackPressed = false
 local attackTimer = 0
 
@@ -27,6 +57,7 @@ local POWER = 400
 local THROW_ANGLE = 35
 
 local currentProjectile = nil
+local hasImpacted = false
 
 local player = {
     x = 0,
@@ -58,31 +89,7 @@ local player = {
     isCarringObject = false
 }
 
-local attackDuration = {
-    bottle = 0.2,
-    knife = 0.3,
-    bat = 0.4,
-    wrench = 0.5
-}
 
-local animations = {
-    walk = animation.new("assets/sprites/player/player_walking.png", 19, 28, 0.25, false),
-    walk_bottle = animation.new("assets/sprites/player/player_walking_bottle.png", 20, 28, 0.25, false),
-    walk_knife = animation.new("assets/sprites/player/player_walking_knife.png", 20, 28, 0.25, false),
-    walk_bat = animation.new("assets/sprites/player/player_walking_bat.png", 23, 28, 0.25, false),
-    walk_wrench = animation.new("assets/sprites/player/player_walking_wrench.png", 23, 28, 0.25, false),
-    run = animation.new("assets/sprites/player/player_running.png", 21, 28, 0.15, false),
-    crouch = animation.new("assets/sprites/player/player_crouch.png", 22, 28, 0.1, true),
-    attack = animation.new("assets/sprites/player/player_attack.png", 31, 31, attackDuration[player.armament.weaponSelect]/4, false),
-    attack_bottle = animation.new("assets/sprites/player/player_attack_bottle.png", 31, 31, 0.25, false),
-    attack_knife = animation.new("assets/sprites/player/player_attack_knife.png", 31, 31, 0.25, false),
-    attack_bat = animation.new("assets/sprites/player/player_attack_bat.png", 32, 31, 0.25, false),
-    attack_wrench = animation.new("assets/sprites/player/player_attack_wrench.png", 31, 31, 0.25, false),
-    punch = animation.new("assets/sprites/player/player_punch.png", 24, 28, 0.1, false),
-    walkWileCarry = animation.new("assets/sprites/player/player_walking_while_carring.png", 20, 29, 0.25, true),
-}
-
-local currentAnimation = animations.walk
 
 --#region Load, update y draw
 
@@ -96,14 +103,9 @@ function player.load(spawnPoint)
 
 end
 
-local hasImpacted = false
 function player.update(dt, enemies)
 
-    -- Si el temporizador es mayor a 0, le restamos el tiempo transcurrido (dt)
-    if player.attackCooldownTimer and player.attackCooldownTimer > 0 then
-        player.attackCooldownTimer = player.attackCooldownTimer - dt
-    end
-
+    
     --recorre el inventario y evalua si en la casilla selected hay un arma y la coloca al player
     for i = 1, 9 do
         if player.inventory[i].item ~= nil and player.inventory[i].isSelected then
@@ -116,9 +118,9 @@ function player.update(dt, enemies)
             player.armament.isArmed = false
         end
     end
-
+    
     player.inventory.update(dt)
-
+    
     if player.isHurt then
         player.hurtTimer = player.hurtTimer - dt
 
@@ -127,9 +129,15 @@ function player.update(dt, enemies)
             player.hurtTimer = 0
         end
     end
-
+    -- Si el temporizador es mayor a 0, le restamos el tiempo transcurrido (dt)
+    if player.attackCooldownTimer and player.attackCooldownTimer > 0 then
+        player.attackCooldownTimer = player.attackCooldownTimer - dt
+    end
+    
     local oldMoving = player.isMoving
-    if currentAnimation == animations.punch or currentAnimation == animations.attack then
+    if currentAnimation == animations.punch or currentAnimation == animations.attack or
+        currentAnimation == animations.attack_bat or currentAnimation == animations.attack_bottle or
+            currentAnimation == animations.attack_knife or currentAnimation == animations.attack_wrench then
         player.isMoving = true
     end
 
@@ -335,7 +343,7 @@ function player.updateAnimationState(dt)
         if isNormal then
             if isShift then
                 player.speed = 300
-                setAnimation("run")
+                setRunAnimation()
             else
                 player.speed = 150
                 setWalkAnimation()
@@ -429,7 +437,7 @@ end
 
 local function takeHP(e, amountOfHP)
 
-    if amountOfHP > 20 and amountOfHP < 150 then
+    if amountOfHP > 20 and amountOfHP < THROWABLE_ITEM_DAMAGE then
         wearLosen = amountOfHP / 2
     end
 
@@ -440,6 +448,7 @@ local function takeHP(e, amountOfHP)
         e.HP = 0
     end
 end
+
 function player.attack(enemies)
 
     if player.isCarringObject and objectCarried ~= nil then
@@ -631,7 +640,7 @@ function player.hurtEnemiesByDistance(enemies, tr)
     end
     for _, e in ipairs(enemies) do
         if cb.checkInteractionCollision(e, tr) then
-            takeHP(e, 150)
+            takeHP(e, THROWABLE_ITEM_DAMAGE)
         end
     end
 end
@@ -653,7 +662,7 @@ function player.throw(item)
         local objHeight = objectToSave.collisionBox.height
 
         currentProjectile = projectile.new(POWER, THROW_ANGLE, throwX, throwY,
-            player.y + player.height, true, objectToSave.texture, objectToSave.scale, 2560, objWidth, objHeight)
+            player.y + player.height, true, objectToSave.texture, objectToSave.scale, 2560 * scale, objWidth, objHeight)
         if currentProjectile ~= nil then
             currentProjectile.isActive = true
             currentProjectile.throw()
