@@ -176,8 +176,8 @@ function stage4.load()
     --capas del mapa: background, floor, frontground
    layers = {
        {img = love.graphics.newImage("assets/sprites/stage2/mountains2.png"), factor = 0},
-       {img = love.graphics.newImage("assets/sprites/stage3/stage3_background.png"), factor = 0.9},
-       {img = love.graphics.newImage("assets/sprites/stage3/stage3_street.png"), factor = 1.0},
+       {img = love.graphics.newImage("assets/sprites/stage4/stage4_background.png"), factor = 0.9},
+       {img = love.graphics.newImage("assets/sprites/stage4/stage4_street.png"), factor = 1.0},
     }
 
 

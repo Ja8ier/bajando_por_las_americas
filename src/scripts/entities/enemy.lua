@@ -62,10 +62,10 @@ local dimensions = {
     [2] = { walk={40, 60}, heal={57, 62}, die={62, 59}, attack={60, 59}, jabAttack={64, 59}, comboAttack={64, 58}, sweepKick={48, 59}, groundSlam={61, 63}, scale = 0.5 }, --tier2
     [3] = { walk={40, 60}, heal={57, 62}, die={62, 59}, attack={60, 59}, jabAttack={64, 59}, comboAttack={64, 58}, sweepKick={48, 59}, groundSlam={61, 63}, heavySmash={49, 64}, scale = 0.5 }, --tier3
     [4] = { walk={40, 60}, heal={57, 62}, die={62, 59}, attack={60, 59}, jabAttack={64, 59}, comboAttack={64, 58}, sweepKick={48, 59}, groundSlam={61, 63}, heavySmash={49, 64}, scale = 0.5 }, --tier4
-    [5] = {{ walk={41, 61}, attack={63, 56}, heal={59, 64}, die={59, 62}, scale = 0.7 }, --boss1
-            { walk={43, 62}, attack={63, 56}, heal={50, 60}, die={63, 61}, scale = 0.7 }, --boss2
-            { walk={34, 60}, attack={58, 58}, heal={43, 60}, die={61, 55}, scale = 0.7 }, --boss3
-            { walk={41, 61}, attack={63, 56}, heal={59, 64}, die={63, 61}, scale = 0.7 }  --boss4
+    [5] = {{ walk={41, 61}, attack={64, 63}, heal={59, 64}, die={59, 62}, scale = 0.7 }, --boss1
+            { walk={41, 61}, attack={63, 56}, heal={59, 64}, die={59, 62}, scale = 0.7 }, --boss2
+            { walk={41, 61}, attack={63, 56}, heal={59, 64}, die={59, 62}, scale = 0.7 }, --boss3
+            { walk={41, 61}, attack={63, 56}, heal={59, 64}, die={59, 62}, scale = 0.7 }  --boss4
           }
 }
 
@@ -95,7 +95,7 @@ local function chooseTypeMovement(animations, equipment, tier)
 
         elseif NextBossWeaponIndex == 2 then
             animations.walk = animation.new("assets/sprites/enemies/boss2/boss2_walk.png", 43, 62, 0.25, false)
-            animations.attack = animation.new("assets/sprites/enemies/boss2/boss2_attack.png", 63, 56, 0.1, false)
+            animations.attack = animation.new("assets/sprites/enemies/boss2/boss2_attack.png", 64, 63, 0.1, false)
             animations.heal = animation.new("assets/sprites/enemies/boss2/boss2_health.png", 50, 60, 0.25, false)
             animations.die = animation.new("assets/sprites/enemies/boss2/boss2_dead.png", 63, 61, 0.25, false)
 
@@ -159,7 +159,7 @@ end
 function Enemy.new(tier, _x, _y)
 
     if NextBossWeaponIndex > 4 then NextBossWeaponIndex = 1 end
-
+    
     local equipment
     if tier ~= 5 then
         equipment = getRandomWeaponForEnemy(tier)
