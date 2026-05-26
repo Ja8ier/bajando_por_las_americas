@@ -659,9 +659,15 @@ function stage1.keypressed(key)
         end
 
         if key == inputs.game.attack then
-            sounds.play(sounds.sound_effects.hit)
             player.attack(enemies)
             player.inventory.wearWeapon(player.getWearLosen())
+            if player.attacking then
+                sounds.play(sounds.sound_effects.hit)
+            else
+                if not player.isCrouching then
+                    sounds.play(sounds.sound_effects.swish)
+                end
+            end
         end
 
         player.inventory.keypressed(key)

@@ -307,9 +307,9 @@ function game.mousereleased(x, y)
     if game.isPaused or game.isWin then
         if (x > exitGame.x + (exitGame.w - 250)/2 and x < exitGame.x + (exitGame.w - 250)/2 + 250) and
             (y > exitGame.y + 165 + factor + (exitGame.h - 50)/2 and y < exitGame.y + 215 + factor + (exitGame.h - 50)/2) then
-            
+
             -- aqui va la logica para guardar datos (seguir este orden de lineas de codigo)
-            saveCurrentGame()
+            --saveCurrentGame()
             game.restartStage()
             Change_state(require("src.scripts.states.menu"))
         end

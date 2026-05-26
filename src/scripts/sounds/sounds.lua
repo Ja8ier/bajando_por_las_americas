@@ -6,7 +6,8 @@ local sounds = {
     sound_effects = {
         walk = love.audio.newSource("assets/sounds/walkingDefinitive.mp3", "static"),
         run = love.audio.newSource("assets/sounds/runningDefinitive.mp3", "static"),
-        hit = love.audio.newSource("assets/sounds/golpesound.mpeg", "static")
+        hit = love.audio.newSource("assets/sounds/golpesound.mpeg", "static"),
+        swish = love.audio.newSource("assets/sounds/swish.wav", "static")
     },
 
     cutscene_sounds = {}
